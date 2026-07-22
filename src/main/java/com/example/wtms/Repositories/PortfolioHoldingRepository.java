@@ -11,7 +11,7 @@ public interface PortfolioHoldingRepository extends JpaRepository<PortfolioHoldi
 
     List<PortfolioHolding> findByPortfolioAccountPortfolioAccountId(Long portfolioAccountId);
 
-    List<PortfolioHolding> findByProduct_ProductType_ProductTypeId(Long productTypeId);
+    List<PortfolioHolding> findByProductProductTypeId(Long productTypeId);
 
     List<PortfolioHolding> findByPortfolioAccountPortfolioAccountIdAndHoldingStatus(
             Long portfolioAccountId,
