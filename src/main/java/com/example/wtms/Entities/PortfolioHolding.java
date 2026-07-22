@@ -1,18 +1,12 @@
 package com.example.wtms.Entities;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "portfolio_holding")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "PORTFOLIO_HOLDINGS")
 public class PortfolioHolding {
 
     @Id
@@ -25,8 +19,8 @@ public class PortfolioHolding {
     private PortfolioAccount portfolioAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private InvestmentProduct product;
+    @JoinColumn(name = "product_type_id", nullable = false)
+    private ProductType product;
 
     @Column(name = "quantity", precision = 19, scale = 4)
     private BigDecimal quantity;
@@ -48,4 +42,87 @@ public class PortfolioHolding {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public PortfolioHolding() {
+    }
+
+    public Long getHoldingId() {
+        return holdingId;
+    }
+
+    public void setHoldingId(Long holdingId) {
+        this.holdingId = holdingId;
+    }
+
+    public PortfolioAccount getPortfolioAccount() {
+        return portfolioAccount;
+    }
+
+    public void setPortfolioAccount(PortfolioAccount portfolioAccount) {
+        this.portfolioAccount = portfolioAccount;
+    }
+
+    public ProductType getProduct() {
+        return product;
+    }
+
+    public void setProduct(ProductType product) {
+        this.product = product;
+    }
+
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity = quantity;
+    }
+
+    public BigDecimal getAverageCost() {
+        return averageCost;
+    }
+
+    public void setAverageCost(BigDecimal averageCost) {
+        this.averageCost = averageCost;
+    }
+
+    public BigDecimal getMarketValue() {
+        return marketValue;
+    }
+
+    public void setMarketValue(BigDecimal marketValue) {
+        this.marketValue = marketValue;
+    }
+
+    public String getHoldingStatus() {
+        return holdingStatus;
+    }
+
+    public void setHoldingStatus(String holdingStatus) {
+        this.holdingStatus = holdingStatus;
+    }
+
+    public LocalDateTime getLastValuedAt() {
+        return lastValuedAt;
+    }
+
+    public void setLastValuedAt(LocalDateTime lastValuedAt) {
+        this.lastValuedAt = lastValuedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
