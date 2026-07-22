@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "PORTFOLIO_ACCOUNT")
+@Table(name = "portfolio_account")
 public class PortfolioAccount {
 
     @Id
