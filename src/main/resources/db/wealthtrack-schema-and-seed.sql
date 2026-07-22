@@ -1,8 +1,7 @@
--- WealthTrack schema and seed data for MySQL 8+.
--- This is safe to rerun only when the existing tables already match this schema.
--- For an older or inconsistent training schema, run wealthtrack-reset.sql first,
--- then run this file. Do not remove ID or timestamp columns from the inserts:
--- they are required by the Java entity mappings.
+-- WealthTrack master schema and seed script for MySQL 8+.
+-- WARNING: This file drops the existing WealthTrack tables in `mydb`, then
+-- recreates and seeds them. Do not remove ID or timestamp columns from the
+-- inserts: they are required by the Java entity mappings.
 CREATE DATABASE IF NOT EXISTS mydb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE mydb;
 
@@ -36,7 +35,7 @@ CREATE TABLE IF NOT EXISTS user (
                                     password_hash VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     full_name VARCHAR(255) NOT NULL,
-    phone VARCHAR(30), status VARCHAR(30),
+    phone VARCHAR(255), status VARCHAR(255),
     created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_user_manager FOREIGN KEY (manager_id) REFERENCES user(user_id),
     CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES role(role_id)
@@ -45,7 +44,7 @@ CREATE TABLE IF NOT EXISTS user (
 CREATE TABLE IF NOT EXISTS user_detail (
                                            user_detail_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                            user_id BIGINT NOT NULL UNIQUE,
-                                           date_of_birth DATE, risk_level VARCHAR(30), risk_score INT, kyc_status VARCHAR(30),
+                                           date_of_birth DATE, risk_level VARCHAR(255), risk_score INT, kyc_status VARCHAR(255),
     created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_user_detail_user FOREIGN KEY (user_id) REFERENCES user(user_id)
     ) ENGINE=InnoDB;
@@ -53,40 +52,40 @@ CREATE TABLE IF NOT EXISTS user_detail (
 CREATE TABLE IF NOT EXISTS kyc_document (
                                             kyc_document_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                             user_id BIGINT NOT NULL,
-                                            document_type VARCHAR(50) NOT NULL, document_number VARCHAR(100) NOT NULL UNIQUE,
-    file_name VARCHAR(255), verification_status VARCHAR(30), submitted_date DATE, verified_date DATE,
-    status VARCHAR(30), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+    document_type VARCHAR(255) NOT NULL, document_number VARCHAR(255) NOT NULL UNIQUE,
+    file_name VARCHAR(255), verification_status VARCHAR(255), submitted_date DATE, verified_date DATE,
+    status VARCHAR(255), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_kyc_document_user FOREIGN KEY (user_id) REFERENCES user(user_id)
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS bank_account (
                                             bank_account_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                            user_id BIGINT NOT NULL, bank_name VARCHAR(100) NOT NULL, branch_name VARCHAR(100),
-    account_number VARCHAR(50) NOT NULL UNIQUE, account_type VARCHAR(30), ifsc_code VARCHAR(20),
+                                         user_id BIGINT NOT NULL, bank_name VARCHAR(255) NOT NULL, branch_name VARCHAR(255),
+    account_number VARCHAR(255) NOT NULL UNIQUE, account_type VARCHAR(255), ifsc_code VARCHAR(255),
     balance DECIMAL(19,2) NOT NULL DEFAULT 0.00, is_primary BOOLEAN NOT NULL DEFAULT FALSE,
-    status VARCHAR(30), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+    status VARCHAR(255), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_bank_account_user FOREIGN KEY (user_id) REFERENCES user(user_id)
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS product_type (
                                             product_type_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                            type_code VARCHAR(30) NOT NULL UNIQUE, type_name VARCHAR(100) NOT NULL,
-    description VARCHAR(500), status VARCHAR(30), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL
+                                        type_code VARCHAR(255) NOT NULL UNIQUE, type_name VARCHAR(255) NOT NULL,
+    description VARCHAR(255), status VARCHAR(255), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS investment_product (
                                                   product_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                                   product_type_id BIGINT NOT NULL, product_name VARCHAR(255) NOT NULL UNIQUE,
-    base_price DECIMAL(19,2), current_price DECIMAL(19,2), minimum_investment DECIMAL(19,2),
-    risk_category VARCHAR(30), price_method VARCHAR(50), tenure_months INT, interest_rate DECIMAL(7,4),
-    issue_date DATE, maturity_date DATE, status VARCHAR(30), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+    base_price DECIMAL(38,2), current_price DECIMAL(38,2), minimum_investment DECIMAL(38,2),
+    risk_category VARCHAR(255), price_method VARCHAR(255), tenure_months INT, interest_rate DECIMAL(38,2),
+    issue_date DATE, maturity_date DATE, status VARCHAR(255), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_investment_product_product_type FOREIGN KEY (product_type_id) REFERENCES product_type(product_type_id)
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS portfolio_account (
                                                  portfolio_account_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                                 user_id BIGINT NOT NULL UNIQUE, account_status VARCHAR(30), opened_date DATE, closed_date DATE,
-    status VARCHAR(30), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+                                                 user_id BIGINT NOT NULL UNIQUE, account_status VARCHAR(255), opened_date DATE, closed_date DATE,
+    status VARCHAR(255), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_portfolio_account_user FOREIGN KEY (user_id) REFERENCES user(user_id)
     ) ENGINE=InnoDB;
 
@@ -94,7 +93,7 @@ CREATE TABLE IF NOT EXISTS portfolio_holding (
                                                  holding_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                                  portfolio_account_id BIGINT NOT NULL, product_id BIGINT NOT NULL,
                                                  quantity DECIMAL(19,4), average_cost DECIMAL(19,2), market_value DECIMAL(19,2),
-    holding_status VARCHAR(30), last_valued_at DATETIME, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+    holding_status VARCHAR(255), last_valued_at DATETIME, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     UNIQUE KEY uk_holding_account_product (portfolio_account_id, product_id),
     CONSTRAINT fk_holding_account FOREIGN KEY (portfolio_account_id) REFERENCES portfolio_account(portfolio_account_id),
     CONSTRAINT fk_holding_product FOREIGN KEY (product_id) REFERENCES investment_product(product_id)
@@ -103,8 +102,8 @@ CREATE TABLE IF NOT EXISTS portfolio_holding (
 CREATE TABLE IF NOT EXISTS trade_transaction (
                                                  transaction_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                                  portfolio_account_id BIGINT NOT NULL, holding_id BIGINT NOT NULL, product_id BIGINT NOT NULL,
-                                                 transaction_type VARCHAR(20), quantity DECIMAL(18,2), unit_price DECIMAL(18,2), total_amount DECIMAL(18,2),
-    transaction_status VARCHAR(30), transaction_date DATETIME, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+                                                 transaction_type VARCHAR(255), quantity DECIMAL(18,2), unit_price DECIMAL(18,2), total_amount DECIMAL(18,2),
+    transaction_status VARCHAR(255), transaction_date DATETIME, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_trade_account FOREIGN KEY (portfolio_account_id) REFERENCES portfolio_account(portfolio_account_id),
     CONSTRAINT fk_trade_holding FOREIGN KEY (holding_id) REFERENCES portfolio_holding(holding_id),
     CONSTRAINT fk_trade_product FOREIGN KEY (product_id) REFERENCES investment_product(product_id)
@@ -114,7 +113,7 @@ CREATE TABLE IF NOT EXISTS portfolio_statement (
                                                    statement_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                                    portfolio_account_id BIGINT NOT NULL, holding_id BIGINT NOT NULL, transaction_id BIGINT NOT NULL,
                                                    statement_start DATE, statement_end DATE, opening_value DECIMAL(18,2), closing_value DECIMAL(18,2),
-    generated_at DATETIME, status VARCHAR(30), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
+    generated_at DATETIME, status VARCHAR(255), created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     CONSTRAINT fk_statement_account FOREIGN KEY (portfolio_account_id) REFERENCES portfolio_account(portfolio_account_id),
     CONSTRAINT fk_statement_holding FOREIGN KEY (holding_id) REFERENCES portfolio_holding(holding_id),
     CONSTRAINT fk_statement_transaction FOREIGN KEY (transaction_id) REFERENCES trade_transaction(transaction_id)
