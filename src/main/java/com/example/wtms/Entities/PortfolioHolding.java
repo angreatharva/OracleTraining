@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PORTFOLIO_HOLDINGS")
+@Table(name = "portfolio_holding")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,7 +26,7 @@ public class PortfolioHolding {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private ProductType product;
+    private InvestmentProduct product;
 
     @Column(name = "quantity", precision = 19, scale = 4)
     private BigDecimal quantity;

@@ -1,18 +1,18 @@
 package com.example.wtms.Repositories;
 
 
-import com.example.wtms.Entities.UserDetails;
+import com.example.wtms.Entities.UserDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> {
+public interface UserDetailsRepository extends JpaRepository<UserDetail, Long> {
 
-    Optional<UserDetails> findByUser_UserId(Long userId);
+    Optional<UserDetail> findByUser_UserId(Long userId);
 
-    Optional<UserDetails> findByKycStatus(String kycStatus);
+    Optional<UserDetail> findByKycStatus(String kycStatus);
 
-    Optional<UserDetails> findByRiskLevel(String riskLevel);
+    Optional<UserDetail> findByRiskLevel(String riskLevel);
 }

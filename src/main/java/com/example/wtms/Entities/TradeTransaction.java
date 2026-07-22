@@ -57,11 +57,6 @@ public class TradeTransaction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "statement_transaction",
-            joinColumns = @JoinColumn(name = "statement_id"),
-            inverseJoinColumns = @JoinColumn(name = "transaction_id")
-    )
-    private List<TradeTransaction> transactions;
+    @ManyToMany(mappedBy = "transactions", fetch = FetchType.LAZY)
+    private List<PortfolioStatement> portfolioStatements;
 }
