@@ -1,6 +1,17 @@
 package com.example.wtms.Entities;
 
-import jakarta.persistence.*;
+import com.example.wtms.Entities.InvestmentProduct;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,19 +46,31 @@ public class ProductType {
 
     @OneToMany(
             mappedBy = "productType",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
     )
     private List<InvestmentProduct> investmentProducts = new ArrayList<>();
 
     public ProductType() {
     }
 
+    public ProductType(
+            String typeCode,
+            String typeName,
+            String description,
+            String status
+    ) {
+        this.typeCode = typeCode;
+        this.typeName = typeName;
+        this.description = description;
+        this.status = status;
+    }
+
     @PrePersist
     protected void onCreate() {
-        LocalDateTime currentTime = LocalDateTime.now();
-        this.createdAt = currentTime;
-        this.updatedAt = currentTime;
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     @PreUpdate
@@ -55,12 +78,16 @@ public class ProductType {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void addInvestmentProduct(InvestmentProduct investmentProduct) {
+    public void addInvestmentProduct(
+            InvestmentProduct investmentProduct
+    ) {
         investmentProducts.add(investmentProduct);
         investmentProduct.setProductType(this);
     }
 
-    public void removeInvestmentProduct(InvestmentProduct investmentProduct) {
+    public void removeInvestmentProduct(
+            InvestmentProduct investmentProduct
+    ) {
         investmentProducts.remove(investmentProduct);
         investmentProduct.setProductType(null);
     }
@@ -109,8 +136,16 @@ public class ProductType {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<InvestmentProduct> getInvestmentProducts() {
@@ -118,7 +153,8 @@ public class ProductType {
     }
 
     public void setInvestmentProducts(
-            List<InvestmentProduct> investmentProducts) {
+            List<InvestmentProduct> investmentProducts
+    ) {
         this.investmentProducts = investmentProducts;
     }
 }

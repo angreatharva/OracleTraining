@@ -6,6 +6,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "portfolio_statement")
@@ -27,7 +28,7 @@ public class PortfolioStatement {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "holding_id", nullable = false)
-    private Holding holding;
+    private PortfolioHolding holding;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_id", nullable = false)

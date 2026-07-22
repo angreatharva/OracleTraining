@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "trade_transaction")
@@ -26,11 +27,11 @@ public class TradeTransaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "holding_id", nullable = false)
-    private Holding holding;
+    private PortfolioHolding holding;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    private InvestmentProduct product;
 
     @Column(name = "transaction_type")
     private String transactionType;

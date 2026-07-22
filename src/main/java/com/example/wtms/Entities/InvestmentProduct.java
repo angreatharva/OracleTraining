@@ -1,6 +1,17 @@
 package com.example.wtms.Entities;
-
-import jakarta.persistence.*;
+import com.example.wtms.Entities.ProductType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,7 +30,9 @@ public class InvestmentProduct {
     @JoinColumn(
             name = "product_type_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_investment_product_type")
+            foreignKey = @ForeignKey(
+                    name = "fk_investment_product_product_type"
+            )
     )
     private ProductType productType;
 
@@ -65,11 +78,39 @@ public class InvestmentProduct {
     public InvestmentProduct() {
     }
 
+    public InvestmentProduct(
+            ProductType productType,
+            String productName,
+            BigDecimal basePrice,
+            BigDecimal currentPrice,
+            BigDecimal minimumInvestment,
+            String riskCategory,
+            String priceMethod,
+            Integer tenureMonths,
+            BigDecimal interestRate,
+            LocalDate issueDate,
+            LocalDate maturityDate,
+            String status
+    ) {
+        this.productType = productType;
+        this.productName = productName;
+        this.basePrice = basePrice;
+        this.currentPrice = currentPrice;
+        this.minimumInvestment = minimumInvestment;
+        this.riskCategory = riskCategory;
+        this.priceMethod = priceMethod;
+        this.tenureMonths = tenureMonths;
+        this.interestRate = interestRate;
+        this.issueDate = issueDate;
+        this.maturityDate = maturityDate;
+        this.status = status;
+    }
+
     @PrePersist
     protected void onCreate() {
-        LocalDateTime currentTime = LocalDateTime.now();
-        this.createdAt = currentTime;
-        this.updatedAt = currentTime;
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     @PreUpdate
@@ -121,7 +162,9 @@ public class InvestmentProduct {
         return minimumInvestment;
     }
 
-    public void setMinimumInvestment(BigDecimal minimumInvestment) {
+    public void setMinimumInvestment(
+            BigDecimal minimumInvestment
+    ) {
         this.minimumInvestment = minimumInvestment;
     }
 
@@ -185,7 +228,16 @@ public class InvestmentProduct {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
 }
