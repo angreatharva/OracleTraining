@@ -1,63 +1,60 @@
 package com.example.wtms.Entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name="User")
+@Table(name = "USERS")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    Integer user_id;
-    @Column(name = "username")
-    String username;
-    @Column(name = "email")
-    String email;
-    @Column(name = "password_hash")
-    String password_hash;
+    private Long userId;
 
-    public User() {
-        System.out.println("Empty User Constructor");
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id")
+    private User manager;
 
-    public User(Integer user_id, String username, String email, String password_hash) {
-        this.user_id = user_id;
-        this.username = username;
-        this.email = email;
-        this.password_hash = password_hash;
-    }
+    @OneToMany(mappedBy = "manager")
+    private List<User> subordinates = new ArrayList<>();
 
-    public Integer getUser_id() {
-        return user_id;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-    public void setUser_id(Integer user_id) {
-        this.user_id = user_id;
-    }
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    public String getUsername() {
-        return username;
-    }
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
 
-    public String getEmail() {
-        return email;
-    }
+    @Column(name = "phone")
+    private String phone;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @Column(name = "status")
+    private String status;
 
-    public String getPassword_hash() {
-        return password_hash;
-    }
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    public void setPassword_hash(String password_hash) {
-        this.password_hash = password_hash;
-    }
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @OneToOne(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
+    private UserDetails userDetails;
 }
