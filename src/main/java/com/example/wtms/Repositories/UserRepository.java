@@ -1,5 +1,6 @@
 package com.example.wtms.Repositories;
 
+import com.example.wtms.Entities.Role;
 import com.example.wtms.Entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByManager_UserId(Long managerId);
 
     List<User> findByRole_RoleId(Long roleId);
+
+    boolean existsByRole(Role role);
 }
