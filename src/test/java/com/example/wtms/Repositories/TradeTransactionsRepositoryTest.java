@@ -1,6 +1,7 @@
 package com.example.wtms.Repositories;
 
 import com.example.wtms.Entities.TradeTransaction;
+import com.example.wtms.Exceptions.TradeTransactionNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,12 @@ class TradeTransactionRepositoryTest {
     @Autowired
     private TradeTransactionRepository repository;
 
+    // Helper method used only for testing exception flow
+    private TradeTransaction getTransactionOrThrow(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new TradeTransactionNotFoundException(id));
+    }
+
     @Test
     @DisplayName("Find transaction by ID")
     void testFindById() {
@@ -36,6 +43,24 @@ class TradeTransactionRepositoryTest {
 
         assertEquals("BUY", transaction.get().getTransactionType());
         assertEquals("COMPLETED", transaction.get().getTransactionStatus());
+    }
+
+    @Test
+    @DisplayName("Throw exception when transaction is not found")
+    void testTransactionNotFoundException() {
+        System.out.println("---- Test: Transaction not found exception ----");
+
+        Long invalidId = 9999L;
+
+        TradeTransactionNotFoundException exception = assertThrows(
+                TradeTransactionNotFoundException.class,
+                () -> getTransactionOrThrow(invalidId)
+        );
+
+        System.out.println("Exception thrown successfully");
+        System.out.println("Message: " + exception.getMessage());
+
+        assertEquals("Trade Transaction not found with id: " + invalidId, exception.getMessage());
     }
 
     @Test
