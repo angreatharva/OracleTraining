@@ -1,7 +1,6 @@
 package com.example.wtms.Entities;
 
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -15,8 +14,9 @@ public class BankAccount {
     @Column(name = "bank_account_id")
     private Long bankAccountId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "bank_name", nullable = false)
     private String bankName;
@@ -33,10 +33,6 @@ public class BankAccount {
     @Column(name = "ifsc_code")
     private String ifscCode;
 
-    /*
-     * Precision and scale were not visible in the diagram.
-     * Change these values to match your actual database definition.
-     */
     @Column(name = "balance", precision = 19, scale = 2)
     private BigDecimal balance;
 
@@ -87,12 +83,12 @@ public class BankAccount {
         this.bankAccountId = bankAccountId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getBankName() {
@@ -172,13 +168,10 @@ public class BankAccount {
         if (this == object) {
             return true;
         }
-
         if (!(object instanceof BankAccount that)) {
             return false;
         }
-
-        return bankAccountId != null
-                && Objects.equals(bankAccountId, that.bankAccountId);
+        return bankAccountId != null && Objects.equals(bankAccountId, that.bankAccountId);
     }
 
     @Override

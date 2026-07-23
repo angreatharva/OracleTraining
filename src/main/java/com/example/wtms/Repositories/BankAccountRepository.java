@@ -1,25 +1,28 @@
 package com.example.wtms.Repositories;
 
-
 import com.example.wtms.Entities.BankAccount;
+import com.example.wtms.Entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface BankAccountRepository
-        extends JpaRepository<BankAccount, Long> {
+@Repository
+public interface BankAccountRepository extends JpaRepository<BankAccount, Long> {
 
-    List<BankAccount> findByUserId(Long userId);
+    List<BankAccount> findByUser(User user);
 
-    List<BankAccount> findByUserIdAndStatus(
-            Long userId,
-            String status
-    );
+    List<BankAccount> findByUser_UserId(Long userId);
 
-    Optional<BankAccount> findByAccountNumber(String accountNumber);
+    List<BankAccount> findByStatus(String status);
 
-    Optional<BankAccount> findByUserIdAndPrimaryAccountTrue(Long userId);
+    List<BankAccount> findByBankName(String bankName);
+
+    List<BankAccount> findByAccountType(String accountType);
+
+    List<BankAccount> findByUser_UserIdAndPrimaryAccountTrue(Long userId);
 
     boolean existsByAccountNumber(String accountNumber);
+
+    boolean existsByAccountNumberAndIfscCode(String accountNumber, String ifscCode);
 }
