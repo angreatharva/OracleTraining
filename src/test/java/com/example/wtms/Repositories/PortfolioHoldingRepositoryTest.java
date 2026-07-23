@@ -8,15 +8,18 @@ import com.example.wtms.Entities.PortfolioHolding;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PortfolioHoldingRepositoryTest {
 
     @Autowired
@@ -38,12 +41,12 @@ class PortfolioHoldingRepositoryTest {
     void testFindByPortfolioAccountPortfolioAccountId() {
 
         Role role = new Role();
-        role.setRoleName("INVESTOR");
+        role.setRoleName("HOLDING_ROLE_" + UUID.randomUUID().toString().substring(0, 8));
         role = roleRepository.save(role);
 
         User user = new User();
         user.setFullName("John Doe");
-        user.setEmail("john@example.com");
+        user.setEmail("john." + UUID.randomUUID().toString().substring(0, 8) + "@example.com");
         user.setPasswordHash("password");
         user.setPhone("9876543210");
         user.setStatus("ACTIVE");
@@ -62,7 +65,7 @@ class PortfolioHoldingRepositoryTest {
         account = portfolioAccountRepository.save(account);
 
         ProductType product = new ProductType();
-        product.setTypeCode("MF");
+        product.setTypeCode("MF_" + UUID.randomUUID().toString().substring(0, 8));
         product.setTypeName("Mutual Fund");
         product.setDescription("Mutual Fund");
         product.setStatus("ACTIVE");
@@ -96,12 +99,12 @@ class PortfolioHoldingRepositoryTest {
     void testFindByProductProductTypeId() {
 
         Role role = new Role();
-        role.setRoleName("INVESTOR");
+        role.setRoleName("HOLDING_ROLE_" + UUID.randomUUID().toString().substring(0, 8));
         role = roleRepository.save(role);
 
         User user = new User();
         user.setFullName("Jane Doe");
-        user.setEmail("jane@example.com");
+        user.setEmail("jane." + UUID.randomUUID().toString().substring(0, 8) + "@example.com");
         user.setPasswordHash("password");
         user.setPhone("9876543211");
         user.setStatus("ACTIVE");
@@ -120,7 +123,7 @@ class PortfolioHoldingRepositoryTest {
         account = portfolioAccountRepository.save(account);
 
         ProductType product = new ProductType();
-        product.setTypeCode("EQ");
+        product.setTypeCode("EQ_" + UUID.randomUUID().toString().substring(0, 8));
         product.setTypeName("Equity");
         product.setDescription("Equity Product");
         product.setStatus("ACTIVE");

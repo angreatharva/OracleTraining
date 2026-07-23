@@ -57,4 +57,18 @@ public class User {
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
     private UserDetail userDetails;
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = now;
+        }
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

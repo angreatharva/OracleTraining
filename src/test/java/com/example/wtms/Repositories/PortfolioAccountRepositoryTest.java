@@ -6,12 +6,15 @@ import com.example.wtms.Entities.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PortfolioAccountRepositoryTest {
 
     @Autowired
@@ -26,12 +29,12 @@ class PortfolioAccountRepositoryTest {
     @Test
     void testFindByUser() {
         Role role = new Role();
-        role.setRoleName("USER");
+        role.setRoleName("PORTFOLIO_ROLE_" + UUID.randomUUID().toString().substring(0, 8));
         role = roleRepository.save(role);
 
         User user = new User();
         user.setFullName("Anjali");
-        user.setEmail("anjali@test.com");
+        user.setEmail("anjali." + UUID.randomUUID().toString().substring(0, 8) + "@test.com");
         user.setPasswordHash("123");
         user.setRole(role);
         user = userRepository.save(user);
@@ -52,12 +55,12 @@ class PortfolioAccountRepositoryTest {
     @Test
     void testExistsByUserUserId() {
         Role role = new Role();
-        role.setRoleName("ADMIN");
+        role.setRoleName("PORTFOLIO_ROLE_" + UUID.randomUUID().toString().substring(0, 8));
         role = roleRepository.save(role);
 
         User user = new User();
         user.setFullName("Test");
-        user.setEmail("test@test.com");
+        user.setEmail("test." + UUID.randomUUID().toString().substring(0, 8) + "@test.com");
         user.setPasswordHash("123");
         user.setRole(role);
         user = userRepository.save(user);

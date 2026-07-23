@@ -1,6 +1,5 @@
 package com.example.wtms.Entities;
 
-
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,8 +14,9 @@ public class KycDocument {
     @Column(name = "kyc_document_id")
     private Long kycDocumentId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "document_type", nullable = false)
     private String documentType;
@@ -76,12 +76,12 @@ public class KycDocument {
         this.kycDocumentId = kycDocumentId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getDocumentType() {
@@ -153,13 +153,10 @@ public class KycDocument {
         if (this == object) {
             return true;
         }
-
         if (!(object instanceof KycDocument that)) {
             return false;
         }
-
-        return kycDocumentId != null
-                && Objects.equals(kycDocumentId, that.kycDocumentId);
+        return kycDocumentId != null && Objects.equals(kycDocumentId, that.kycDocumentId);
     }
 
     @Override

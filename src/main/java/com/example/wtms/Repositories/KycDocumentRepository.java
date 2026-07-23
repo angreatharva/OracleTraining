@@ -1,28 +1,28 @@
 package com.example.wtms.Repositories;
 
-
 import com.example.wtms.Entities.KycDocument;
+import com.example.wtms.Entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface KycDocumentRepository
-        extends JpaRepository<KycDocument, Long> {
+@Repository
+public interface KycDocumentRepository extends JpaRepository<KycDocument, Long> {
 
-    List<KycDocument> findByUserId(Long userId);
+    List<KycDocument> findByUser(User user);
 
-    List<KycDocument> findByUserIdAndVerificationStatus(
-            Long userId,
-            String verificationStatus
-    );
+    List<KycDocument> findByUser_UserId(Long userId);
 
-    Optional<KycDocument> findByDocumentNumber(String documentNumber);
+    List<KycDocument> findByStatus(String status);
 
-    Optional<KycDocument> findByUserIdAndDocumentType(
-            Long userId,
-            String documentType
-    );
+    List<KycDocument> findByVerificationStatus(String verificationStatus);
+
+    List<KycDocument> findByDocumentType(String documentType);
+
+    List<KycDocument> findByUser_UserIdAndDocumentType(Long userId, String documentType);
 
     boolean existsByDocumentNumber(String documentNumber);
+
+    boolean existsByUser_UserIdAndDocumentType(Long userId, String documentType);
 }

@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS portfolio_holding (
     holding_status VARCHAR(255), last_valued_at DATETIME, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL,
     UNIQUE KEY uk_holding_account_product (portfolio_account_id, product_id),
     CONSTRAINT fk_holding_account FOREIGN KEY (portfolio_account_id) REFERENCES portfolio_account(portfolio_account_id),
-    CONSTRAINT fk_holding_product FOREIGN KEY (product_id) REFERENCES investment_product(product_id)
+    CONSTRAINT fk_holding_product FOREIGN KEY (product_id) REFERENCES product_type(product_type_id)
     ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS trade_transaction (

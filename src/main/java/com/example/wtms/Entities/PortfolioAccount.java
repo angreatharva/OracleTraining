@@ -47,6 +47,20 @@ public class PortfolioAccount {
     public PortfolioAccount() {
     }
 
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt == null) {
+            createdAt = now;
+        }
+        updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
     public Long getPortfolioAccountId() {
         return portfolioAccountId;
     }
