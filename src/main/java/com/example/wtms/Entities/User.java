@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "`user`")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -56,5 +56,5 @@ public class User {
     @OneToOne(mappedBy = "user",
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY)
-    private UserDetails userDetails;
+    private UserDetail userDetails;
 }

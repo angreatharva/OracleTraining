@@ -2,11 +2,9 @@ package com.example.wtms.Repositories;
 
 import com.example.wtms.Entities.TradeTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface TradeTransactionRepository extends JpaRepository<TradeTransaction, Long> {
 
     List<TradeTransaction> findByTransactionStatus(String transactionStatus);
