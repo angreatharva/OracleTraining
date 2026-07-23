@@ -8,11 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-<<<<<<< HEAD
-@Table(name = "PORTFOLIO_ACCOUNT")
-=======
 @Table(name = "portfolio_account")
->>>>>>> 35395d4a1e09f485edf723da9ce16a22f64429e1
 public class PortfolioAccount {
 
     @Id
@@ -122,8 +118,4 @@ public class PortfolioAccount {
     public void setHoldings(List<PortfolioHolding> holdings) {
         this.holdings = holdings;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 35395d4a1e09f485edf723da9ce16a22f64429e1

@@ -6,11 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-<<<<<<< HEAD
-@Table(name = "PORTFOLIO_HOLDINGS")
-=======
 @Table(name = "portfolio_holding")
->>>>>>> 35395d4a1e09f485edf723da9ce16a22f64429e1
 public class PortfolioHolding {
 
     @Id
@@ -23,7 +19,7 @@ public class PortfolioHolding {
     private PortfolioAccount portfolioAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_type_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private ProductType product;
 
     @Column(name = "quantity", precision = 19, scale = 4)
@@ -129,8 +125,5 @@ public class PortfolioHolding {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 35395d4a1e09f485edf723da9ce16a22f64429e1
+

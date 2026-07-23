@@ -9,8 +9,11 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
@@ -46,6 +49,79 @@ class InvestmentProductRepositoryTest {
         );
     }
 
+    @Test
+    void createInvestmentProduct() {
+        ProductType productType = createProductType("TEST_CREATE_PRODUCT");
+
+        InvestmentProduct savedProduct = investmentProductRepository.saveAndFlush(product(
+                productType, "Test Create Product", "ACTIVE", "MODERATE", "NAV"
+        ));
+
+        assertNotNull(savedProduct.getProductId());
+        assertEquals("Test Create Product", savedProduct.getProductName());
+    }
+
+    @Test
+    void readAllInvestmentProducts() {
+        long countBeforeCreate = investmentProductRepository.count();
+        ProductType productType = createProductType("TEST_READ_ALL_PRODUCT");
+        InvestmentProduct savedProduct = investmentProductRepository.saveAndFlush(product(
+                productType, "Test Read All Product", "ACTIVE", "MODERATE", "NAV"
+        ));
+
+        List<InvestmentProduct> products = investmentProductRepository.findAll();
+
+        assertEquals(countBeforeCreate + 1, products.size());
+        assertTrue(products.stream().anyMatch(product -> product
+                .getProductId().equals(savedProduct.getProductId())));
+    }
+
+    @Test
+    void readInvestmentProductById() {
+        ProductType productType = createProductType("TEST_READ_PRODUCT_ID");
+        InvestmentProduct savedProduct = investmentProductRepository.saveAndFlush(product(
+                productType, "Test Read Product By Id", "ACTIVE", "MODERATE", "NAV"
+        ));
+
+        InvestmentProduct foundProduct = investmentProductRepository
+                .findById(savedProduct.getProductId())
+                .orElseThrow();
+
+        assertEquals("Test Read Product By Id", foundProduct.getProductName());
+    }
+
+    @Test
+    void updateInvestmentProduct() {
+        ProductType productType = createProductType("TEST_UPDATE_PRODUCT");
+        InvestmentProduct savedProduct = investmentProductRepository.saveAndFlush(product(
+                productType, "Original Product Name", "INACTIVE", "LOW", "FIXED"
+        ));
+        savedProduct.setProductName("Updated Product Name");
+        savedProduct.setCurrentPrice(new BigDecimal("150.00"));
+        savedProduct.setStatus("ACTIVE");
+        investmentProductRepository.saveAndFlush(savedProduct);
+
+        InvestmentProduct foundProduct = investmentProductRepository
+                .findById(savedProduct.getProductId())
+                .orElseThrow();
+
+        assertEquals("Updated Product Name", foundProduct.getProductName());
+        assertEquals(new BigDecimal("150.00"), foundProduct.getCurrentPrice());
+        assertEquals("ACTIVE", foundProduct.getStatus());
+    }
+
+    @Test
+    void deleteInvestmentProduct() {
+        ProductType productType = createProductType("TEST_DELETE_PRODUCT");
+        InvestmentProduct savedProduct = investmentProductRepository.saveAndFlush(product(
+                productType, "Test Delete Product", "ACTIVE", "MODERATE", "NAV"
+        ));
+
+        investmentProductRepository.deleteById(savedProduct.getProductId());
+        investmentProductRepository.flush();
+
+        assertFalse(investmentProductRepository.existsById(savedProduct.getProductId()));
+    }
 
     @Test
     void savesAndFindsProductsByProductType() {
@@ -90,5 +166,10 @@ class InvestmentProductRepositoryTest {
                 .anyMatch(product -> "Test High Risk Fund".equals(product.getProductName())));
     }
 
+    private ProductType createProductType(String typeCode) {
+        return productTypeRepository.saveAndFlush(new ProductType(
+                typeCode, typeCode + " Name", "Repository test type", "ACTIVE"
+        ));
+    }
 
 }
