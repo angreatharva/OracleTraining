@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8157c59d-9fa0-4603-866a-6bc759db09d6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Controllers/InvestmentProduct/IInvestmentProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Controllers/InvestmentProduct/InvestmentProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Controllers/ProductType/IProductType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Controllers/ProductType/ProductType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Entities/InvestmentProduct/InvestmentProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Entities/ProductType/ProductType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Repositories/InvestmentProduct/InvestmentProductRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Repositories/ProductType/ProductTypeRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Services/InvestmentProduct/IInvestmentProductService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Services/InvestmentProduct/InvestmentProductService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Services/ProductType/IProductTypeService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/java/com/example/productmicroservice/Services/ProductType/ProductTypeService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/main/resources/db/wealthtrack-schema-and-seed.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/test/java/com/example/productmicroservice/Repositories/InvestmentProductRepositoryTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../ProductMicroService/src/test/java/com/example/productmicroservice/Repositories/ProductTypeRepositoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../pom.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3GwkHUazq7h9QtahpsZlRrG0w54" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "npm"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="GroovyScriptRunConfiguration" factoryName="Groovy">
+      <setting name="path" value="" />
+      <setting name="vmparams" value="" />
+      <setting name="params" value="" />
+      <setting name="workDir" value="file://$PROJECT_DIR$" />
+      <setting name="debug" value="false" />
+      <setting name="addClasspath" value="true" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="demo" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="demo" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8157c59d-9fa0-4603-866a-6bc759db09d6" name="Changes" comment="" />
+      <created>1784889931758</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784889931758</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
