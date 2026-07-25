@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class UsermicroserviceApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(UsermicroserviceApplication.class, args);
+        System.out.println("USER - MICROSERVICE STARTED...");
+
     }
 
 }

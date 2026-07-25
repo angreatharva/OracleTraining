@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PortfoliomicroserviceApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(PortfoliomicroserviceApplication.class, args);
+        System.out.println("PORTFOLIO - MICROSERVICE STARTED...");
+
     }
 
 }

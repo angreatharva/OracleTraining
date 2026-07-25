@@ -5,59 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Controllers/IUserController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Controllers/UserController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/BankAccount.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/InvestmentProduct.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/KycDocument.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/PortfolioAccount.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/PortfolioHolding.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/PortfolioStatement.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/ProductType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/Role.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/TradeTransaction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/User.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Entities/UserDetail.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Exceptions/InvalidTransactionStatusException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Exceptions/PortfolioStatementNotFoundException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Exceptions/RolesException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Exceptions/TradeTransactionNotFoundException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Exceptions/UserDetailsException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Exceptions/UserException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/BankAccountRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/InvestmentProductRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/KycDocumentRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/PortfolioAccountRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/PortfolioHoldingRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/PortfolioStatementRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/ProductTypeRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/RoleRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/TradeTransactionRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/UserDetailsRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Repositories/UserRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Services/IUserService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/Services/UserService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/wtms/WtmsApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/db/wealthtrack-schema-and-seed.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/BankAccountRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/InvestmentProductRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/KycDocumentRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/PortfolioAccountRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/PortfolioHoldingRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/PortfolioStatementRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/ProductTypeRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/RoleRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/TradeTransactionRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/UserDetailRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/Repositories/UserRepositoryTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/wtms/WtmsApplicationTests.java" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/APIGateway/apigateway/src/main/java/com/example/apigateway/FallbackController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BankMicroService/bankmicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BankMicroService/bankmicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/BankmicroserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/BankmicroserviceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProductMicroService/productmicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ProductMicroService/productmicroservice/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserMicroService/usermicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/UserMicroService/usermicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/java/com/example/usermicroservice/UsermicroserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/java/com/example/usermicroservice/UsermicroserviceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/resources/application.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,32 +50,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.BankAccountRepositoryTest.executor": "Run",
-    "JUnit.InvestmentProductRepositoryTest.executor": "Run",
-    "JUnit.KycDocumentRepositoryTest.executor": "Run",
-    "JUnit.PortfolioAccountRepositoryTest.executor": "Run",
-    "JUnit.PortfolioHoldingRepositoryTest.executor": "Run",
-    "JUnit.PortfolioStatementRepositoryTest.executor": "Run",
-    "JUnit.ProductTypeRepositoryTest.executor": "Run",
-    "JUnit.RoleRepositoryTest.executor": "Run",
-    "JUnit.TradeTransactionRepositoryTest.executor": "Run",
-    "JUnit.UserDetailRepositoryTest.executor": "Run",
-    "JUnit.UserRepositoryTest.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "Spring Boot.WtmsApplication.executor": "Run",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Atharva Angre/Downloads/WTMS/OracleTraining/UserMicroService",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.BankAccountRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.InvestmentProductRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.KycDocumentRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioAccountRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioHoldingRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioStatementRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductTypeRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.RoleRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TradeTransactionRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserDetailRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.WtmsApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Atharva Angre/Downloads/WTMS/OracleTraining/UserMicroService&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Atharva Angre\Downloads\WTMS\OracleTraining\UserMicroService" />

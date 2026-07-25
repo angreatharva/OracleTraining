@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BankmicroserviceApplication {
 
     public static void main(String[] args) {
+
         SpringApplication.run(BankmicroserviceApplication.class, args);
+        System.out.println("BANK - MICROSERVICE STARTED...");
     }
 
 }
