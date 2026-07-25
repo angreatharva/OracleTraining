@@ -1,82 +1,83 @@
 package com.example.usermicroservice.service;
 
-import org.springframework.stereotype.Service;
-
+import com.example.usermicroservice.dto.request.CreateUserRequest;
+import com.example.usermicroservice.dto.response.UserResponse;
+import com.example.usermicroservice.entities.Role;
 import com.example.usermicroservice.entities.User;
+import com.example.usermicroservice.enums.UserStatus;
+import com.example.usermicroservice.exceptions.ResourceNotFoundException;
+import com.example.usermicroservice.repositories.RoleRepository;
 import com.example.usermicroservice.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class UserService implements IUserService {
-
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
-    public User create(User user) {
-        user.setUserId(null);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
+    public UserResponse create(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.email())) throw new IllegalArgumentException("Email already exists: " + request.email());
+        return toResponse(userRepository.save(toEntity(request, new User())));
+    }
 
-        // If you send a UserDetail along with User, keep both sides in sync
-        if (user.getUserDetails() != null) {
-            user.getUserDetails().setUser(user);
+    @Override @Transactional(readOnly = true)
+    public UserResponse getById(Long id) { return toResponse(getEntityById(id)); }
+
+    @Override @Transactional(readOnly = true)
+    public UserResponse getByEmail(String email) {
+        return toResponse(userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User", email)));
+    }
+
+    @Override @Transactional(readOnly = true)
+    public List<UserResponse> getAll() { return userRepository.findAll().stream().map(this::toResponse).toList(); }
+
+    @Override @Transactional(readOnly = true)
+    public List<UserResponse> getByRoleId(Long roleId) { return userRepository.findByRole_RoleId(roleId).stream().map(this::toResponse).toList(); }
+
+    @Override @Transactional(readOnly = true)
+    public List<UserResponse> getByManagerId(Long managerId) { return userRepository.findByManager_UserId(managerId).stream().map(this::toResponse).toList(); }
+
+    @Override
+    public UserResponse update(Long id, CreateUserRequest request) {
+        User user = getEntityById(id);
+        if (!user.getEmail().equalsIgnoreCase(request.email()) && userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("Email already exists: " + request.email());
         }
-
-        return userRepository.save(user);
-    }
-
-    @Override
-    public User getById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
-    }
-
-    @Override
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
-    }
-
-    @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public List<User> getByRoleId(Long roleId) {
-        return userRepository.findByRole_RoleId(roleId);
-    }
-
-    @Override
-    public List<User> getByManagerId(Long managerId) {
-        return userRepository.findByManager_UserId(managerId);
-    }
-
-    @Override
-    public User update(Long id, User user) {
-        User existing = getById(id);
-
-        user.setUserId(existing.getUserId());
-        user.setCreatedAt(existing.getCreatedAt());
-        user.setUpdatedAt(LocalDateTime.now());
-
-        // Preserve relationships if needed, or set them from incoming object
-        if (user.getUserDetails() != null) {
-            user.getUserDetails().setUser(user);
-        }
-
-        return userRepository.save(user);
+        return toResponse(userRepository.save(toEntity(request, user)));
     }
 
     @Override
     public void delete(Long id) {
-        userRepository.delete(getById(id));
+        User user = getEntityById(id);
+        if (!user.getSubordinates().isEmpty()) throw new IllegalStateException("User manages one or more users");
+        userRepository.delete(user);
+    }
+
+    private User toEntity(CreateUserRequest request, User user) {
+        user.setRole(getRole(request.roleId()));
+        user.setManager(request.managerId() == null ? null : getEntityById(request.managerId()));
+        user.setPasswordHash(request.passwordHash());
+        user.setEmail(request.email());
+        user.setFullName(request.fullName());
+        user.setPhone(request.phone());
+        user.setStatus((request.status() == null ? UserStatus.ACTIVE : request.status()).name());
+        return user;
+    }
+
+    private Role getRole(Long id) { return roleRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Role", id)); }
+    private User getEntityById(Long id) { return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id)); }
+    private UserResponse toResponse(User user) {
+        return new UserResponse(user.getUserId(), user.getRole().getRoleId(), user.getManager() == null ? null : user.getManager().getUserId(),
+                user.getEmail(), user.getFullName(), user.getPhone(), UserStatus.valueOf(user.getStatus()), user.getCreatedAt(), user.getUpdatedAt());
     }
 }

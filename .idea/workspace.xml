@@ -5,24 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/RoleController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserDetailsController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/Role.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/UserDetail.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/exceptions/RolesException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/exceptions/UserDetailsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/exceptions/UserException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/repositories/RoleRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/repositories/UserDetailsRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/repositories/UserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IRoleService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserDetailsService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/RoleService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserDetailsService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/RoleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/RoleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserDetailsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserDetailsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/UserDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/UserDetail.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IRoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IRoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/RoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/RoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/resources/application.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,6 +34,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;jay-sharmaa&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/angreatharva/OracleTraning.git&quot;,
+    &quot;accountId&quot;: &quot;85c0ab2e-f155-446b-9377-2f27dee07053&quot;
+  }
+}</component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -80,8 +87,9 @@
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Atharva Angre/Downloads/WTMS/OracleTraining/UserMicroService&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+    &quot;last_opened_file_path&quot;: &quot;C:/Project/OracleTraning&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -198,6 +206,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1784714919393</updated>
+      <workItem from="1784995724877" duration="42000" />
+      <workItem from="1784995982032" duration="325000" />
+      <workItem from="1784996342630" duration="956000" />
     </task>
     <servers />
   </component>
