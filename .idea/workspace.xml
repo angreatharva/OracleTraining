@@ -5,16 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/APIGateway/apigateway/src/main/java/com/example/apigateway/FallbackController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BankMicroService/bankmicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BankMicroService/bankmicroservice/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/BankmicroserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/BankmicroserviceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProductMicroService/productmicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/ProductMicroService/productmicroservice/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserMicroService/usermicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/UserMicroService/usermicroservice/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/java/com/example/usermicroservice/UsermicroserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/java/com/example/usermicroservice/UsermicroserviceApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/resources/application.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/RoleController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserDetailsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/Role.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/UserDetail.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/exceptions/RolesException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/exceptions/UserDetailsException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/exceptions/UserException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/repositories/RoleRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/repositories/UserDetailsRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/repositories/UserRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IRoleService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserDetailsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/RoleService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserDetailsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
