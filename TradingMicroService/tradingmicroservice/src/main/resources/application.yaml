@@ -1,0 +1,17 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: TRADING-SERVICE
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydb
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1234567890
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
