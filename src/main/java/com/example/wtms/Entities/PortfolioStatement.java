@@ -1,5 +1,7 @@
 package com.example.wtms.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,14 +26,17 @@ public class PortfolioStatement {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_account_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user", "holdings"})
     private PortfolioAccount portfolioAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "holding_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "portfolioAccount", "product"})
     private PortfolioHolding holding;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "transaction_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "portfolioAccount", "holding", "product", "portfolioStatements"})
     private TradeTransaction tradeTransaction;
 
     @Column(name = "statement_start")
@@ -64,5 +69,6 @@ public class PortfolioStatement {
             joinColumns = @JoinColumn(name = "statement_id"),
             inverseJoinColumns = @JoinColumn(name = "transaction_id")
     )
+    @JsonIgnore
     private List<TradeTransaction> transactions;
 }

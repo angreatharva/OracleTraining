@@ -37,10 +37,10 @@ class UserRepositoryTest {
         User user = new User();
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setFullName("Test User");
+        user.setFullName("Test User1");
         user.setEmail("testuser" + UUID.randomUUID().toString().substring(0, 8) + "@mail.com");
-        user.setPasswordHash("secret");
-        user.setPhone("9999999999");
+        user.setPasswordHash("secret1");
+        user.setPhone("9999199999");
         user.setStatus("ACTIVE");
         user.setRole(savedRole);
 
@@ -60,10 +60,10 @@ class UserRepositoryTest {
         User user = new User();
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setFullName("Fetch User");
+        user.setFullName("Fetch User1");
         user.setEmail("fetchuser" + UUID.randomUUID().toString().substring(0, 8) + "@mail.com");
         user.setPasswordHash("secret");
-        user.setPhone("8888888888");
+        user.setPhone("8888888588");
         user.setStatus("ACTIVE");
         user.setRole(savedRole);
 
@@ -83,10 +83,10 @@ class UserRepositoryTest {
         Role savedRole = roleRepository.saveAndFlush(role);
 
         User user = new User();
-        user.setFullName("Null Email User");
+        user.setFullName("Null Email User1");
         user.setEmail(null);
-        user.setPasswordHash("secret");
-        user.setPhone("7777777777");
+        user.setPasswordHash("secret1");
+        user.setPhone("7777717777");
         user.setStatus("ACTIVE");
         user.setRole(savedRole);
 
@@ -103,10 +103,10 @@ class UserRepositoryTest {
         Role savedRole = roleRepository.saveAndFlush(role);
 
         User user = new User();
-        user.setFullName("Empty Email User");
+        user.setFullName("Empty Email User1");
         user.setEmail("   ");
-        user.setPasswordHash("secret");
-        user.setPhone("6666666666");
+        user.setPasswordHash("secret1");
+        user.setPhone("6666616666");
         user.setStatus("ACTIVE");
         user.setRole(savedRole);
 
@@ -127,19 +127,19 @@ class UserRepositoryTest {
         User user1 = new User();
         user1.setCreatedAt(LocalDateTime.now());
         user1.setUpdatedAt(LocalDateTime.now());
-        user1.setFullName("User One");
+        user1.setFullName("User One1");
         user1.setEmail(email);
-        user1.setPasswordHash("secret");
-        user1.setPhone("5555555555");
+        user1.setPasswordHash("secret1");
+        user1.setPhone("5555515555");
         user1.setStatus("ACTIVE");
         user1.setRole(savedRole);
         userRepository.saveAndFlush(user1);
 
         User user2 = new User();
-        user2.setFullName("User Two");
+        user2.setFullName("User Two2");
         user2.setEmail(email);
-        user2.setPasswordHash("secret");
-        user2.setPhone("4444444444");
+        user2.setPasswordHash("secret1");
+        user2.setPhone("4444441444");
         user2.setStatus("ACTIVE");
         user2.setRole(savedRole);
 
@@ -161,10 +161,10 @@ class UserRepositoryTest {
         User user = new User();
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
-        user.setFullName("Linked User");
+        user.setFullName("Linked User1");
         user.setEmail("linked" + UUID.randomUUID().toString().substring(0, 8) + "@mail.com");
-        user.setPasswordHash("secret");
-        user.setPhone("3333333333");
+        user.setPasswordHash("secret1");
+        user.setPhone("3333333133");
         user.setStatus("ACTIVE");
         user.setRole(savedRole);
 

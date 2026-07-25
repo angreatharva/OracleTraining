@@ -21,8 +21,8 @@ class TradeTransactionRepositoryTest {
     private TradeTransactionRepository repository;
 
     // Helper method used only for testing exception flow
-    private TradeTransaction getTransactionOrThrow(Long id) {
-        return repository.findById(id)
+    private void getTransactionOrThrow(Long id) {
+        repository.findById(id)
                 .orElseThrow(() -> new TradeTransactionNotFoundException(id));
     }
 
