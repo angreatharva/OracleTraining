@@ -1,5 +1,6 @@
 package com.example.wtms.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,8 +15,21 @@ public class KycDocument {
     @Column(name = "kyc_document_id")
     private Long kycDocumentId;
 
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
+
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({
+            "hibernateLazyInitializer",
+            "handler",
+            "manager",
+            "subordinates",
+            "role",
+            "userDetails"
+    })
     private User user;
 
     @Column(name = "document_type", nullable = false)

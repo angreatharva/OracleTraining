@@ -1,5 +1,6 @@
 package com.example.wtms.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,8 +17,15 @@ public class BankAccount {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({
+            "hibernateLazyInitializer",
+            "handler",
+            "manager",
+            "subordinates",
+            "role",
+            "userDetails"
+    })
     private User user;
-
     @Column(name = "bank_name", nullable = false)
     private String bankName;
 
