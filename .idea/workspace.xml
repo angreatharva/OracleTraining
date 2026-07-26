@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/RoleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/RoleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserDetailsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/controllers/UserDetailsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/UserDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/entities/UserDetail.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IRoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IRoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/IUserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/RoleService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/RoleService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserDetailsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserDetailsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/resources/application.yaml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;jay-sharmaa&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/angreatharva/OracleTraning.git&quot;,
+    &quot;accountId&quot;: &quot;85c0ab2e-f155-446b-9377-2f27dee07053&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3Gr1YEWckOiOeQnh9tNm7tX6tiA" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.BankAccountRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.InvestmentProductRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.KycDocumentRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioAccountRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioHoldingRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioStatementRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductTypeRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.RoleRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TradeTransactionRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserDetailRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.WtmsApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Project/OracleTraning&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Atharva Angre\Downloads\WTMS\OracleTraining\UserMicroService" />
+      <recent name="C:\Users\Atharva Angre\Downloads\WTMS\OracleTraining\TradeMicroService" />
+      <recent name="C:\Users\Atharva Angre\Downloads\WTMS\OracleTraining\BankMicroService" />
+      <recent name="C:\Users\Atharva Angre\Downloads\WTMS\OracleTraining\PortfolioMircoService" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Atharva Angre\Downloads\WTMS\OracleTraining" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.example.wtms.Repositories" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.WtmsApplication">
+    <configuration name="RoleRepositoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="OracleTraning" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.wtms.Repositories.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example.wtms.Repositories" />
+      <option name="MAIN_CLASS_NAME" value="com.example.wtms.Repositories.RoleRepositoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TradeTransactionRepositoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="OracleTraning" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.wtms.Repositories.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example.wtms.Repositories" />
+      <option name="MAIN_CLASS_NAME" value="com.example.wtms.Repositories.TradeTransactionRepositoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserDetailRepositoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="OracleTraning" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.wtms.Repositories.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example.wtms.Repositories" />
+      <option name="MAIN_CLASS_NAME" value="com.example.wtms.Repositories.UserDetailRepositoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserRepositoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="OracleTraning" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.wtms.Repositories.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example.wtms.Repositories" />
+      <option name="MAIN_CLASS_NAME" value="com.example.wtms.Repositories.UserRepositoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="WtmsApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="OracleTraning" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.wtms.WtmsApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.wtms.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.WtmsApplication" />
+        <item itemvalue="JUnit.UserRepositoryTest" />
+        <item itemvalue="JUnit.UserDetailRepositoryTest" />
+        <item itemvalue="JUnit.TradeTransactionRepositoryTest" />
+        <item itemvalue="JUnit.RoleRepositoryTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="" />
+      <created>1784714919393</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1784714919393</updated>
+      <workItem from="1784995724877" duration="42000" />
+      <workItem from="1784995982032" duration="325000" />
+      <workItem from="1784996342630" duration="956000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

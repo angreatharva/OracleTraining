@@ -1,0 +1,90 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: WTMS-GATEWAY
+
+  cloud:
+    gateway:
+      routes:
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: USER-SERVICE
+                fallbackuri: forward:/userFallback
+
+        - id: BANK-SERVICE
+          uri: lb://BANK-SERVICE
+          predicates:
+            - Path=/bank/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: BANK-SERVICE
+                fallbackuri: forward:/bankFallback
+
+        - id: PORTFOLIO-SERVICE
+          uri: lb://PORTFOLIO-SERVICE
+          predicates:
+            - Path=/portfolio/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PORTFOLIO-SERVICE
+                fallbackuri: forward:/portfolioFallback
+
+        - id: TRADING-SERVICE
+          uri: lb://TRADING-SERVICE
+          predicates:
+            - Path=/trading/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: TRADING-SERVICE
+                fallbackuri: forward:/tradingFallback
+
+        - id: PRODUCT-SERVICE
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PRODUCT-SERVICE
+                fallbackuri: forward:/productFallback
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
+  instance:
+    hostname: localhost
+
+
+springdoc:
+  # Path for the interactive Swagger UI HTML page
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha # Sorts endpoints alphabetically
+    tags-sorter: alpha       # Sorts tags/controllers alphabetically
+
+  # Path for the raw OpenAPI JSON specification
+  api-docs:
+    path: /v3/api-docs
