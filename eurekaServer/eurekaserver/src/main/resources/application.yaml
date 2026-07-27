@@ -1,16 +1,22 @@
 server:
-  port: 8080
+  port: ${EUREKA_SERVER_PORT:8080}
 
 spring:
+  config:
+    import:
+      - optional:file:eurekaServer/eurekaserver/.env[.properties]
+      - optional:file:eurekaserver/.env[.properties]
+      - optional:file:.env[.properties]
+
   application:
-    name: WTMS-EUREKA-SERVER
+    name: ${EUREKA_APPLICATION_NAME:WTMS-EUREKA-SERVER}
 
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: ${EUREKA_REGISTER:false}
+    fetch-registry: ${EUREKA_FETCH_REGISTRY:false}
     service-url:
-      defaultZone: http://localhost:8080/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8080/eureka/}
 
   server:
-    enable-self-preservation: true
+    enable-self-preservation: ${EUREKA_SELF_PRESERVATION:true}

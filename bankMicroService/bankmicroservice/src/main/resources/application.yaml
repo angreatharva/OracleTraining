@@ -1,26 +1,32 @@
 server:
-  port: 8083
+  port: ${BANK_SERVER_PORT:8083}
 
 spring:
+  config:
+    import:
+      - optional:file:bankMicroService/bankmicroservice/.env[.properties]
+      - optional:file:bankmicroservice/.env[.properties]
+      - optional:file:.env[.properties]
+
   application:
-    name: BANK-SERVICE
+    name: ${BANK_APPLICATION_NAME:BANK-SERVICE}
 
   datasource:
-    url: jdbc:mysql://localhost:3306/mydb
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 1234567890
+    url: ${BANK_DB_URL:jdbc:mysql://localhost:3306/mydb}
+    driver-class-name: ${BANK_DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    username: ${BANK_DB_USERNAME:root}
+    password: ${BANK_DB_PASSWORD:}
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${BANK_JPA_DDL_AUTO:update}
+    show-sql: ${BANK_JPA_SHOW_SQL:true}
 
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
+    register-with-eureka: ${BANK_EUREKA_REGISTER:true}
+    fetch-registry: ${BANK_EUREKA_FETCH_REGISTRY:true}
     service-url:
-      defaultZone: http://localhost:8080/eureka/
+      defaultZone: ${BANK_EUREKA_URL:http://localhost:8080/eureka/}
   instance:
-    hostname: localhost
+    hostname: ${BANK_EUREKA_HOSTNAME:localhost}

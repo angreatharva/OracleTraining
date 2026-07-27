@@ -1,26 +1,32 @@
 server:
-  port: 8085
+  port: ${TRADING_SERVER_PORT:8085}
 
 spring:
+  config:
+    import:
+      - optional:file:tradingMicroService/tradingmicroservice/.env[.properties]
+      - optional:file:tradingmicroservice/.env[.properties]
+      - optional:file:.env[.properties]
+
   application:
-    name: TRADING-SERVICE
+    name: ${TRADING_APPLICATION_NAME:TRADING-SERVICE}
 
   datasource:
-    url: jdbc:mysql://localhost:3306/mydb
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: XXXXXXXX
+    url: ${TRADING_DB_URL:jdbc:mysql://localhost:3306/mydb}
+    driver-class-name: ${TRADING_DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    username: ${TRADING_DB_USERNAME:root}
+    password: ${TRADING_DB_PASSWORD:}
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${TRADING_JPA_DDL_AUTO:update}
+    show-sql: ${TRADING_JPA_SHOW_SQL:true}
 
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
+    register-with-eureka: ${TRADING_EUREKA_REGISTER:true}
+    fetch-registry: ${TRADING_EUREKA_FETCH_REGISTRY:true}
     service-url:
-      defaultZone: http://localhost:8080/eureka/
+      defaultZone: ${TRADING_EUREKA_URL:http://localhost:8080/eureka/}
   instance:
-    hostname: localhost
+    hostname: ${TRADING_EUREKA_HOSTNAME:localhost}

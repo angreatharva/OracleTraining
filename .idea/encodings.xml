@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/APIGateway/apigateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/BankMicroService/bankmicroservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/EurekaServer/eurekaserver/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PortfolioMicroService/portfoliomicroservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ProductMicroService/productmicroservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TradingMicroService/tradingmicroservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/UserMicroService/usermicroservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
   </component>
 </project>

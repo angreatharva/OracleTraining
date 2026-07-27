@@ -1,26 +1,32 @@
 server:
-  port: 8086
+  port: ${PRODUCT_SERVER_PORT:8086}
 
 spring:
+  config:
+    import:
+      - optional:file:productMicroService/productmicroservice/.env[.properties]
+      - optional:file:productmicroservice/.env[.properties]
+      - optional:file:.env[.properties]
+
   application:
-    name: PRODUCT-SERVICE
+    name: ${PRODUCT_APPLICATION_NAME:PRODUCT-SERVICE}
 
   datasource:
-    url: jdbc:mysql://localhost:3306/mydb
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 1234567890
+    url: ${PRODUCT_DB_URL:jdbc:mysql://localhost:3306/mydb}
+    driver-class-name: ${PRODUCT_DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    username: ${PRODUCT_DB_USERNAME:root}
+    password: ${PRODUCT_DB_PASSWORD:}
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${PRODUCT_JPA_DDL_AUTO:update}
+    show-sql: ${PRODUCT_JPA_SHOW_SQL:true}
 
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
+    register-with-eureka: ${PRODUCT_EUREKA_REGISTER:true}
+    fetch-registry: ${PRODUCT_EUREKA_FETCH_REGISTRY:true}
     service-url:
-      defaultZone: http://localhost:8080/eureka/
+      defaultZone: ${PRODUCT_EUREKA_URL:http://localhost:8080/eureka/}
   instance:
-    hostname: localhost
+    hostname: ${PRODUCT_EUREKA_HOSTNAME:localhost}
