@@ -18,7 +18,7 @@ The project is split into independently runnable services. Each service has its 
 | Trading Service | 8085 | Buy/sell trade records, trade orchestration, portfolio statements, and investment overview. | Implemented |
 | Product Service | 8086 | Product types, investment products, and their current price. | Implemented |
 
-The key working business scenario is a stock/product buy or sell submitted to Trading Service. Trading validates the product, moves money through Bank Service, changes the holding through Portfolio Service, and stores the final trade record.
+The key working business scenario is a stock/product buy or sell submitted to Trading Service. Trading validates the product and portfolio first, moves money through Bank Service, changes the holding through Portfolio Service, and stores the final trade record.
 
 ## 2. Architecture at a glance
 
@@ -146,6 +146,8 @@ sequenceDiagram
     T->>DB: save trade as PENDING
     T->>P: GET product by productId
     P-->>T: product + currentPrice
+    T->>PF: validate account, holding, and product
+    PF-->>T: validation accepted / rejected
     T->>B: debit totalAmount from bankAccountId
     B-->>T: debit accepted / rejected
     T->>PF: apply BUY to holding
@@ -178,7 +180,9 @@ sequenceDiagram
     T->>DB: save trade as PENDING
     T->>P: GET product by productId
     P-->>T: product + currentPrice
-    T->>PF: validate quantity and apply SELL
+    T->>PF: validate account, holding, product, and SELL quantity
+    PF-->>T: validation accepted / rejected
+    T->>PF: apply SELL
     PF-->>T: holding reduced
     T->>B: credit sale amount to bankAccountId
     B-->>T: credit accepted
@@ -236,13 +240,16 @@ There is intentionally no direct edit or delete endpoint for financial transacti
 
 ## 6. Portfolio changes made for Trading
 
-Trading calls a dedicated internal Portfolio endpoint:
+Trading calls two dedicated internal Portfolio endpoints:
 
 ```text
+POST /api/portfolios/internal/trades/validate
 POST /api/portfolios/internal/trades
 ```
 
-It is not a normal end-user create endpoint. Its purpose is to let Trading request one controlled holding update after a trade has been funded or sold.
+The validation endpoint runs before Bank moves money. It checks the account, holding, product, and SELL quantity without changing data. The apply endpoint runs after funding and returns `204 No Content` after updating the holding.
+
+They are not normal end-user endpoints. Their purpose is to let Trading request a controlled holding update after a trade has been funded or sold.
 
 The endpoint validates:
 
@@ -319,7 +326,10 @@ TRADING_DB_URL=jdbc:mysql://localhost:3306/mydb
 TRADING_DB_USERNAME=root
 TRADING_DB_PASSWORD=your_mysql_password
 TRADING_EUREKA_URL=http://localhost:8080/eureka/
+TRADING_PORTFOLIO_BASE_URL=http://localhost:8084
 ```
+
+For local testing, Trading uses `TRADING_PORTFOLIO_BASE_URL` for Portfolio's internal trade commands. This avoids the local load-balanced POST issue found during live testing. Product and Bank calls continue to use Eureka discovery.
 
 Variable prefixes must be service-specific:
 
