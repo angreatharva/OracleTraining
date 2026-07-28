@@ -2,7 +2,7 @@ package com.example.tradingmicroservice.clients.model;
 
 import java.math.BigDecimal;
 
-public record DebitRequest(
+public record CreditRequest(
         BigDecimal amount,
         String transactionReference
 ) {

@@ -72,6 +72,12 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
+        <!-- Resolves http://SERVICE-NAME requests through Eureka without Feign. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
 
         <!-- MySQL Driver -->
         <dependency>

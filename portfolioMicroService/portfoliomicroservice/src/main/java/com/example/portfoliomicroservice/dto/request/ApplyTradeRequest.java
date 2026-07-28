@@ -1,4 +1,4 @@
-package com.example.tradingmicroservice.dto.request;
+package com.example.portfoliomicroservice.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -7,13 +7,14 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record CreateTradeTransactionRequest(
+/** A trusted internal command from Trading to apply an already-funded trade. */
+public record ApplyTradeRequest(
         @NotNull @Positive Long portfolioAccountId,
         @NotNull @Positive Long holdingId,
         @NotNull @Positive Long productId,
-        @NotNull @Positive Long bankAccountId,
         @NotBlank String transactionType,
-        @NotNull @DecimalMin(value = "0.01") BigDecimal quantity,
-        @NotNull @DecimalMin(value = "0.01") BigDecimal unitPrice
+        @NotNull @DecimalMin("0.0001") BigDecimal quantity,
+        @NotNull @DecimalMin("0.0001") BigDecimal unitPrice,
+        @NotNull @Positive Long transactionId
 ) {
 }

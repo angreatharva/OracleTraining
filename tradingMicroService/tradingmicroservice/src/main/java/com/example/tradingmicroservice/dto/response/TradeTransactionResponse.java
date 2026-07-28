@@ -13,6 +13,7 @@ public record TradeTransactionResponse(
         BigDecimal unitPrice,
         BigDecimal totalAmount,
         String transactionStatus,
-        LocalDateTime transactionDate
+        LocalDateTime transactionDate,
+        String failureReason
 ) {
 }

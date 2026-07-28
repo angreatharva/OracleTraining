@@ -26,7 +26,12 @@ eureka:
   client:
     register-with-eureka: ${TRADING_EUREKA_REGISTER:true}
     fetch-registry: ${TRADING_EUREKA_FETCH_REGISTRY:true}
+    registry-fetch-interval-seconds: ${TRADING_EUREKA_FETCH_INTERVAL_SECONDS:5}
     service-url:
       defaultZone: ${TRADING_EUREKA_URL:http://localhost:8080/eureka/}
   instance:
     hostname: ${TRADING_EUREKA_HOSTNAME:localhost}
+
+clients:
+  portfolio:
+    base-url: ${TRADING_PORTFOLIO_BASE_URL:http://localhost:8084}

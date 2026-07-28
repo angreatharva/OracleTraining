@@ -7,6 +7,7 @@ import com.example.portfoliomicroservice.dto.request.CreateHoldingRequest;
 import com.example.portfoliomicroservice.dto.request.CreatePortfolioAccountRequest;
 import com.example.portfoliomicroservice.dto.request.UpdateHoldingRequest;
 import com.example.portfoliomicroservice.dto.request.UpdatePortfolioStatusRequest;
+import com.example.portfoliomicroservice.dto.request.ApplyTradeRequest;
 import com.example.portfoliomicroservice.dto.response.PortfolioAccountResponse;
 import com.example.portfoliomicroservice.dto.response.PortfolioHoldingResponse;
 import com.example.portfoliomicroservice.dto.response.PortfolioSummaryResponse;
@@ -171,6 +172,56 @@ public class PortfolioServiceImpl implements PortfolioService {
         } else {
             holding.setMarketValue(PortfolioMath.marketValue(holding.getQuantity(), holding.getAverageCost()));
         }
+        holding.setLastValuedAt(LocalDateTime.now());
+        return mapHolding(holdingRepository.save(holding));
+    }
+
+    @Override
+    public void validateTrade(ApplyTradeRequest request) {
+        PortfolioHolding holding = findHolding(request.holdingId());
+        requireActiveAccount(holding.getPortfolioAccount());
+
+        if (!holding.getPortfolioAccount().getPortfolioAccountId().equals(request.portfolioAccountId())) {
+            throw new BusinessRuleException("Holding does not belong to the supplied portfolio account");
+        }
+        if (!holding.getProductId().equals(request.productId())) {
+            throw new BusinessRuleException("Holding does not belong to the supplied product");
+        }
+
+        String type = request.transactionType().trim().toUpperCase();
+        BigDecimal currentQuantity = safe(holding.getQuantity());
+        if ("BUY".equals(type)) {
+            return;
+        }
+        if ("SELL".equals(type)) {
+            if (currentQuantity.compareTo(request.quantity()) < 0) {
+                throw new BusinessRuleException("Insufficient holding quantity for SELL");
+            }
+            return;
+        }
+        throw new IllegalArgumentException("transactionType must be BUY or SELL");
+    }
+
+    @Override
+    public PortfolioHoldingResponse applyCompletedTrade(ApplyTradeRequest request) {
+        validateTrade(request);
+        PortfolioHolding holding = findHolding(request.holdingId());
+        String type = request.transactionType().trim().toUpperCase();
+        BigDecimal currentQuantity = safe(holding.getQuantity());
+        if ("BUY".equals(type)) {
+            holding.setAverageCost(PortfolioMath.weightedAverageCost(
+                    currentQuantity, safe(holding.getAverageCost()), request.quantity(), request.unitPrice()));
+            holding.setQuantity(currentQuantity.add(request.quantity()));
+            holding.setHoldingStatus(HoldingStatus.ACTIVE);
+        } else {
+            BigDecimal remainingQuantity = currentQuantity.subtract(request.quantity());
+            holding.setQuantity(remainingQuantity);
+            if (remainingQuantity.compareTo(BigDecimal.ZERO) == 0) {
+                holding.setHoldingStatus(HoldingStatus.CLOSED);
+            }
+        }
+
+        holding.setMarketValue(PortfolioMath.marketValue(holding.getQuantity(), request.unitPrice()));
         holding.setLastValuedAt(LocalDateTime.now());
         return mapHolding(holdingRepository.save(holding));
     }

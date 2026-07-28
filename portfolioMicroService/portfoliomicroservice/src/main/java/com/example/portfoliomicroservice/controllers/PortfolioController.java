@@ -4,6 +4,7 @@ import com.example.portfoliomicroservice.dto.request.CreateHoldingRequest;
 import com.example.portfoliomicroservice.dto.request.CreatePortfolioAccountRequest;
 import com.example.portfoliomicroservice.dto.request.UpdateHoldingRequest;
 import com.example.portfoliomicroservice.dto.request.UpdatePortfolioStatusRequest;
+import com.example.portfoliomicroservice.dto.request.ApplyTradeRequest;
 import com.example.portfoliomicroservice.dto.response.PortfolioAccountResponse;
 import com.example.portfoliomicroservice.dto.response.PortfolioHoldingResponse;
 import com.example.portfoliomicroservice.dto.response.PortfolioSummaryResponse;
@@ -90,6 +91,22 @@ public class PortfolioController implements IPortfolioController {
     public PortfolioHoldingResponse updateHolding(@PathVariable Long holdingId,
                                                   @Valid @RequestBody UpdateHoldingRequest request) {
         return portfolioService.updateHolding(holdingId, request);
+    }
+
+    /** Internal endpoint called by Trading after a bank operation succeeds. */
+    @PostMapping("/internal/trades")
+    @Override
+    public ResponseEntity<Void> applyCompletedTrade(@Valid @RequestBody ApplyTradeRequest request) {
+        portfolioService.applyCompletedTrade(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Internal pre-check used by Trading before it moves money. */
+    @PostMapping("/internal/trades/validate")
+    @Override
+    public ResponseEntity<Void> validateTrade(@Valid @RequestBody ApplyTradeRequest request) {
+        portfolioService.validateTrade(request);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/holdings/{holdingId}")

@@ -2,6 +2,7 @@ package com.example.tradingmicroservice.controllers;
 
 import com.example.tradingmicroservice.dto.request.CreateTradeTransactionRequest;
 import com.example.tradingmicroservice.dto.response.TradeTransactionResponse;
+import com.example.tradingmicroservice.enums.TransactionStatus;
 import com.example.tradingmicroservice.services.ITradeTransactionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,11 @@ public class TradeTransactionController implements ITradeTransactionController {
     @Override
     public ResponseEntity<TradeTransactionResponse> create(
             @Valid @RequestBody CreateTradeTransactionRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.create(request));
+        TradeTransactionResponse response = transactionService.create(request);
+        HttpStatus status = TransactionStatus.COMPLETED.name().equals(response.transactionStatus())
+                ? HttpStatus.CREATED
+                : HttpStatus.UNPROCESSABLE_ENTITY;
+        return ResponseEntity.status(status).body(response);
     }
 
     @GetMapping("/{id}")

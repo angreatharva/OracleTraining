@@ -19,6 +19,7 @@ spring:
           predicates:
             - Path=/user/**
           filters:
+            - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: USER-SERVICE
@@ -29,6 +30,7 @@ spring:
           predicates:
             - Path=/bank/**
           filters:
+            - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: BANK-SERVICE
@@ -39,6 +41,7 @@ spring:
           predicates:
             - Path=/portfolio/**
           filters:
+            - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: PORTFOLIO-SERVICE
@@ -49,6 +52,7 @@ spring:
           predicates:
             - Path=/trading/**
           filters:
+            - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: TRADING-SERVICE
@@ -59,6 +63,7 @@ spring:
           predicates:
             - Path=/product/**
           filters:
+            - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: PRODUCT-SERVICE
