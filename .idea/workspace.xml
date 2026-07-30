@@ -5,33 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/main/java/com/example/productmicroservice/Entities/InvestmentProduct.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/main/java/com/example/productmicroservice/Entities/ProductType.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/main/java/com/example/productmicroservice/Exceptions/ApiExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/main/java/com/example/productmicroservice/Repositories/InvestmentProductRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/main/java/com/example/productmicroservice/Repositories/ProductTypeRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/test/java/com/example/productmicroservice/Repository/InvestmentProductRepositoryTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/test/java/com/example/productmicroservice/Repository/ProductTypeRepositoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/APIGateway/apigateway/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/APIGateway/apigateway/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/APIGateway/apigateway/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/APIGateway/apigateway/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bankMicroService/bankmicroservice/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/bankMicroService/bankmicroservice/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MAIN/src/main/resources/db/wealthtrack-schema-and-seed.sql" beforeDir="false" afterPath="$PROJECT_DIR$/MAIN/src/main/resources/db/wealthtrack-schema-and-seed.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bankMicroService/bankmicroservice/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/bankMicroService/bankmicroservice/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bankMicroService/bankmicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/bankMicroService/bankmicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/BankmicroserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/bankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/BankmicroserviceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/clients/NoOpUserServiceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/clients/UserServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/bankMicroService/bankmicroservice/src/main/java/com/example/bankmicroservice/clients/UserServiceClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bankMicroService/bankmicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/bankMicroService/bankmicroservice/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eurekaServer/eurekaserver/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/eurekaServer/eurekaserver/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eurekaServer/eurekaserver/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/eurekaServer/eurekaserver/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/src/main/java/com/example/portfoliomicroservice/PortfoliomicroserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/src/main/java/com/example/portfoliomicroservice/PortfoliomicroserviceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/.env.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/portfolioMicroService/portfoliomicroservice/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/productMicroService/productmicroservice/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/productMicroService/productmicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/productMicroService/productmicroservice/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/TradingmicroserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/TradingmicroserviceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/BankServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/BankServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/PortfolioServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/PortfolioServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/ProductServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/ProductServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/RestBankServiceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/RestPortfolioServiceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/clients/RestProductServiceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/config/RestClientConfiguration.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/services/TradeTransactionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/services/TradeTransactionService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/resources/application.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/test/java/com/example/tradingmicroservice/integration/TradingCrossServiceHttpTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/test/java/com/example/tradingmicroservice/integration/TradingCrossServiceHttpTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/clients/BankServiceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/clients/PortfolioServiceClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/clients/model/BankAccountSummary.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/userMicroService/usermicroservice/src/main/java/com/example/usermicroservice/clients/model/PortfolioAccountSummary.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,40 +70,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.BankAccountRepositoryTest.executor": "Run",
-    "JUnit.InvestmentProductRepositoryTest.executor": "Run",
-    "JUnit.KycDocumentRepositoryTest.executor": "Run",
-    "JUnit.PortfolioAccountRepositoryTest.executor": "Run",
-    "JUnit.PortfolioHoldingRepositoryTest.executor": "Run",
-    "JUnit.PortfolioStatementRepositoryTest.executor": "Run",
-    "JUnit.ProductTypeRepositoryTest.executor": "Run",
-    "JUnit.RoleRepositoryTest.executor": "Run",
-    "JUnit.TradeTransactionRepositoryTest.executor": "Run",
-    "JUnit.UserDetailRepositoryTest.executor": "Run",
-    "JUnit.UserRepositoryTest.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "Spring Boot.APIGATEWAY-SERVICE.executor": "Run",
-    "Spring Boot.BANK-SERVICE.executor": "Run",
-    "Spring Boot.EUREKA-SERVER.executor": "Run",
-    "Spring Boot.PORTFOLIO-SERVICE.executor": "Run",
-    "Spring Boot.PRODUCT-SERVICE.executor": "Run",
-    "Spring Boot.TRADING-SERVICE.executor": "Run",
-    "Spring Boot.USER-SERVICE.executor": "Run",
-    "Spring Boot.WtmsApplication.executor": "Run",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "deletionFromPopupRequiresConfirmation": "false",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Atharva Angre/Downloads/WTMS/OracleTraining/ProductMicroService/productmicroservice/src/test/java/com/example/productmicroservice/Repository",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.BankAccountRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.InvestmentProductRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.KycDocumentRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioAccountRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioHoldingRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PortfolioStatementRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductTypeRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.RoleRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TradeTransactionRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserDetailRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.APIGATEWAY-SERVICE.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.BANK-SERVICE.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.EUREKA-SERVER.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.PORTFOLIO-SERVICE.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.PRODUCT-SERVICE.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.TRADING-SERVICE.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.USER-SERVICE.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.WtmsApplication.executor&quot;: &quot;Run&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Atharva Angre/Downloads/WTMS/OracleTraining&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Atharva Angre\Downloads\WTMS\OracleTraining\ProductMicroService\productmicroservice\src\test\java\com\example\productmicroservice\Repository" />
@@ -119,6 +127,9 @@
   <component name="RunDashboard">
     <option name="configurationTypes">
       <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
         <option value="SpringBootApplicationConfigurationType" />
       </set>
     </option>
@@ -150,11 +161,38 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="APIGATEWAY-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="apigateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.apigateway.ApigatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="BANK-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <option name="ALTERNATIVE_JRE_PATH" value="17" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <module name="bankmicroservice" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.bankmicroservice.BankmicroserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BANK-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="bankmicroservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.bankmicroservice.BankmicroserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EUREKA-SERVER" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="eurekaserver" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.eurekaserver.EurekaserverApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -177,6 +215,24 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="PORTFOLIO-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="portfoliomicroservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.portfoliomicroservice.PortfoliomicroserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PRODUCT-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="productmicroservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.productmicroservice.ProductmicroserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="PRODUCT-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <option name="ALTERNATIVE_JRE_PATH" value="17" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -191,6 +247,24 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <module name="tradingmicroservice" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.tradingmicroservice.TradingmicroserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TRADING-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="tradingmicroservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.tradingmicroservice.TradingmicroserviceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="USER-SERVICE" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <module name="usermicroservice" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.usermicroservice.UsermicroserviceApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -217,8 +291,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
-        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
+        <option value="bundled-jdk-30f59d01ecdd-63390994e64e-intellij.indexing.shared.core-IU-262.8665.337" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.8665.337" />
       </set>
     </attachedChunks>
   </component>

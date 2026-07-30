@@ -20,7 +20,7 @@
         </processorPath>
         <module name="apigateway" />
       </profile>
-      <profile name="Annotation profile for portfoliomicroservice" enabled="true">
+      <profile name="Annotation profile for bankmicroservice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />

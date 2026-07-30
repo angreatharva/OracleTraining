@@ -1,4 +1,4 @@
-package com.example.tradingmicroservice.services;
+package com.example.tradingmicroservice.Services;
 
 import com.example.tradingmicroservice.clients.BankServiceClient;
 import com.example.tradingmicroservice.clients.PortfolioServiceClient;
@@ -16,6 +16,7 @@ import com.example.tradingmicroservice.enums.TransactionStatus;
 import com.example.tradingmicroservice.enums.TransactionType;
 import com.example.tradingmicroservice.exceptions.TradeTransactionNotFoundException;
 import com.example.tradingmicroservice.repositories.TradeTransactionRepository;
+import com.example.tradingmicroservice.services.ITradeTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
-@Transactional
 public class TradeTransactionService implements ITradeTransactionService {
 
     private static final Logger log = LoggerFactory.getLogger(TradeTransactionService.class);
@@ -65,6 +65,9 @@ public class TradeTransactionService implements ITradeTransactionService {
                 .updatedAt(now)
                 .build();
 
+        // Commit the local PENDING record before making any remote call. Keeping this
+        // transaction open can lock referenced Bank/Portfolio rows in a shared schema
+        // and deadlock the service-to-service workflow.
         transaction = transactionRepository.save(transaction);
         try {
             log.info("[TRADE-{}] Calling Product Service for product {}", transaction.getTransactionId(), request.productId());

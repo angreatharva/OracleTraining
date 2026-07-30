@@ -11,6 +11,14 @@ spring:
   application:
     name: ${PORTFOLIO_APPLICATION_NAME:PORTFOLIO-SERVICE}
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: ${PORTFOLIO_FEIGN_CONNECT_TIMEOUT_MS:3000}
+            readTimeout: ${PORTFOLIO_FEIGN_READ_TIMEOUT_MS:10000}
+
   datasource:
     url: ${PORTFOLIO_DB_URL:jdbc:mysql://localhost:3306/mydb}
     driver-class-name: ${PORTFOLIO_DB_DRIVER:com.mysql.cj.jdbc.Driver}

@@ -1,0 +1,2937 @@
+openapi: 3.0.3
+info:
+  title: WealthTrack Microservice Ecosystem API
+  version: 1.0.0
+  description: |
+    Code-derived API contract for every custom controller outside `MAIN`.
+
+    **Authentication:** no Spring Security configuration, authentication filter, or
+    authorization policy exists in the reviewed services. Every operation therefore
+    declares `security: []`. The reusable 401 and 403 responses are future-security
+    templates only and are not currently emitted by application authentication.
+
+    **Headers:** JSON operations accept `Content-Type: application/json` and normally
+    return `application/json`; clients may send `Accept: application/json`. Delete and
+    internal command operations return no body. There are no application-specific
+    request headers in the source code.
+
+    **Gateway use:** each business path has a direct-service server and an API Gateway
+    server. The gateway removes `/user`, `/bank`, `/portfolio`, `/trading`, or
+    `/product` before forwarding. Internal endpoints are not access-controlled and are
+    also reachable through the gateway as currently configured.
+
+    **Uncertain/framework contracts:** Eureka exposes its library-managed dashboard and
+    discovery protocol under `/eureka/**`, but the repository defines no custom Eureka
+    controller or DTO contract. Those framework endpoints are described in
+    `MICROSERVICE_API_MAP.md` and deliberately not invented here.
+servers:
+  - url: http://localhost:8081
+    description: API Gateway (use a service prefix before the documented path)
+tags:
+  - name: Gateway
+    description: API Gateway circuit-breaker fallback controllers
+  - name: User - Roles
+  - name: User - Users
+  - name: User - Details
+  - name: Bank - Accounts
+  - name: Bank - KYC
+  - name: Portfolio
+  - name: Portfolio - Internal
+  - name: Product - Types
+  - name: Product - Products
+  - name: Trading - Transactions
+  - name: Trading - Statements
+  - name: Trading - Overview
+security: []
+
+paths:
+  /userFallback:
+    servers:
+      - url: http://localhost:8081
+        description: API Gateway
+    get:
+      tags: [Gateway]
+      operationId: gatewayUserFallback
+      summary: User Service circuit-breaker fallback
+      description: Returns a plain-text availability message when the User Service gateway route times out or its circuit breaker falls back.
+      security: []
+      responses:
+        '200':
+          description: Fallback message
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                User service is taking longer than expected
+                Please try after sometime
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /bankFallback:
+    servers:
+      - url: http://localhost:8081
+        description: API Gateway
+    get:
+      tags: [Gateway]
+      operationId: gatewayBankFallback
+      summary: Bank Service circuit-breaker fallback
+      description: Returns the gateway's plain-text Bank Service availability message.
+      security: []
+      responses:
+        '200':
+          description: Fallback message
+          content:
+            text/plain:
+              schema: { type: string }
+              example: |-
+                Bank service is taking longer than expected
+                Please try after sometime
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /portfolioFallback:
+    servers:
+      - url: http://localhost:8081
+        description: API Gateway
+    get:
+      tags: [Gateway]
+      operationId: gatewayPortfolioFallback
+      summary: Portfolio Service circuit-breaker fallback
+      description: Returns the gateway's plain-text Portfolio Service availability message.
+      security: []
+      responses:
+        '200':
+          description: Fallback message
+          content:
+            text/plain:
+              schema: { type: string }
+              example: |-
+                Portfolio service is taking longer than expected
+                Please try after sometime
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /tradingFallback:
+    servers:
+      - url: http://localhost:8081
+        description: API Gateway
+    get:
+      tags: [Gateway]
+      operationId: gatewayTradingFallback
+      summary: Trading Service circuit-breaker fallback
+      description: Returns the gateway's plain-text Trading Service availability message.
+      security: []
+      responses:
+        '200':
+          description: Fallback message
+          content:
+            text/plain:
+              schema: { type: string }
+              example: |-
+                Trading service is taking longer than expected
+                Please try after sometime
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /productFallback:
+    servers:
+      - url: http://localhost:8081
+        description: API Gateway
+    get:
+      tags: [Gateway]
+      operationId: gatewayProductFallback
+      summary: Product Service circuit-breaker fallback
+      description: Returns the gateway's plain-text Product Service availability message.
+      security: []
+      responses:
+        '200':
+          description: Fallback message
+          content:
+            text/plain:
+              schema: { type: string }
+              example: |-
+                Product service is taking longer than expected
+                Please try after sometime
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/roles:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    post:
+      tags: [User - Roles]
+      operationId: createRole
+      summary: Create a role
+      description: Creates a uniquely named role. Duplicate role names are reported as 400.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+            example:
+              roleName: RELATIONSHIP_MANAGER
+      responses:
+        '201':
+          description: Role created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleResponse'
+              example:
+                roleId: 3
+                roleName: RELATIONSHIP_MANAGER
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [User - Roles]
+      operationId: listRoles
+      summary: List roles
+      description: Returns all roles. No query parameters are implemented.
+      security: []
+      responses:
+        '200':
+          description: Role list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RoleResponse' }
+              example:
+                - roleId: 1
+                  roleName: CUSTOMER
+                - roleId: 2
+                  roleName: RELATIONSHIP_MANAGER
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/roles/{id}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [User - Roles]
+      operationId: getRoleById
+      summary: Get a role by ID
+      description: Finds one role by its database identifier.
+      security: []
+      responses:
+        '200':
+          description: Role found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RoleResponse' }
+              example: { roleId: 1, roleName: CUSTOMER }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    put:
+      tags: [User - Roles]
+      operationId: updateRole
+      summary: Replace a role
+      description: Replaces the role name after enforcing uniqueness.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateRoleRequest' }
+            example: { roleName: SENIOR_RELATIONSHIP_MANAGER }
+      responses:
+        '200':
+          description: Updated role
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RoleResponse' }
+              example: { roleId: 2, roleName: SENIOR_RELATIONSHIP_MANAGER }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [User - Roles]
+      operationId: deleteRole
+      summary: Delete an unused role
+      description: Deletes the role only when no user is assigned to it.
+      security: []
+      responses:
+        '204':
+          description: Role deleted; no response body
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/roles/name/{roleName}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    get:
+      tags: [User - Roles]
+      operationId: getRoleByName
+      summary: Get a role by name
+      description: Looks up a role by its roleName value.
+      security: []
+      parameters:
+        - name: roleName
+          in: path
+          required: true
+          schema: { type: string }
+          example: CUSTOMER
+      responses:
+        '200':
+          description: Role found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RoleResponse' }
+              example: { roleId: 1, roleName: CUSTOMER }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/users:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    post:
+      tags: [User - Users]
+      operationId: createUser
+      summary: Create a user
+      description: Creates a user for an existing role and optional existing manager. Status defaults to ACTIVE. Email must be unique.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserRequest' }
+            example:
+              roleId: 1
+              managerId: 2
+              passwordHash: "$2a$10$exampleHash"
+              email: atharva.angre@example.com
+              fullName: Atharva Angre
+              phone: "+919876543210"
+              status: ACTIVE
+      responses:
+        '201':
+          description: User created; passwordHash is intentionally not returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+              example:
+                userId: 10
+                roleId: 1
+                managerId: 2
+                email: atharva.angre@example.com
+                fullName: Atharva Angre
+                phone: "+919876543210"
+                status: ACTIVE
+                createdAt: '2026-07-30T10:15:30'
+                updatedAt: '2026-07-30T10:15:30'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [User - Users]
+      operationId: listUsers
+      summary: List users
+      description: Returns every user; filtering is provided by the role and manager endpoints rather than query parameters.
+      security: []
+      responses:
+        '200':
+          description: User list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserResponse' }
+              example:
+                - userId: 10
+                  roleId: 1
+                  managerId: 2
+                  email: atharva.angre@example.com
+                  fullName: Atharva Angre
+                  phone: "+919876543210"
+                  status: ACTIVE
+                  createdAt: '2026-07-30T10:15:30'
+                  updatedAt: '2026-07-30T10:15:30'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/users/{id}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [User - Users]
+      operationId: getUserById
+      summary: Get a user by ID
+      description: Returns one user. Bank and Portfolio consume this endpoint to validate that referenced users exist and are ACTIVE.
+      security: []
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+              example:
+                userId: 10
+                roleId: 1
+                managerId: 2
+                email: atharva.angre@example.com
+                fullName: Atharva Angre
+                phone: "+919876543210"
+                status: ACTIVE
+                createdAt: '2026-07-30T10:15:30'
+                updatedAt: '2026-07-30T10:15:30'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    put:
+      tags: [User - Users]
+      operationId: updateUser
+      summary: Replace a user
+      description: Replaces role, manager, credentials, contact fields, and status. The role and manager must exist; email remains unique.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserRequest' }
+            example:
+              roleId: 1
+              managerId: 2
+              passwordHash: "$2a$10$replacementHash"
+              email: atharva.angre@example.com
+              fullName: Atharva A. Angre
+              phone: "+919876543210"
+              status: ACTIVE
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+              example:
+                userId: 10
+                roleId: 1
+                managerId: 2
+                email: atharva.angre@example.com
+                fullName: Atharva A. Angre
+                phone: "+919876543210"
+                status: ACTIVE
+                createdAt: '2026-07-30T10:15:30'
+                updatedAt: '2026-07-30T11:00:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [User - Users]
+      operationId: deleteUser
+      summary: Delete a user
+      description: Deletes a user only when the user manages no subordinates. Database relationships may impose additional constraints.
+      security: []
+      responses:
+        '204': { description: User deleted; no response body }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/users/email/{email}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    get:
+      tags: [User - Users]
+      operationId: getUserByEmail
+      summary: Get a user by email
+      description: Finds the unique user whose email exactly matches the path value. URL-encode special characters when needed.
+      security: []
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema: { type: string, format: email }
+          example: atharva.angre@example.com
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/users/role/{roleId}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    get:
+      tags: [User - Users]
+      operationId: listUsersByRole
+      summary: List users assigned to a role
+      description: Returns an empty array when no users reference the supplied role ID; the role itself is not separately validated.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/RoleId'
+      responses:
+        '200':
+          description: Matching users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserResponse' }
+              example: []
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/users/manager/{managerId}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    get:
+      tags: [User - Users]
+      operationId: listUsersByManager
+      summary: List a manager's direct subordinates
+      description: Returns users whose manager foreign key equals managerId; an unknown manager produces an empty array.
+      security: []
+      parameters:
+        - name: managerId
+          in: path
+          required: true
+          schema: { type: integer, format: int64, minimum: 1 }
+          example: 2
+      responses:
+        '200':
+          description: Matching users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserResponse' }
+              example:
+                - userId: 10
+                  roleId: 1
+                  managerId: 2
+                  email: atharva.angre@example.com
+                  fullName: Atharva Angre
+                  phone: "+919876543210"
+                  status: ACTIVE
+                  createdAt: '2026-07-30T10:15:30'
+                  updatedAt: '2026-07-30T10:15:30'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/user-details:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    post:
+      tags: [User - Details]
+      operationId: createUserDetail
+      summary: Create a user's investment profile
+      description: Creates at most one detail record for an existing user.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserDetailRequest' }
+            example:
+              userId: 10
+              dateOfBirth: '1998-04-12'
+              riskLevel: MODERATE
+              riskScore: 62
+              kycStatus: VERIFIED
+      responses:
+        '201':
+          description: User detail created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDetailResponse' }
+              example:
+                userDetailId: 5
+                userId: 10
+                dateOfBirth: '1998-04-12'
+                riskLevel: MODERATE
+                riskScore: 62
+                kycStatus: VERIFIED
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [User - Details]
+      operationId: listUserDetails
+      summary: List user detail records
+      description: Returns every stored investment profile.
+      security: []
+      responses:
+        '200':
+          description: User detail list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/UserDetailResponse' }
+              example:
+                - userDetailId: 5
+                  userId: 10
+                  dateOfBirth: '1998-04-12'
+                  riskLevel: MODERATE
+                  riskScore: 62
+                  kycStatus: VERIFIED
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/user-details/{id}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [User - Details]
+      operationId: getUserDetailById
+      summary: Get a user detail by ID
+      description: Finds one profile by userDetailId.
+      security: []
+      responses:
+        '200':
+          description: User detail found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDetailResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    put:
+      tags: [User - Details]
+      operationId: updateUserDetail
+      summary: Replace a user detail
+      description: Replaces all profile fields and may associate the record with a different existing user when that user has no detail record.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserDetailRequest' }
+            example:
+              userId: 10
+              dateOfBirth: '1998-04-12'
+              riskLevel: HIGH
+              riskScore: 78
+              kycStatus: VERIFIED
+      responses:
+        '200':
+          description: Updated user detail
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDetailResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [User - Details]
+      operationId: deleteUserDetail
+      summary: Delete a user detail
+      description: Permanently deletes the profile record.
+      security: []
+      responses:
+        '204': { description: User detail deleted; no response body }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/user-details/user/{userId}:
+    servers:
+      - url: http://localhost:8082
+        description: User Service direct
+      - url: http://localhost:8081/user
+        description: User Service through API Gateway
+    get:
+      tags: [User - Details]
+      operationId: getUserDetailByUserId
+      summary: Get a detail record by user ID
+      description: Finds the single profile associated with userId.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User detail found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserDetailResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/bank-accounts:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    post:
+      tags: [Bank - Accounts]
+      operationId: createBankAccount
+      summary: Register a bank account
+      description: |
+        Validates the referenced user through User Service, requires that user to be
+        ACTIVE, normalizes the account number, and creates an ACTIVE account. The first
+        account for a user becomes primary; requesting primary clears the user's other
+        primary flags. The account number must be globally unique.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateBankAccountRequest' }
+            example:
+              userId: 10
+              bankName: HDFC Bank
+              branchName: Andheri East
+              accountNumber: '50100234567890'
+              accountType: SAVINGS
+              ifscCode: HDFC0001234
+              openingBalance: 250000.00
+              primaryAccount: true
+      responses:
+        '201':
+          description: Bank account registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BankAccountResponse' }
+              example:
+                bankAccountId: 1
+                userId: 10
+                bankName: HDFC Bank
+                branchName: Andheri East
+                maskedAccountNumber: "**********7890"
+                accountType: SAVINGS
+                ifscCode: HDFC0001234
+                balance: 250000.00
+                primaryAccount: true
+                status: ACTIVE
+                createdAt: '2026-07-30T10:20:00'
+                updatedAt: '2026-07-30T10:20:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [Bank - Accounts]
+      operationId: listBankAccounts
+      summary: List and filter bank accounts
+      description: Filters in memory by optional user ID, parsed status, and primary flag. An invalid status string returns 400.
+      security: []
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema: { type: integer, format: int64 }
+          example: 10
+        - name: status
+          in: query
+          required: false
+          schema: { $ref: '#/components/schemas/BankAccountStatus' }
+          example: ACTIVE
+        - name: primary
+          in: query
+          required: false
+          schema: { type: boolean }
+          example: true
+      responses:
+        '200':
+          description: Matching bank accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BankAccountResponse' }
+              example:
+                - bankAccountId: 1
+                  userId: 10
+                  bankName: HDFC Bank
+                  branchName: Andheri East
+                  maskedAccountNumber: "**********7890"
+                  accountType: SAVINGS
+                  ifscCode: HDFC0001234
+                  balance: 250000.00
+                  primaryAccount: true
+                  status: ACTIVE
+                  createdAt: '2026-07-30T10:20:00'
+                  updatedAt: '2026-07-30T10:20:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/bank-accounts/{id}:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Bank - Accounts]
+      operationId: getBankAccountById
+      summary: Get a bank account
+      description: Returns account metadata, masked account number, and current balance.
+      security: []
+      responses:
+        '200':
+          description: Bank account found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BankAccountResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    put:
+      tags: [Bank - Accounts]
+      operationId: updateBankAccount
+      summary: Update mutable bank account fields
+      description: Updates only non-null bank name, branch, account type, IFSC, and status fields. Setting CLOSED also clears the primary flag.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateBankAccountRequest' }
+            example:
+              bankName: HDFC Bank
+              branchName: Bandra Kurla Complex
+              accountType: SAVINGS
+              ifscCode: HDFC0004321
+              status: ACTIVE
+      responses:
+        '200':
+          description: Updated bank account
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BankAccountResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [Bank - Accounts]
+      operationId: closeBankAccount
+      summary: Close a bank account
+      description: Soft-closes the account by setting status CLOSED and primaryAccount false; it does not delete the database row.
+      security: []
+      responses:
+        '204': { description: Account closed; no response body }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/bank-accounts/{id}/primary:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    patch:
+      tags: [Bank - Accounts]
+      operationId: makeBankAccountPrimary
+      summary: Make an account primary
+      description: Marks an ACTIVE account primary and clears the primary flag from the user's other accounts. No request body is accepted.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Updated primary account
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BankAccountResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/bank-accounts/{id}/debit:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    post:
+      tags: [Bank - Accounts]
+      operationId: debitBankAccount
+      summary: Debit a bank account
+      description: |
+        Locks the account row and subtracts the amount when the account is ACTIVE and
+        funded. Business rejection (inactive account or insufficient funds) still
+        returns HTTP 200 with `approved: false`. Trading Service consumes this endpoint.
+        The transaction reference is returned but is not persisted or deduplicated.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DebitRequest' }
+            example: { amount: 1450.00, transactionReference: TRADE-8 }
+      responses:
+        '200':
+          description: Debit decision
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DebitResult' }
+              examples:
+                approved:
+                  value: { approved: true, reference: TRADE-8, failureReason: null }
+                rejected:
+                  value: { approved: false, reference: TRADE-8, failureReason: Insufficient balance }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/bank-accounts/{id}/credit:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    post:
+      tags: [Bank - Accounts]
+      operationId: creditBankAccount
+      summary: Credit a bank account
+      description: |
+        Locks the account row and adds the amount unless the account is CLOSED.
+        A CLOSED-account rejection is HTTP 200 with `successful: false`. Trading uses
+        this for SELL proceeds and BUY compensation. References are not deduplicated.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreditRequest' }
+            example: { amount: 1450.00, transactionReference: REVERSAL-TRADE-8 }
+      responses:
+        '200':
+          description: Credit result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreditResult' }
+              examples:
+                successful:
+                  value: { successful: true, reference: REVERSAL-TRADE-8, failureReason: null }
+                rejected:
+                  value: { successful: false, reference: TRADE-8, failureReason: Cannot credit a CLOSED bank account }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/kyc-documents:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    post:
+      tags: [Bank - KYC]
+      operationId: createKycDocument
+      summary: Submit a KYC document record
+      description: Validates the ACTIVE user through User Service, normalizes the document number, and creates an ACTIVE/PENDING document. The document content itself is not uploaded.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateKycDocumentRequest' }
+            example:
+              userId: 10
+              documentType: PAN
+              documentNumber: ABCDE1234F
+              fileName: pan-card.pdf
+      responses:
+        '201':
+          description: KYC document record created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/KycDocumentResponse' }
+              example:
+                kycDocumentId: 7
+                userId: 10
+                documentType: PAN
+                maskedDocumentNumber: "******234F"
+                fileName: pan-card.pdf
+                verificationStatus: PENDING
+                submittedDate: '2026-07-30'
+                verifiedDate: null
+                status: ACTIVE
+                createdAt: '2026-07-30T10:30:00'
+                updatedAt: '2026-07-30T10:30:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [Bank - KYC]
+      operationId: listKycDocuments
+      summary: List and filter KYC documents
+      description: Filters by optional user ID, verification status, and document type. Enum strings are parsed case-insensitively by service code.
+      security: []
+      parameters:
+        - name: userId
+          in: query
+          schema: { type: integer, format: int64 }
+          example: 10
+        - name: verificationStatus
+          in: query
+          schema: { $ref: '#/components/schemas/VerificationStatus' }
+          example: VERIFIED
+        - name: documentType
+          in: query
+          schema: { $ref: '#/components/schemas/DocumentType' }
+          example: PAN
+      responses:
+        '200':
+          description: Matching KYC documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/KycDocumentResponse' }
+              example:
+                - kycDocumentId: 7
+                  userId: 10
+                  documentType: PAN
+                  maskedDocumentNumber: "******234F"
+                  fileName: pan-card.pdf
+                  verificationStatus: VERIFIED
+                  submittedDate: '2026-07-30'
+                  verifiedDate: '2026-07-30'
+                  status: ACTIVE
+                  createdAt: '2026-07-30T10:30:00'
+                  updatedAt: '2026-07-30T10:35:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/kyc-documents/{id}:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Bank - KYC]
+      operationId: getKycDocumentById
+      summary: Get a KYC document record
+      description: Returns metadata and a masked document number; the stored file is not served.
+      security: []
+      responses:
+        '200':
+          description: KYC document found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/KycDocumentResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [Bank - KYC]
+      operationId: deactivateKycDocument
+      summary: Deactivate a KYC document
+      description: Soft-deactivates the record by setting status INACTIVE.
+      security: []
+      responses:
+        '204': { description: KYC document deactivated; no response body }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/kyc-documents/{id}/verification:
+    servers:
+      - url: http://localhost:8083
+        description: Bank Service direct
+      - url: http://localhost:8081/bank
+        description: Bank Service through API Gateway
+    put:
+      tags: [Bank - KYC]
+      operationId: updateKycVerification
+      summary: Update KYC verification status
+      description: Sets PENDING, VERIFIED, or REJECTED. verifiedDate is set to today only for VERIFIED and cleared otherwise.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateKycVerificationRequest' }
+            example: { verificationStatus: VERIFIED }
+      responses:
+        '200':
+          description: Updated KYC document
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/KycDocumentResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/product-types:
+    servers:
+      - url: http://localhost:8086
+        description: Product Service direct
+      - url: http://localhost:8081/product
+        description: Product Service through API Gateway
+    post:
+      tags: [Product - Types]
+      operationId: createProductType
+      summary: Create a product type
+      description: Creates a uniquely coded product category. The code is trimmed, upper-cased, and has spaces replaced by underscores; status defaults to ACTIVE.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateProductTypeRequest' }
+            example:
+              typeCode: EQUITY
+              typeName: Listed Equity
+              description: Exchange-listed equity instruments
+              status: ACTIVE
+      responses:
+        '201':
+          description: Product type created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductTypeResponse' }
+              example:
+                productTypeId: 1
+                typeCode: EQUITY
+                typeName: Listed Equity
+                description: Exchange-listed equity instruments
+                status: ACTIVE
+                createdAt: '2026-07-30T10:40:00'
+                updatedAt: '2026-07-30T10:40:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [Product - Types]
+      operationId: listProductTypes
+      summary: List and filter product types
+      description: Filters by optional exact status and case-insensitive exact type name.
+      security: []
+      parameters:
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/ProductStatus' }
+          example: ACTIVE
+        - name: typeName
+          in: query
+          schema: { type: string }
+          example: Listed Equity
+      responses:
+        '200':
+          description: Matching product types
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProductTypeResponse' }
+              example:
+                - productTypeId: 1
+                  typeCode: EQUITY
+                  typeName: Listed Equity
+                  description: Exchange-listed equity instruments
+                  status: ACTIVE
+                  createdAt: '2026-07-30T10:40:00'
+                  updatedAt: '2026-07-30T10:40:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/product-types/{id}:
+    servers:
+      - url: http://localhost:8086
+        description: Product Service direct
+      - url: http://localhost:8081/product
+        description: Product Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Product - Types]
+      operationId: getProductTypeById
+      summary: Get a product type
+      description: Finds a product type by productTypeId.
+      security: []
+      responses:
+        '200':
+          description: Product type found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductTypeResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    put:
+      tags: [Product - Types]
+      operationId: updateProductType
+      summary: Replace a product type
+      description: Replaces all request fields while preserving code uniqueness and normalization.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateProductTypeRequest' }
+            example:
+              typeCode: EQUITY
+              typeName: Listed Equity Securities
+              description: Exchange-listed shares
+              status: ACTIVE
+      responses:
+        '200':
+          description: Updated product type
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductTypeResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [Product - Types]
+      operationId: deleteProductType
+      summary: Delete an unused product type
+      description: Deletes the type only when no investment product references it.
+      security: []
+      responses:
+        '204': { description: Product type deleted; no response body }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/products:
+    servers:
+      - url: http://localhost:8086
+        description: Product Service direct
+      - url: http://localhost:8081/product
+        description: Product Service through API Gateway
+    post:
+      tags: [Product - Products]
+      operationId: createInvestmentProduct
+      summary: Create an investment product
+      description: Creates a uniquely named product for an existing product type. Maturity may not precede issue date; status defaults to ACTIVE.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateInvestmentProductRequest' }
+            example:
+              productTypeId: 1
+              productName: WealthTrack Nifty 50 ETF
+              basePrice: 1400.00
+              currentPrice: 1450.00
+              minimumInvestment: 1450.00
+              riskCategory: MODERATE
+              priceMethod: MARKET
+              tenureMonths: null
+              interestRate: null
+              issueDate: '2025-01-01'
+              maturityDate: null
+              status: ACTIVE
+      responses:
+        '201':
+          description: Investment product created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestmentProductResponse' }
+              example:
+                productId: 1
+                productTypeId: 1
+                productTypeCode: EQUITY
+                productName: WealthTrack Nifty 50 ETF
+                basePrice: 1400.00
+                currentPrice: 1450.00
+                minimumInvestment: 1450.00
+                riskCategory: MODERATE
+                priceMethod: MARKET
+                tenureMonths: null
+                interestRate: null
+                issueDate: '2025-01-01'
+                maturityDate: null
+                status: ACTIVE
+                active: true
+                createdAt: '2026-07-30T10:45:00'
+                updatedAt: '2026-07-30T10:45:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [Product - Products]
+      operationId: listInvestmentProducts
+      summary: List and filter investment products
+      description: Applies optional exact filters for product type, status, risk category, price method, and case-insensitive exact product name.
+      security: []
+      parameters:
+        - name: productTypeId
+          in: query
+          schema: { type: integer, format: int64 }
+          example: 1
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/ProductStatus' }
+          example: ACTIVE
+        - name: riskCategory
+          in: query
+          schema: { $ref: '#/components/schemas/RiskCategory' }
+          example: MODERATE
+        - name: priceMethod
+          in: query
+          schema: { $ref: '#/components/schemas/PriceMethod' }
+          example: MARKET
+        - name: productName
+          in: query
+          schema: { type: string }
+          example: WealthTrack Nifty 50 ETF
+      responses:
+        '200':
+          description: Matching investment products
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/InvestmentProductResponse' }
+              example:
+                - productId: 1
+                  productTypeId: 1
+                  productTypeCode: EQUITY
+                  productName: WealthTrack Nifty 50 ETF
+                  basePrice: 1400.00
+                  currentPrice: 1450.00
+                  minimumInvestment: 1450.00
+                  riskCategory: MODERATE
+                  priceMethod: MARKET
+                  tenureMonths: null
+                  interestRate: null
+                  issueDate: '2025-01-01'
+                  maturityDate: null
+                  status: ACTIVE
+                  active: true
+                  createdAt: '2026-07-30T10:45:00'
+                  updatedAt: '2026-07-30T10:45:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/products/{id}:
+    servers:
+      - url: http://localhost:8086
+        description: Product Service direct
+      - url: http://localhost:8081/product
+        description: Product Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Product - Products]
+      operationId: getInvestmentProductById
+      summary: Get an investment product
+      description: Returns the full product quote and lifecycle fields. Portfolio and Trading consume projections of this response.
+      security: []
+      responses:
+        '200':
+          description: Investment product found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestmentProductResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    put:
+      tags: [Product - Products]
+      operationId: updateInvestmentProduct
+      summary: Replace an investment product
+      description: Replaces every request field, revalidates the referenced product type and dates, and preserves global name uniqueness.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateInvestmentProductRequest' }
+            example:
+              productTypeId: 1
+              productName: WealthTrack Nifty 50 ETF
+              basePrice: 1400.00
+              currentPrice: 1475.25
+              minimumInvestment: 1475.25
+              riskCategory: MODERATE
+              priceMethod: MARKET
+              tenureMonths: null
+              interestRate: null
+              issueDate: '2025-01-01'
+              maturityDate: null
+              status: ACTIVE
+      responses:
+        '200':
+          description: Updated investment product
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestmentProductResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [Product - Products]
+      operationId: deleteInvestmentProduct
+      summary: Delete an investment product
+      description: Permanently deletes the product. The service contains no explicit cross-service holding/trade check; database constraints may still reject deletion.
+      security: []
+      responses:
+        '204': { description: Investment product deleted; no response body }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    get:
+      tags: [Portfolio]
+      operationId: portfolioHome
+      summary: Portfolio Service liveness message
+      description: Custom plain-text root endpoint indicating that the Portfolio application is running. It does not check database or dependency health.
+      security: []
+      responses:
+        '200':
+          description: Liveness text
+          content:
+            text/plain:
+              schema: { type: string }
+              example: Portfolio microservice is running
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/portfolios:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    post:
+      tags: [Portfolio]
+      operationId: createPortfolioAccount
+      summary: Open a portfolio account
+      description: Validates the referenced ACTIVE user through User Service, enforces one portfolio per user, rejects future opened dates, and defaults openedDate to today.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePortfolioAccountRequest' }
+            example: { userId: 10, openedDate: '2026-07-30' }
+      responses:
+        '201':
+          description: Portfolio account opened
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioAccountResponse' }
+              example:
+                portfolioAccountId: 1
+                userId: 10
+                accountStatus: ACTIVE
+                openedDate: '2026-07-30'
+                closedDate: null
+                createdAt: '2026-07-30T10:50:00'
+                updatedAt: '2026-07-30T10:50:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [Portfolio]
+      operationId: listPortfolioAccounts
+      summary: List portfolio accounts
+      description: Returns all portfolio accounts without filtering or pagination.
+      security: []
+      responses:
+        '200':
+          description: Portfolio account list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PortfolioAccountResponse' }
+              example:
+                - portfolioAccountId: 1
+                  userId: 10
+                  accountStatus: ACTIVE
+                  openedDate: '2026-07-30'
+                  closedDate: null
+                  createdAt: '2026-07-30T10:50:00'
+                  updatedAt: '2026-07-30T10:50:00'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/{portfolioAccountId}:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    get:
+      tags: [Portfolio]
+      operationId: getPortfolioAccount
+      summary: Get a portfolio account
+      description: Returns account status and lifecycle dates.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PortfolioAccountId'
+      responses:
+        '200':
+          description: Portfolio account found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioAccountResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/by-user/{userId}:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    get:
+      tags: [Portfolio]
+      operationId: getPortfolioAccountByUser
+      summary: Get a user's portfolio account
+      description: Finds the single portfolio for userId. Trading consumes this endpoint for investment overview aggregation.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Portfolio account found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioAccountResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/{portfolioAccountId}/status:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    patch:
+      tags: [Portfolio]
+      operationId: updatePortfolioStatus
+      summary: Change portfolio account status
+      description: Sets ACTIVE, SUSPENDED, or CLOSED. Closing is rejected while any non-closed holding has positive quantity; closedDate is maintained automatically.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PortfolioAccountId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdatePortfolioStatusRequest' }
+            example: { accountStatus: SUSPENDED }
+      responses:
+        '200':
+          description: Updated portfolio account
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioAccountResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/{portfolioAccountId}/holdings:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    post:
+      tags: [Portfolio]
+      operationId: addPortfolioHolding
+      summary: Add to a portfolio holding
+      description: |
+        Requires an ACTIVE portfolio and an ACTIVE product validated through Product
+        Service. Creates a holding or increases the existing product holding, calculates
+        weighted average cost, and values it using that average cost.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PortfolioAccountId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateHoldingRequest' }
+            example: { productId: 1, quantity: 100.0000, averageCost: 1400.0000 }
+      responses:
+        '201':
+          description: Holding created or increased
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioHoldingResponse' }
+              example:
+                holdingId: 1
+                portfolioAccountId: 1
+                productId: 1
+                quantity: 100.0000
+                averageCost: 1400.0000
+                marketValue: 140000.0000
+                unrealizedGainLoss: 0.0000
+                holdingStatus: ACTIVE
+                lastValuedAt: '2026-07-30T10:55:00'
+                createdAt: '2026-07-30T10:55:00'
+                updatedAt: '2026-07-30T10:55:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [Portfolio]
+      operationId: listPortfolioHoldings
+      summary: List portfolio holdings
+      description: Validates that the portfolio exists and optionally filters holdings by status. Trading consumes the unfiltered form for investment overview.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PortfolioAccountId'
+        - name: status
+          in: query
+          required: false
+          schema: { $ref: '#/components/schemas/HoldingStatus' }
+          example: ACTIVE
+      responses:
+        '200':
+          description: Portfolio holdings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PortfolioHoldingResponse' }
+              example:
+                - holdingId: 1
+                  portfolioAccountId: 1
+                  productId: 1
+                  quantity: 100.0000
+                  averageCost: 1400.0000
+                  marketValue: 140000.0000
+                  unrealizedGainLoss: 0.0000
+                  holdingStatus: ACTIVE
+                  lastValuedAt: '2026-07-30T10:55:00'
+                  createdAt: '2026-07-30T10:55:00'
+                  updatedAt: '2026-07-30T10:55:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/holdings/{holdingId}:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    parameters:
+      - $ref: '#/components/parameters/HoldingId'
+    get:
+      tags: [Portfolio]
+      operationId: getPortfolioHolding
+      summary: Get a holding
+      description: Returns quantity, cost, stored market value, calculated unrealized gain/loss, status, and timestamps.
+      security: []
+      responses:
+        '200':
+          description: Holding found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioHoldingResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    patch:
+      tags: [Portfolio]
+      operationId: updatePortfolioHolding
+      summary: Partially update a holding
+      description: Updates non-null quantity, average cost, or holding status on an ACTIVE portfolio. Quantity zero automatically closes and zero-values the holding.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateHoldingRequest' }
+            example: { quantity: 105.0000, averageCost: 1402.3810, holdingStatus: ACTIVE }
+      responses:
+        '200':
+          description: Updated holding
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioHoldingResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    delete:
+      tags: [Portfolio]
+      operationId: deletePortfolioHolding
+      summary: Delete an empty or closed holding
+      description: Permanently deletes a holding only if it has no remaining quantity or is already CLOSED.
+      security: []
+      responses:
+        '204': { description: Holding deleted; no response body }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/internal/trades/validate:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    post:
+      tags: [Portfolio - Internal]
+      operationId: validatePortfolioTrade
+      summary: Pre-validate a trade command
+      description: |
+        Internal synchronous REST contract consumed by Trading before money moves.
+        Confirms active portfolio, matching portfolio/holding/product IDs, BUY or SELL
+        type, and sufficient SELL quantity. Despite its internal role, no authentication
+        or gateway exclusion protects it.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApplyTradeRequest' }
+            example:
+              portfolioAccountId: 1
+              holdingId: 1
+              productId: 1
+              transactionType: BUY
+              quantity: 1.0000
+              unitPrice: 1450.0000
+              transactionId: 8
+      responses:
+        '204': { description: Trade is valid; no response body }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/internal/trades:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    post:
+      tags: [Portfolio - Internal]
+      operationId: applyCompletedPortfolioTrade
+      summary: Apply an already-funded trade
+      description: |
+        Internal command used by Trading after the corresponding bank step. Re-runs
+        validation, then increases quantity and weighted average cost for BUY or
+        decreases quantity for SELL. The supplied unitPrice sets marketValue. The
+        transactionId is validated as positive but is not persisted or deduplicated,
+        so the endpoint is not idempotent.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApplyTradeRequest' }
+            example:
+              portfolioAccountId: 1
+              holdingId: 1
+              productId: 1
+              transactionType: BUY
+              quantity: 1.0000
+              unitPrice: 1450.0000
+              transactionId: 8
+      responses:
+        '204': { description: Trade applied; no response body }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolios/{portfolioAccountId}/summary:
+    servers:
+      - url: http://localhost:8084
+        description: Portfolio Service direct
+      - url: http://localhost:8081/portfolio
+        description: Portfolio Service through API Gateway
+    get:
+      tags: [Portfolio]
+      operationId: getPortfolioSummary
+      summary: Get a portfolio valuation summary
+      description: Returns the account, all holdings, total cost, summed stored market value, and unrealized gain/loss. It does not fetch fresh Product prices.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PortfolioAccountId'
+      responses:
+        '200':
+          description: Portfolio summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioSummaryResponse' }
+              example:
+                portfolioAccount:
+                  portfolioAccountId: 1
+                  userId: 10
+                  accountStatus: ACTIVE
+                  openedDate: '2026-07-30'
+                  closedDate: null
+                  createdAt: '2026-07-30T10:50:00'
+                  updatedAt: '2026-07-30T10:50:00'
+                holdings:
+                  - holdingId: 1
+                    portfolioAccountId: 1
+                    productId: 1
+                    quantity: 101.0000
+                    averageCost: 1400.4950
+                    marketValue: 146450.0000
+                    unrealizedGainLoss: 4999.9950
+                    holdingStatus: ACTIVE
+                    lastValuedAt: '2026-07-30T11:00:00'
+                    createdAt: '2026-07-30T10:55:00'
+                    updatedAt: '2026-07-30T11:00:00'
+                totalCost: 141449.9950
+                marketValue: 146450.0000
+                unrealizedGainLoss: 5000.0050
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/trade-transactions:
+    servers:
+      - url: http://localhost:8085
+        description: Trading Service direct
+      - url: http://localhost:8081/trading
+        description: Trading Service through API Gateway
+    post:
+      tags: [Trading - Transactions]
+      operationId: createTradeTransaction
+      summary: Execute a BUY or SELL trade
+      description: |
+        Persists PENDING, obtains Product Service's active currentPrice (the request's
+        unitPrice is therefore overwritten), validates the Portfolio, then runs a
+        synchronous saga:
+
+        * BUY: Bank debit -> Portfolio apply; credit compensation on Portfolio failure.
+        * SELL: Portfolio apply -> Bank credit; reverse Portfolio command on credit failure.
+
+        A completed trade returns 201. Any caught execution failure is persisted as
+        FAILED and returned as 422 with the same TradeTransactionResponse shape and a
+        failureReason. The external calls and compensations are not globally atomic.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateTradeTransactionRequest' }
+            example:
+              portfolioAccountId: 1
+              holdingId: 1
+              productId: 1
+              bankAccountId: 1
+              transactionType: BUY
+              quantity: 1.00
+              unitPrice: 1450.00
+      responses:
+        '201':
+          description: Trade completed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TradeTransactionResponse' }
+              example:
+                transactionId: 8
+                portfolioAccountId: 1
+                holdingId: 1
+                productId: 1
+                transactionType: BUY
+                quantity: 1.00
+                unitPrice: 1450.00
+                totalAmount: 1450.00
+                transactionStatus: COMPLETED
+                transactionDate: '2026-07-30T11:00:00'
+                failureReason: null
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422':
+          description: Trade was accepted for execution but failed; this is a persisted business result, not the standard error envelope
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TradeTransactionResponse' }
+              example:
+                transactionId: 9
+                portfolioAccountId: 1
+                holdingId: 1
+                productId: 1
+                transactionType: BUY
+                quantity: 1.00
+                unitPrice: 1450.00
+                totalAmount: 1450.00
+                transactionStatus: FAILED
+                transactionDate: '2026-07-30T11:05:00'
+                failureReason: Insufficient balance
+        '500': { $ref: '#/components/responses/InternalServerError' }
+    get:
+      tags: [Trading - Transactions]
+      operationId: listTradeTransactions
+      summary: List and filter trades
+      description: Filters stored transactions by optional portfolio ID, case-insensitive status/type strings, and inclusive transactionDate boundaries. Unknown status/type values simply produce no matching rows.
+      security: []
+      parameters:
+        - name: portfolioAccountId
+          in: query
+          schema: { type: integer, format: int64 }
+          example: 1
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/TransactionStatus' }
+          example: COMPLETED
+        - name: type
+          in: query
+          schema: { $ref: '#/components/schemas/TransactionType' }
+          example: BUY
+        - name: startDate
+          in: query
+          description: Inclusive ISO-8601 local date-time; no timezone offset is modeled by LocalDateTime.
+          schema: { type: string, format: date-time }
+          example: '2026-07-01T00:00:00'
+        - name: endDate
+          in: query
+          description: Inclusive ISO-8601 local date-time.
+          schema: { type: string, format: date-time }
+          example: '2026-07-31T23:59:59'
+      responses:
+        '200':
+          description: Matching trades
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TradeTransactionResponse' }
+              example:
+                - transactionId: 8
+                  portfolioAccountId: 1
+                  holdingId: 1
+                  productId: 1
+                  transactionType: BUY
+                  quantity: 1.00
+                  unitPrice: 1450.00
+                  totalAmount: 1450.00
+                  transactionStatus: COMPLETED
+                  transactionDate: '2026-07-30T11:00:00'
+                  failureReason: null
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/trade-transactions/{id}:
+    servers:
+      - url: http://localhost:8085
+        description: Trading Service direct
+      - url: http://localhost:8081/trading
+        description: Trading Service through API Gateway
+    get:
+      tags: [Trading - Transactions]
+      operationId: getTradeTransaction
+      summary: Get a trade
+      description: Returns one stored trade. failureReason is not persisted by the entity and is therefore null when a previously failed trade is read back.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Trade found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TradeTransactionResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/portfolio-statements/internal:
+    servers:
+      - url: http://localhost:8085
+        description: Trading Service direct
+      - url: http://localhost:8081/trading
+        description: Trading Service through API Gateway
+    post:
+      tags: [Trading - Statements]
+      operationId: createPortfolioStatement
+      summary: Generate a portfolio statement record
+      description: |
+        Internal-named but unauthenticated endpoint. Validates the date range, loads the
+        required primary transaction plus unique non-null transactionIds from Trading's
+        database, and creates a GENERATED statement. It does not call Portfolio Service
+        or calculate opening/closing values; callers supply those values.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePortfolioStatementRequest' }
+            example:
+              portfolioAccountId: 1
+              holdingId: 1
+              transactionId: 8
+              statementStart: '2026-07-01'
+              statementEnd: '2026-07-31'
+              openingValue: 140000.00
+              closingValue: 146450.00
+              transactionIds: [8, 10, 11]
+      responses:
+        '201':
+          description: Statement generated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioStatementResponse' }
+              example:
+                statementId: 4
+                portfolioAccountId: 1
+                holdingId: 1
+                transactionId: 8
+                statementStart: '2026-07-01'
+                statementEnd: '2026-07-31'
+                openingValue: 140000.00
+                closingValue: 146450.00
+                generatedAt: '2026-07-30T11:10:00'
+                status: GENERATED
+                transactionIds: [8, 10, 11]
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolio-statements:
+    servers:
+      - url: http://localhost:8085
+        description: Trading Service direct
+      - url: http://localhost:8081/trading
+        description: Trading Service through API Gateway
+    get:
+      tags: [Trading - Statements]
+      operationId: listPortfolioStatements
+      summary: List and filter portfolio statements
+      description: Filters by optional portfolio ID, case-insensitive status string, statementStart lower bound, and statementEnd upper bound.
+      security: []
+      parameters:
+        - name: portfolioAccountId
+          in: query
+          schema: { type: integer, format: int64 }
+          example: 1
+        - name: status
+          in: query
+          schema: { type: string }
+          description: The implementation creates GENERATED; the field is a free-form string in storage.
+          example: GENERATED
+        - name: startDate
+          in: query
+          schema: { type: string, format: date }
+          example: '2026-07-01'
+        - name: endDate
+          in: query
+          schema: { type: string, format: date }
+          example: '2026-07-31'
+      responses:
+        '200':
+          description: Matching statements
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PortfolioStatementResponse' }
+              example:
+                - statementId: 4
+                  portfolioAccountId: 1
+                  holdingId: 1
+                  transactionId: 8
+                  statementStart: '2026-07-01'
+                  statementEnd: '2026-07-31'
+                  openingValue: 140000.00
+                  closingValue: 146450.00
+                  generatedAt: '2026-07-30T11:10:00'
+                  status: GENERATED
+                  transactionIds: [8, 10, 11]
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+  /api/portfolio-statements/{id}:
+    servers:
+      - url: http://localhost:8085
+        description: Trading Service direct
+      - url: http://localhost:8081/trading
+        description: Trading Service through API Gateway
+    get:
+      tags: [Trading - Statements]
+      operationId: getPortfolioStatement
+      summary: Get a portfolio statement
+      description: Returns one generated statement and its associated transaction IDs.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Statement found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PortfolioStatementResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+  /api/investment-overview/users/{userId}:
+    servers:
+      - url: http://localhost:8085
+        description: Trading Service direct
+      - url: http://localhost:8081/trading
+        description: Trading Service through API Gateway
+    get:
+      tags: [Trading - Overview]
+      operationId: getInvestmentOverview
+      summary: Get a user's consolidated investment overview
+      description: |
+        Fetches the user's portfolio and holdings from Portfolio Service, reads
+        completed trades from Trading's database, and fetches current product details
+        from Product Service once per represented product. Calculates bought/sold/current
+        quantities, weighted average buy price, invested value, current valuation, and
+        profit/loss. The Trading exception handler has no generic catch-all; an uncaught
+        Feign/runtime failure therefore uses Spring's default 500 response, whose exact
+        body cannot be fully determined from this controller code.
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Consolidated investment overview
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/InvestmentOverviewResponse' }
+              example:
+                userId: 10
+                portfolioAccountId: 1
+                positions:
+                  - productId: 1
+                    productName: WealthTrack Nifty 50 ETF
+                    boughtQuantity: 101.0000
+                    soldQuantity: 0.0000
+                    currentQuantity: 101.0000
+                    averageBuyPrice: 1400.4950
+                    currentPrice: 1450.0000
+                    investedValue: 141449.9950
+                    currentValuation: 146450.0000
+                    profitLoss: 5000.0050
+                    lastTransactionDate: '2026-07-30T11:00:00'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: Resource identifier
+      schema: { type: integer, format: int64, minimum: 1 }
+      example: 1
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: User identifier
+      schema: { type: integer, format: int64, minimum: 1 }
+      example: 10
+    RoleId:
+      name: roleId
+      in: path
+      required: true
+      description: Role identifier
+      schema: { type: integer, format: int64, minimum: 1 }
+      example: 1
+    PortfolioAccountId:
+      name: portfolioAccountId
+      in: path
+      required: true
+      description: Portfolio account identifier
+      schema: { type: integer, format: int64, minimum: 1 }
+      example: 1
+    HoldingId:
+      name: holdingId
+      in: path
+      required: true
+      description: Portfolio holding identifier
+      schema: { type: integer, format: int64, minimum: 1 }
+      example: 1
+
+  responses:
+    BadRequest:
+      description: Request validation, enum parsing, date-range, or business-rule failure
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StandardApiError' }
+          examples:
+            validation:
+              summary: Validation error
+              value:
+                timestamp: '2026-07-30T11:15:00'
+                status: 400
+                error: Bad Request
+                message: Request validation failed
+                path: /api/bank-accounts
+                fieldErrors:
+                  accountNumber: must not be blank
+            businessRule:
+              summary: Business-rule error
+              value:
+                timestamp: '2026-07-30T11:15:00'
+                status: 400
+                message: Portfolio account 1 is not active
+    Unauthorized:
+      description: |
+        Reusable 401 template. No reviewed service currently authenticates requests, so
+        this response is not emitted by application security in the current code.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StandardApiError' }
+          example:
+            timestamp: '2026-07-30T11:15:00'
+            status: 401
+            error: Unauthorized
+            message: Authentication is required
+            path: /api/example
+    Forbidden:
+      description: |
+        Reusable 403 template. No reviewed service currently enforces roles or
+        permissions, so this response is not emitted by application authorization.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StandardApiError' }
+          example:
+            timestamp: '2026-07-30T11:15:00'
+            status: 403
+            error: Forbidden
+            message: The authenticated principal cannot perform this operation
+            path: /api/example
+    NotFound:
+      description: Requested resource does not exist
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StandardApiError' }
+          example:
+            timestamp: '2026-07-30T11:15:00'
+            status: 404
+            error: Not Found
+            message: Resource not found
+            path: /api/example/999
+    Conflict:
+      description: Duplicate or data-integrity conflict; only handlers that map conflicts return this status
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StandardApiError' }
+          example:
+            timestamp: '2026-07-30T11:15:00'
+            status: 409
+            error: Conflict
+            message: The record conflicts with existing data
+            path: /api/example
+    UnprocessableEntity:
+      description: Reusable 422 error template. Trading's create operation instead returns a failed TradeTransactionResponse for its implemented 422.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StandardApiError' }
+          example:
+            timestamp: '2026-07-30T11:15:00'
+            status: 422
+            error: Unprocessable Entity
+            message: The request was valid but could not be processed
+            path: /api/example
+    InternalServerError:
+      description: |
+        Unexpected server or dependency failure. Bank and Portfolio define this envelope
+        explicitly. User, Product, Trading, and Gateway may fall through to Spring's
+        default error handling, so their exact 500 body is not fully determined.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/StandardApiError' }
+          example:
+            timestamp: '2026-07-30T11:15:00'
+            status: 500
+            error: Internal Server Error
+            message: Internal server error
+            path: /api/example
+
+  examples:
+    GetResponseTemplate:
+      summary: Reusable GET response template
+      description: Replace the payload fields with the response schema for the selected GET operation.
+      value:
+        id: 1
+        status: ACTIVE
+    PostRequestTemplate:
+      summary: Reusable POST request template
+      value:
+        requiredField: realistic-value
+    PostResponseTemplate:
+      summary: Reusable 201 response template
+      value:
+        id: 1
+        createdAt: '2026-07-30T11:15:00'
+    PutRequestTemplate:
+      summary: Reusable full-replacement PUT request template
+      value:
+        allRequiredFields: supply-all-required-fields
+    PutResponseTemplate:
+      summary: Reusable PUT response template
+      value:
+        id: 1
+        updatedAt: '2026-07-30T11:20:00'
+    PatchRequestTemplate:
+      summary: Reusable partial-update PATCH request template
+      value:
+        fieldToChange: new-value
+    PatchResponseTemplate:
+      summary: Reusable PATCH response template
+      value:
+        id: 1
+        fieldToChange: new-value
+    DeleteResponseTemplate:
+      summary: Reusable DELETE response template
+      description: A successful DELETE in this repository returns 204 with no body.
+      value: null
+
+  schemas:
+    StandardApiError:
+      type: object
+      description: |
+        Superset reusable error envelope covering the three code-defined formats. Only
+        `timestamp`, `status`, and `message` are common to all custom handlers. Optional
+        fields appear in Bank/Portfolio handlers. Spring default errors can contain
+        additional fields.
+      required: [timestamp, status, message]
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-07-30T11:15:00'
+        status:
+          type: integer
+          format: int32
+          example: 400
+        error:
+          type: string
+          nullable: true
+          example: Bad Request
+        message:
+          type: string
+          example: Request validation failed
+        path:
+          type: string
+          nullable: true
+          example: /api/bank-accounts
+        fieldErrors:
+          type: object
+          nullable: true
+          additionalProperties: { type: string }
+          example: { accountNumber: must not be blank }
+        validationErrors:
+          type: object
+          nullable: true
+          additionalProperties: { type: string }
+          example: { quantity: must be greater than or equal to 0.0001 }
+
+    UserStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, SUSPENDED]
+    KycStatus:
+      type: string
+      enum: [PENDING, VERIFIED, REJECTED]
+    RiskLevel:
+      type: string
+      enum: [LOW, MODERATE, HIGH]
+    CreateRoleRequest:
+      type: object
+      required: [roleName]
+      properties:
+        roleName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: CUSTOMER
+    RoleResponse:
+      type: object
+      required: [roleId, roleName]
+      properties:
+        roleId: { type: integer, format: int64, example: 1 }
+        roleName: { type: string, example: CUSTOMER }
+    CreateUserRequest:
+      type: object
+      required: [roleId, passwordHash, email, fullName]
+      properties:
+        roleId: { type: integer, format: int64, minimum: 1, example: 1 }
+        managerId: { type: integer, format: int64, minimum: 1, nullable: true, example: 2 }
+        passwordHash:
+          type: string
+          minLength: 1
+          writeOnly: true
+          example: "$2a$10$exampleHash"
+        email: { type: string, format: email, minLength: 1, example: atharva.angre@example.com }
+        fullName: { type: string, minLength: 1, example: Atharva Angre }
+        phone: { type: string, nullable: true, example: "+919876543210" }
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UserStatus'
+          nullable: true
+          default: ACTIVE
+    UserResponse:
+      type: object
+      required: [userId, roleId, email, fullName, status, createdAt, updatedAt]
+      properties:
+        userId: { type: integer, format: int64, example: 10 }
+        roleId: { type: integer, format: int64, example: 1 }
+        managerId: { type: integer, format: int64, nullable: true, example: 2 }
+        email: { type: string, format: email, example: atharva.angre@example.com }
+        fullName: { type: string, example: Atharva Angre }
+        phone: { type: string, nullable: true, example: "+919876543210" }
+        status: { $ref: '#/components/schemas/UserStatus' }
+        createdAt: { type: string, format: date-time, example: '2026-07-30T10:15:30' }
+        updatedAt: { type: string, format: date-time, example: '2026-07-30T10:15:30' }
+    CreateUserDetailRequest:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: integer, format: int64, minimum: 1, example: 10 }
+        dateOfBirth: { type: string, format: date, nullable: true, example: '1998-04-12' }
+        riskLevel:
+          allOf: [{ $ref: '#/components/schemas/RiskLevel' }]
+          nullable: true
+        riskScore: { type: integer, format: int32, nullable: true, example: 62 }
+        kycStatus:
+          allOf: [{ $ref: '#/components/schemas/KycStatus' }]
+          nullable: true
+    UserDetailResponse:
+      type: object
+      required: [userDetailId, userId]
+      properties:
+        userDetailId: { type: integer, format: int64, example: 5 }
+        userId: { type: integer, format: int64, example: 10 }
+        dateOfBirth: { type: string, format: date, nullable: true, example: '1998-04-12' }
+        riskLevel:
+          allOf: [{ $ref: '#/components/schemas/RiskLevel' }]
+          nullable: true
+        riskScore: { type: integer, format: int32, nullable: true, example: 62 }
+        kycStatus:
+          allOf: [{ $ref: '#/components/schemas/KycStatus' }]
+          nullable: true
+
+    AccountType:
+      type: string
+      enum: [SAVINGS, CURRENT, SALARY, NRE, NRO, OTHER]
+    BankAccountStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, BLOCKED, CLOSED]
+    DocumentType:
+      type: string
+      enum: [PAN, AADHAAR, PASSPORT, DRIVING_LICENSE, VOTER_ID, OTHER]
+    VerificationStatus:
+      type: string
+      enum: [PENDING, VERIFIED, REJECTED]
+    RecordStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE]
+    CreateBankAccountRequest:
+      type: object
+      required: [userId, bankName, accountNumber, accountType]
+      properties:
+        userId: { type: integer, format: int64, minimum: 1, example: 10 }
+        bankName: { type: string, minLength: 1, maxLength: 120, example: HDFC Bank }
+        branchName: { type: string, maxLength: 120, nullable: true, example: Andheri East }
+        accountNumber: { type: string, minLength: 1, maxLength: 50, example: '50100234567890' }
+        accountType:
+          description: Case-insensitive enum string parsed by the service.
+          allOf: [{ $ref: '#/components/schemas/AccountType' }]
+        ifscCode:
+          type: string
+          nullable: true
+          pattern: '^[A-Za-z]{4}0[A-Za-z0-9]{6}$'
+          example: HDFC0001234
+        openingBalance: { type: number, minimum: 0, nullable: true, default: 0, example: 250000.00 }
+        primaryAccount: { type: boolean, nullable: true, default: false, example: true }
+    UpdateBankAccountRequest:
+      type: object
+      properties:
+        bankName: { type: string, minLength: 1, maxLength: 120, nullable: true, example: HDFC Bank }
+        branchName: { type: string, maxLength: 120, nullable: true, example: Bandra Kurla Complex }
+        accountType:
+          allOf: [{ $ref: '#/components/schemas/AccountType' }]
+          nullable: true
+        ifscCode:
+          type: string
+          nullable: true
+          pattern: '^[A-Za-z]{4}0[A-Za-z0-9]{6}$'
+          example: HDFC0004321
+        status:
+          allOf: [{ $ref: '#/components/schemas/BankAccountStatus' }]
+          nullable: true
+    BankAccountResponse:
+      type: object
+      required: [bankAccountId, userId, bankName, maskedAccountNumber, accountType, balance, primaryAccount, status, createdAt, updatedAt]
+      properties:
+        bankAccountId: { type: integer, format: int64, example: 1 }
+        userId: { type: integer, format: int64, example: 10 }
+        bankName: { type: string, example: HDFC Bank }
+        branchName: { type: string, nullable: true, example: Andheri East }
+        maskedAccountNumber: { type: string, example: "**********7890" }
+        accountType: { $ref: '#/components/schemas/AccountType' }
+        ifscCode: { type: string, nullable: true, example: HDFC0001234 }
+        balance: { type: number, example: 250000.00 }
+        primaryAccount: { type: boolean, example: true }
+        status: { $ref: '#/components/schemas/BankAccountStatus' }
+        createdAt: { type: string, format: date-time, example: '2026-07-30T10:20:00' }
+        updatedAt: { type: string, format: date-time, example: '2026-07-30T10:20:00' }
+    DebitRequest:
+      type: object
+      required: [amount, transactionReference]
+      properties:
+        amount: { type: number, minimum: 0.01, example: 1450.00 }
+        transactionReference: { type: string, minLength: 1, example: TRADE-8 }
+    CreditRequest:
+      type: object
+      required: [amount, transactionReference]
+      properties:
+        amount: { type: number, minimum: 0.01, example: 1450.00 }
+        transactionReference: { type: string, minLength: 1, example: REVERSAL-TRADE-8 }
+    DebitResult:
+      type: object
+      required: [approved, reference]
+      properties:
+        approved: { type: boolean, example: true }
+        reference: { type: string, example: TRADE-8 }
+        failureReason: { type: string, nullable: true, example: null }
+    CreditResult:
+      type: object
+      required: [successful, reference]
+      properties:
+        successful: { type: boolean, example: true }
+        reference: { type: string, example: TRADE-8 }
+        failureReason: { type: string, nullable: true, example: null }
+    CreateKycDocumentRequest:
+      type: object
+      required: [userId, documentType, documentNumber]
+      properties:
+        userId: { type: integer, format: int64, minimum: 1, example: 10 }
+        documentType:
+          description: Case-insensitive enum string parsed by the service.
+          allOf: [{ $ref: '#/components/schemas/DocumentType' }]
+        documentNumber: { type: string, minLength: 1, maxLength: 100, example: ABCDE1234F }
+        fileName: { type: string, maxLength: 255, nullable: true, example: pan-card.pdf }
+    UpdateKycVerificationRequest:
+      type: object
+      required: [verificationStatus]
+      properties:
+        verificationStatus:
+          allOf: [{ $ref: '#/components/schemas/VerificationStatus' }]
+    KycDocumentResponse:
+      type: object
+      required: [kycDocumentId, userId, documentType, maskedDocumentNumber, verificationStatus, submittedDate, status, createdAt, updatedAt]
+      properties:
+        kycDocumentId: { type: integer, format: int64, example: 7 }
+        userId: { type: integer, format: int64, example: 10 }
+        documentType: { $ref: '#/components/schemas/DocumentType' }
+        maskedDocumentNumber: { type: string, example: "******234F" }
+        fileName: { type: string, nullable: true, example: pan-card.pdf }
+        verificationStatus: { $ref: '#/components/schemas/VerificationStatus' }
+        submittedDate: { type: string, format: date, example: '2026-07-30' }
+        verifiedDate: { type: string, format: date, nullable: true, example: '2026-07-30' }
+        status: { $ref: '#/components/schemas/RecordStatus' }
+        createdAt: { type: string, format: date-time, example: '2026-07-30T10:30:00' }
+        updatedAt: { type: string, format: date-time, example: '2026-07-30T10:35:00' }
+
+    ProductStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE]
+    RiskCategory:
+      type: string
+      enum: [LOW, MODERATE, HIGH]
+    PriceMethod:
+      type: string
+      enum: [MARKET, NAV, FIXED]
+    CreateProductTypeRequest:
+      type: object
+      required: [typeCode, typeName]
+      properties:
+        typeCode: { type: string, minLength: 1, maxLength: 255, example: EQUITY }
+        typeName: { type: string, minLength: 1, maxLength: 255, example: Listed Equity }
+        description: { type: string, maxLength: 255, nullable: true, example: Exchange-listed equity instruments }
+        status:
+          allOf: [{ $ref: '#/components/schemas/ProductStatus' }]
+          nullable: true
+          default: ACTIVE
+    ProductTypeResponse:
+      type: object
+      required: [productTypeId, typeCode, typeName, status, createdAt, updatedAt]
+      properties:
+        productTypeId: { type: integer, format: int64, example: 1 }
+        typeCode: { type: string, example: EQUITY }
+        typeName: { type: string, example: Listed Equity }
+        description: { type: string, nullable: true, example: Exchange-listed equity instruments }
+        status: { $ref: '#/components/schemas/ProductStatus' }
+        createdAt: { type: string, format: date-time, example: '2026-07-30T10:40:00' }
+        updatedAt: { type: string, format: date-time, example: '2026-07-30T10:40:00' }
+    CreateInvestmentProductRequest:
+      type: object
+      required: [productTypeId, productName, basePrice, currentPrice, minimumInvestment, riskCategory, priceMethod]
+      properties:
+        productTypeId: { type: integer, format: int64, minimum: 1, example: 1 }
+        productName: { type: string, minLength: 1, maxLength: 255, example: WealthTrack Nifty 50 ETF }
+        basePrice: { type: number, minimum: 0.01, example: 1400.00 }
+        currentPrice: { type: number, minimum: 0.01, example: 1450.00 }
+        minimumInvestment: { type: number, minimum: 0.01, example: 1450.00 }
+        riskCategory: { $ref: '#/components/schemas/RiskCategory' }
+        priceMethod: { $ref: '#/components/schemas/PriceMethod' }
+        tenureMonths: { type: integer, format: int32, minimum: 1, nullable: true, example: 36 }
+        interestRate: { type: number, minimum: 0, nullable: true, example: 7.25 }
+        issueDate: { type: string, format: date, nullable: true, example: '2025-01-01' }
+        maturityDate: { type: string, format: date, nullable: true, example: '2028-01-01' }
+        status:
+          allOf: [{ $ref: '#/components/schemas/ProductStatus' }]
+          nullable: true
+          default: ACTIVE
+    InvestmentProductResponse:
+      type: object
+      required: [productId, productTypeId, productTypeCode, productName, basePrice, currentPrice, minimumInvestment, riskCategory, priceMethod, status, active, createdAt, updatedAt]
+      properties:
+        productId: { type: integer, format: int64, example: 1 }
+        productTypeId: { type: integer, format: int64, example: 1 }
+        productTypeCode: { type: string, example: EQUITY }
+        productName: { type: string, example: WealthTrack Nifty 50 ETF }
+        basePrice: { type: number, example: 1400.00 }
+        currentPrice: { type: number, example: 1450.00 }
+        minimumInvestment: { type: number, example: 1450.00 }
+        riskCategory: { $ref: '#/components/schemas/RiskCategory' }
+        priceMethod: { $ref: '#/components/schemas/PriceMethod' }
+        tenureMonths: { type: integer, format: int32, nullable: true, example: 36 }
+        interestRate: { type: number, nullable: true, example: 7.25 }
+        issueDate: { type: string, format: date, nullable: true, example: '2025-01-01' }
+        maturityDate: { type: string, format: date, nullable: true, example: '2028-01-01' }
+        status: { $ref: '#/components/schemas/ProductStatus' }
+        active: { type: boolean, example: true }
+        createdAt: { type: string, format: date-time, example: '2026-07-30T10:45:00' }
+        updatedAt: { type: string, format: date-time, example: '2026-07-30T10:45:00' }
+
+    AccountStatus:
+      type: string
+      enum: [ACTIVE, SUSPENDED, CLOSED]
+    HoldingStatus:
+      type: string
+      enum: [ACTIVE, MATURED, CLOSED]
+    CreatePortfolioAccountRequest:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: integer, format: int64, example: 10 }
+        openedDate: { type: string, format: date, nullable: true, example: '2026-07-30' }
+    UpdatePortfolioStatusRequest:
+      type: object
+      required: [accountStatus]
+      properties:
+        accountStatus: { $ref: '#/components/schemas/AccountStatus' }
+    PortfolioAccountResponse:
+      type: object
+      required: [portfolioAccountId, userId, accountStatus, openedDate, createdAt, updatedAt]
+      properties:
+        portfolioAccountId: { type: integer, format: int64, example: 1 }
+        userId: { type: integer, format: int64, example: 10 }
+        accountStatus: { $ref: '#/components/schemas/AccountStatus' }
+        openedDate: { type: string, format: date, example: '2026-07-30' }
+        closedDate: { type: string, format: date, nullable: true, example: null }
+        createdAt: { type: string, format: date-time, example: '2026-07-30T10:50:00' }
+        updatedAt: { type: string, format: date-time, example: '2026-07-30T10:50:00' }
+    CreateHoldingRequest:
+      type: object
+      required: [productId, quantity, averageCost]
+      properties:
+        productId:
+          type: integer
+          format: int64
+          description: "@NotNull is present in source; positivity is not validated by this DTO."
+          example: 1
+        quantity: { type: number, minimum: 0.0001, example: 100.0000 }
+        averageCost: { type: number, minimum: 0, example: 1400.0000 }
+    UpdateHoldingRequest:
+      type: object
+      properties:
+        quantity: { type: number, minimum: 0, nullable: true, example: 105.0000 }
+        averageCost: { type: number, minimum: 0, nullable: true, example: 1402.3810 }
+        holdingStatus:
+          allOf: [{ $ref: '#/components/schemas/HoldingStatus' }]
+          nullable: true
+    PortfolioHoldingResponse:
+      type: object
+      required: [holdingId, portfolioAccountId, productId, quantity, averageCost, marketValue, unrealizedGainLoss, holdingStatus, lastValuedAt, createdAt, updatedAt]
+      properties:
+        holdingId: { type: integer, format: int64, example: 1 }
+        portfolioAccountId: { type: integer, format: int64, example: 1 }
+        productId: { type: integer, format: int64, example: 1 }
+        quantity: { type: number, example: 101.0000 }
+        averageCost: { type: number, example: 1400.4950 }
+        marketValue: { type: number, example: 146450.0000 }
+        unrealizedGainLoss: { type: number, example: 5000.0050 }
+        holdingStatus: { $ref: '#/components/schemas/HoldingStatus' }
+        lastValuedAt: { type: string, format: date-time, example: '2026-07-30T11:00:00' }
+        createdAt: { type: string, format: date-time, example: '2026-07-30T10:55:00' }
+        updatedAt: { type: string, format: date-time, example: '2026-07-30T11:00:00' }
+    ApplyTradeRequest:
+      type: object
+      description: Portfolio DTO and Trading HoldingUpdateRequest have the same field names and compatible JSON structure.
+      required: [portfolioAccountId, holdingId, productId, transactionType, quantity, unitPrice, transactionId]
+      properties:
+        portfolioAccountId: { type: integer, format: int64, minimum: 1, example: 1 }
+        holdingId: { type: integer, format: int64, minimum: 1, example: 1 }
+        productId: { type: integer, format: int64, minimum: 1, example: 1 }
+        transactionType: { $ref: '#/components/schemas/TransactionType' }
+        quantity: { type: number, minimum: 0.0001, example: 1.0000 }
+        unitPrice: { type: number, minimum: 0.0001, example: 1450.0000 }
+        transactionId: { type: integer, format: int64, minimum: 1, example: 8 }
+    PortfolioSummaryResponse:
+      type: object
+      required: [portfolioAccount, holdings, totalCost, marketValue, unrealizedGainLoss]
+      properties:
+        portfolioAccount: { $ref: '#/components/schemas/PortfolioAccountResponse' }
+        holdings:
+          type: array
+          items: { $ref: '#/components/schemas/PortfolioHoldingResponse' }
+        totalCost: { type: number, example: 141449.9950 }
+        marketValue: { type: number, example: 146450.0000 }
+        unrealizedGainLoss: { type: number, example: 5000.0050 }
+
+    TransactionType:
+      type: string
+      enum: [BUY, SELL]
+    TransactionStatus:
+      type: string
+      enum: [PENDING, COMPLETED, FAILED, REVERSED]
+    CreateTradeTransactionRequest:
+      type: object
+      required: [portfolioAccountId, holdingId, productId, bankAccountId, transactionType, quantity, unitPrice]
+      properties:
+        portfolioAccountId: { type: integer, format: int64, minimum: 1, example: 1 }
+        holdingId: { type: integer, format: int64, minimum: 1, example: 1 }
+        productId: { type: integer, format: int64, minimum: 1, example: 1 }
+        bankAccountId: { type: integer, format: int64, minimum: 1, example: 1 }
+        transactionType:
+          description: Parsed case-insensitively; only BUY and SELL are accepted.
+          allOf: [{ $ref: '#/components/schemas/TransactionType' }]
+        quantity: { type: number, minimum: 0.01, example: 1.00 }
+        unitPrice:
+          type: number
+          minimum: 0.01
+          description: Required and validated, but execution replaces it with Product Service currentPrice.
+          example: 1450.00
+    TradeTransactionResponse:
+      type: object
+      required: [transactionId, portfolioAccountId, holdingId, productId, transactionType, quantity, unitPrice, totalAmount, transactionStatus, transactionDate]
+      properties:
+        transactionId: { type: integer, format: int64, example: 8 }
+        portfolioAccountId: { type: integer, format: int64, example: 1 }
+        holdingId: { type: integer, format: int64, example: 1 }
+        productId: { type: integer, format: int64, example: 1 }
+        transactionType: { $ref: '#/components/schemas/TransactionType' }
+        quantity: { type: number, example: 1.00 }
+        unitPrice: { type: number, example: 1450.00 }
+        totalAmount: { type: number, example: 1450.00 }
+        transactionStatus: { $ref: '#/components/schemas/TransactionStatus' }
+        transactionDate: { type: string, format: date-time, example: '2026-07-30T11:00:00' }
+        failureReason:
+          type: string
+          nullable: true
+          description: Populated only in the immediate 422 response; the entity does not persist this field.
+          example: null
+    CreatePortfolioStatementRequest:
+      type: object
+      required: [portfolioAccountId, holdingId, transactionId, statementStart, statementEnd, openingValue, closingValue]
+      properties:
+        portfolioAccountId: { type: integer, format: int64, minimum: 1, example: 1 }
+        holdingId: { type: integer, format: int64, minimum: 1, example: 1 }
+        transactionId: { type: integer, format: int64, minimum: 1, example: 8 }
+        statementStart: { type: string, format: date, example: '2026-07-01' }
+        statementEnd: { type: string, format: date, example: '2026-07-31' }
+        openingValue: { type: number, minimum: 0, example: 140000.00 }
+        closingValue: { type: number, minimum: 0, example: 146450.00 }
+        transactionIds:
+          type: array
+          nullable: true
+          items: { type: integer, format: int64 }
+          example: [8, 10, 11]
+    PortfolioStatementResponse:
+      type: object
+      required: [statementId, portfolioAccountId, holdingId, transactionId, statementStart, statementEnd, openingValue, closingValue, generatedAt, status, transactionIds]
+      properties:
+        statementId: { type: integer, format: int64, example: 4 }
+        portfolioAccountId: { type: integer, format: int64, example: 1 }
+        holdingId: { type: integer, format: int64, example: 1 }
+        transactionId: { type: integer, format: int64, example: 8 }
+        statementStart: { type: string, format: date, example: '2026-07-01' }
+        statementEnd: { type: string, format: date, example: '2026-07-31' }
+        openingValue: { type: number, example: 140000.00 }
+        closingValue: { type: number, example: 146450.00 }
+        generatedAt: { type: string, format: date-time, example: '2026-07-30T11:10:00' }
+        status:
+          type: string
+          description: The implementation writes GENERATED; no enum type is declared.
+          example: GENERATED
+        transactionIds:
+          type: array
+          items: { type: integer, format: int64 }
+          example: [8, 10, 11]
+    InvestmentPositionResponse:
+      type: object
+      required: [productId, boughtQuantity, soldQuantity, currentQuantity, averageBuyPrice, currentPrice, investedValue, currentValuation, profitLoss]
+      properties:
+        productId: { type: integer, format: int64, example: 1 }
+        productName: { type: string, nullable: true, example: WealthTrack Nifty 50 ETF }
+        boughtQuantity: { type: number, example: 101.0000 }
+        soldQuantity: { type: number, example: 0.0000 }
+        currentQuantity: { type: number, example: 101.0000 }
+        averageBuyPrice: { type: number, example: 1400.4950 }
+        currentPrice: { type: number, example: 1450.0000 }
+        investedValue: { type: number, example: 141449.9950 }
+        currentValuation: { type: number, example: 146450.0000 }
+        profitLoss: { type: number, example: 5000.0050 }
+        lastTransactionDate: { type: string, format: date-time, nullable: true, example: '2026-07-30T11:00:00' }
+    InvestmentOverviewResponse:
+      type: object
+      required: [userId, portfolioAccountId, positions]
+      properties:
+        userId: { type: integer, format: int64, example: 10 }
+        portfolioAccountId: { type: integer, format: int64, example: 1 }
+        positions:
+          type: array
+          items: { $ref: '#/components/schemas/InvestmentPositionResponse' }
+
+x-reusable-http-templates:
+  GET:
+    request: No request body; supply documented path/query parameters and Accept application/json.
+    success: HTTP 200 with the operation response schema.
+    exampleRef: '#/components/examples/GetResponseTemplate'
+  POST:
+    request: Content-Type application/json with the operation request schema.
+    success: HTTP 201 for resource creation, HTTP 200 for Bank debit/credit, or HTTP 204 for internal Portfolio commands.
+    requestExampleRef: '#/components/examples/PostRequestTemplate'
+    responseExampleRef: '#/components/examples/PostResponseTemplate'
+  PUT:
+    request: Content-Type application/json; send all fields required by the operation schema.
+    success: HTTP 200 with the replaced resource.
+    requestExampleRef: '#/components/examples/PutRequestTemplate'
+    responseExampleRef: '#/components/examples/PutResponseTemplate'
+  PATCH:
+    request: Content-Type application/json when a body is documented; make-primary has no body.
+    success: HTTP 200 with the updated resource.
+    requestExampleRef: '#/components/examples/PatchRequestTemplate'
+    responseExampleRef: '#/components/examples/PatchResponseTemplate'
+  DELETE:
+    request: No request body.
+    success: HTTP 204 with no response body.
+    responseExampleRef: '#/components/examples/DeleteResponseTemplate'

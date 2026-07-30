@@ -11,6 +11,14 @@ spring:
   application:
     name: ${TRADING_APPLICATION_NAME:TRADING-SERVICE}
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: ${TRADING_FEIGN_CONNECT_TIMEOUT_MS:3000}
+            readTimeout: ${TRADING_FEIGN_READ_TIMEOUT_MS:10000}
+
   datasource:
     url: ${TRADING_DB_URL:jdbc:mysql://localhost:3306/mydb}
     driver-class-name: ${TRADING_DB_DRIVER:com.mysql.cj.jdbc.Driver}
@@ -31,7 +39,3 @@ eureka:
       defaultZone: ${TRADING_EUREKA_URL:http://localhost:8080/eureka/}
   instance:
     hostname: ${TRADING_EUREKA_HOSTNAME:localhost}
-
-clients:
-  portfolio:
-    base-url: ${TRADING_PORTFOLIO_BASE_URL:http://localhost:8084}

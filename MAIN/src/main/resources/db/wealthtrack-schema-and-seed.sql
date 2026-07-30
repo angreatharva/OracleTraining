@@ -179,9 +179,9 @@ INSERT INTO investment_product (product_id,product_type_id,product_name,base_pri
     ON DUPLICATE KEY UPDATE current_price=VALUES(current_price),status=VALUES(status),updated_at=NOW();
 
 INSERT INTO portfolio_account (portfolio_account_id,user_id,account_status,opened_date,closed_date,status,created_at,updated_at) VALUES
-                                                                                                                                     (1,2,'OPEN','2026-01-02',NULL,'ACTIVE',NOW(),NOW()),(2,3,'OPEN','2026-01-03',NULL,'ACTIVE',NOW(),NOW()),
-                                                                                                                                     (3,4,'OPEN','2026-01-04',NULL,'ACTIVE',NOW(),NOW()),(4,5,'OPEN','2026-01-05',NULL,'ACTIVE',NOW(),NOW()),
-                                                                                                                                     (5,6,'OPEN','2026-01-06',NULL,'ACTIVE',NOW(),NOW())
+                                                                                                                                     (1,2,'ACTIVE','2026-01-02',NULL,'ACTIVE',NOW(),NOW()),(2,3,'ACTIVE','2026-01-03',NULL,'ACTIVE',NOW(),NOW()),
+                                                                                                                                     (3,4,'ACTIVE','2026-01-04',NULL,'ACTIVE',NOW(),NOW()),(4,5,'ACTIVE','2026-01-05',NULL,'ACTIVE',NOW(),NOW()),
+                                                                                                                                     (5,6,'ACTIVE','2026-01-06',NULL,'ACTIVE',NOW(),NOW())
     ON DUPLICATE KEY UPDATE account_status=VALUES(account_status),status=VALUES(status),updated_at=NOW();
 
 INSERT INTO portfolio_holding (holding_id,portfolio_account_id,product_id,quantity,average_cost,market_value,holding_status,last_valued_at,created_at,updated_at) VALUES

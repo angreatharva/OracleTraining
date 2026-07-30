@@ -75,9 +75,9 @@ Within a Spring Boot service, the usual responsibility is:
 | `services` | Business rules and workflow coordination. | calculate amount, call Bank/Portfolio |
 | `repositories` | Database queries through Spring Data JPA. | find a trade by ID |
 | `entities` | Java mapping of the existing database tables. | `TradeTransaction` |
-| `clients` | HTTP calls to another microservice. | `RestBankServiceClient` |
+| `clients` | Feign contracts for HTTP calls to another microservice. | `BankServiceClient` |
 | `exceptions` | Domain exceptions and consistent API error responses. | trade not found -> HTTP 404 |
-| `config` | Spring beans and technical configuration. | load-balanced `RestClient.Builder` |
+| `config` | Spring beans and technical configuration. | Feign timeout configuration |
 
 An entity describes how a table is stored. A DTO describes what an API receives or returns. Keeping them separate prevents a JSON response from exposing JPA lazy-loading details or unrelated columns.
 
@@ -209,6 +209,13 @@ Compensation currently works as follows:
 
 This is appropriate for the present learning project, but it is not an atomic distributed transaction. A production system should use idempotency keys, durable event/outbox records, retries, and a saga/message-queue design.
 
+Trading deliberately does not keep a local JPA transaction open while it calls
+Product, Bank, or Portfolio. The `PENDING` trade is committed first, each remote
+operation runs after that commit, and the final `COMPLETED`/`FAILED` state is
+saved afterward. This is essential while the local setup uses one MySQL schema:
+an open Trading transaction can retain foreign-key locks on Portfolio rows,
+causing Portfolio to finish only after Trading's HTTP client has timed out.
+
 ### 5.4 What the response contains
 
 A completed trade response includes the database trade ID, portfolio/holding/product IDs, type, quantity, execution price, calculated total, status, and time:
@@ -313,6 +320,25 @@ Gateway is the public entry point for a frontend. It removes the first route seg
 
 The Gateway uses `lb://SERVICE-NAME` routes, Eureka discovery, and Resilience4j circuit-breaker fallback configuration.
 
+## 9.1 Feign and inter-service communication
+
+Feign is used only by services that actually make synchronous calls to another
+business service. Each `@FeignClient` uses the Eureka application name, so no
+service port is hardcoded in Java.
+
+| Caller | Feign target | Calls and reason |
+|---|---|---|
+| Bank | `USER-SERVICE` | `GET /api/users/{id}` before creating a bank account or KYC document |
+| Portfolio | `USER-SERVICE` | `GET /api/users/{id}` before creating a portfolio account |
+| Portfolio | `PRODUCT-SERVICE` | `GET /api/products/{id}` before adding a holding |
+| Trading | `PRODUCT-SERVICE` | `GET /api/products/{id}` for the authoritative execution/current price |
+| Trading | `PORTFOLIO-SERVICE` | validate/apply trades and read accounts/holdings for investment overview |
+| Trading | `BANK-SERVICE` | debit BUY funds, credit SELL proceeds, and perform compensation |
+
+User and Product do not call another microservice in their current workflows,
+so they do not need Feign. Eureka Server only provides discovery, and Gateway
+uses `lb://` routes rather than Feign.
+
 ## 10. Environment configuration
 
 Each service has an ignored local `.env` file. Copy its `.env.example`, then enter the real database password. Never commit `.env` files.
@@ -326,10 +352,13 @@ TRADING_DB_URL=jdbc:mysql://localhost:3306/mydb
 TRADING_DB_USERNAME=root
 TRADING_DB_PASSWORD=your_mysql_password
 TRADING_EUREKA_URL=http://localhost:8080/eureka/
-TRADING_PORTFOLIO_BASE_URL=http://localhost:8084
+TRADING_FEIGN_CONNECT_TIMEOUT_MS=3000
+TRADING_FEIGN_READ_TIMEOUT_MS=10000
 ```
 
-For local testing, Trading uses `TRADING_PORTFOLIO_BASE_URL` for Portfolio's internal trade commands. This avoids the local load-balanced POST issue found during live testing. Product and Bank calls continue to use Eureka discovery.
+Bank and Portfolio have equivalent `BANK_FEIGN_*` and `PORTFOLIO_FEIGN_*`
+timeout variables. Feign resolves `USER-SERVICE`, `PRODUCT-SERVICE`,
+`BANK-SERVICE`, and `PORTFOLIO-SERVICE` through Eureka.
 
 Variable prefixes must be service-specific:
 
@@ -412,7 +441,7 @@ mvn test
 |---|---|
 | Controller/API integration tests | Trade and statement routes return the expected HTTP response and JSON. |
 | Trade service unit tests | Price calculation, success path, invalid type, and insufficient-funds failure. |
-| Cross-service HTTP contract test | Actual `RestClient` method/path/body contracts used for Product, Bank, and Portfolio requests. |
+| Cross-service HTTP contract test | Actual Feign method/path/body contracts used for Product, Bank, and Portfolio requests. |
 | Investment overview test | Aggregation of current holding, product price, and completed trades. |
 | BUY/SELL log simulation | A readable no-database simulation of debit, buy, market-price change, sell, credit, and statement creation. |
 
