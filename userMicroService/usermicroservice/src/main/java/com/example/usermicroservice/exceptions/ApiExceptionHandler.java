@@ -17,6 +17,11 @@ public class ApiExceptionHandler {
         return error(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
+    @ExceptionHandler(UserDeletionBlockedException.class)
+    public ResponseEntity<Map<String, Object>> handleDeletionBlocked(UserDeletionBlockedException exception) {
+        return error(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException exception) {
         String message = exception.getBindingResult().getFieldErrors().stream().findFirst()

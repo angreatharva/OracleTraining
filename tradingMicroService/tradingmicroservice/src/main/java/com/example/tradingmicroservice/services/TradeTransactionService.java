@@ -1,4 +1,4 @@
-package com.example.tradingmicroservice.Services;
+package com.example.tradingmicroservice.services;
 
 import com.example.tradingmicroservice.clients.BankServiceClient;
 import com.example.tradingmicroservice.clients.PortfolioServiceClient;

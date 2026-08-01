@@ -26,6 +26,7 @@ eureka:
   client:
     register-with-eureka: ${USER_EUREKA_REGISTER:true}
     fetch-registry: ${USER_EUREKA_FETCH_REGISTRY:true}
+    registry-fetch-interval-seconds: ${USER_EUREKA_FETCH_INTERVAL_SECONDS:5}
     service-url:
       defaultZone: ${USER_EUREKA_URL:http://localhost:8080/eureka/}
   instance:

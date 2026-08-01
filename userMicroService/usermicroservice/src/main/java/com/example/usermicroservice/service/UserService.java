@@ -1,11 +1,13 @@
 package com.example.usermicroservice.service;
 
+import com.example.usermicroservice.clients.BankRecordClient;
 import com.example.usermicroservice.dto.request.CreateUserRequest;
 import com.example.usermicroservice.dto.response.UserResponse;
 import com.example.usermicroservice.entities.Role;
 import com.example.usermicroservice.entities.User;
 import com.example.usermicroservice.enums.UserStatus;
 import com.example.usermicroservice.exceptions.ResourceNotFoundException;
+import com.example.usermicroservice.exceptions.UserDeletionBlockedException;
 import com.example.usermicroservice.repositories.RoleRepository;
 import com.example.usermicroservice.repositories.UserRepository;
 import org.springframework.stereotype.Service;
@@ -18,10 +20,13 @@ import java.util.List;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final BankRecordClient bankRecordClient;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+                       BankRecordClient bankRecordClient) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.bankRecordClient = bankRecordClient;
     }
 
     @Override
@@ -60,6 +65,9 @@ public class UserService implements IUserService {
     public void delete(Long id) {
         User user = getEntityById(id);
         if (!user.getSubordinates().isEmpty()) throw new IllegalStateException("User manages one or more users");
+        if (bankRecordClient.hasBankAccountOrKycDocument(id)) {
+            throw new UserDeletionBlockedException(id);
+        }
         userRepository.delete(user);
     }
 
