@@ -13,61 +13,63 @@ spring:
 
   cloud:
     gateway:
-      routes:
-        - id: USER-SERVICE
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/user/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: USER-SERVICE
-                fallbackuri: forward:/userFallback
+      server:
+        webflux:
+          routes:
+            - id: USER-SERVICE
+              uri: lb://USER-SERVICE
+              predicates:
+                - Path=/user/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: USER-SERVICE
+                    fallbackuri: forward:/userFallback
 
-        - id: BANK-SERVICE
-          uri: lb://BANK-SERVICE
-          predicates:
-            - Path=/bank/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: BANK-SERVICE
-                fallbackuri: forward:/bankFallback
+            - id: BANK-SERVICE
+              uri: lb://BANK-SERVICE
+              predicates:
+                - Path=/bank/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: BANK-SERVICE
+                    fallbackuri: forward:/bankFallback
 
-        - id: PORTFOLIO-SERVICE
-          uri: lb://PORTFOLIO-SERVICE
-          predicates:
-            - Path=/portfolio/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: PORTFOLIO-SERVICE
-                fallbackuri: forward:/portfolioFallback
+            - id: PORTFOLIO-SERVICE
+              uri: lb://PORTFOLIO-SERVICE
+              predicates:
+                - Path=/portfolio/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: PORTFOLIO-SERVICE
+                    fallbackuri: forward:/portfolioFallback
 
-        - id: TRADING-SERVICE
-          uri: lb://TRADING-SERVICE
-          predicates:
-            - Path=/trading/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: TRADING-SERVICE
-                fallbackuri: forward:/tradingFallback
+            - id: TRADING-SERVICE
+              uri: lb://TRADING-SERVICE
+              predicates:
+                - Path=/trading/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: TRADING-SERVICE
+                    fallbackuri: forward:/tradingFallback
 
-        - id: PRODUCT-SERVICE
-          uri: lb://PRODUCT-SERVICE
-          predicates:
-            - Path=/product/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: PRODUCT-SERVICE
-                fallbackuri: forward:/productFallback
+            - id: PRODUCT-SERVICE
+              uri: lb://PRODUCT-SERVICE
+              predicates:
+                - Path=/product/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: PRODUCT-SERVICE
+                    fallbackuri: forward:/productFallback
 
 resilience4j:
   circuitbreaker:

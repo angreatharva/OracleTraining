@@ -4,11 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/services/TradeTransactionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/tradingMicroService/tradingmicroservice/src/main/java/com/example/tradingmicroservice/services/TradeTransactionService.java" afterDir="false" />
     </list>
+=======
+    <list default="true" id="5506ba3b-c789-4eae-9a58-b727b18ca1d2" name="Changes" comment="" />
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
