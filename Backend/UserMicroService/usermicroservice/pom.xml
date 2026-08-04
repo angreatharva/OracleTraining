@@ -43,6 +43,22 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- Authentication: JWT filter chain plus the BCrypt password encoder -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!--
+            Shared JWT primitives. Build it first:
+                mvn -f Backend/CommonSecurity/commonsecurity/pom.xml install
+        -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>commonsecurity</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- Request DTO validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

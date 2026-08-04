@@ -43,6 +43,12 @@ public class ApiExceptionHandler {
         return error(HttpStatus.CONFLICT, "The record conflicts with existing product data");
     }
 
+    @ExceptionHandler(com.example.productmicroservice.security.AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(
+            com.example.productmicroservice.security.AccessDeniedException exception) {
+        return error(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
     private ResponseEntity<Map<String, Object>> error(HttpStatus status, String message) {
         return ResponseEntity.status(status).body(Map.of(
                 "timestamp", LocalDateTime.now(),

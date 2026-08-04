@@ -28,4 +28,20 @@ public interface UserServiceClient {
             throw new BusinessRuleException("User Service is currently unavailable");
         }
     }
+
+    /**
+     * Resolves who manages a user, for the manager-may-see-their-reports rule.
+     *
+     * @return the manager's user id, or {@code null} if there is none or User Service could
+     *         not answer. Null means "deny", which is the safe direction for an
+     *         authorization check.
+     */
+    default Long findManagerId(Long userId) {
+        try {
+            UserResponse response = getUserById(userId);
+            return response == null ? null : response.managerId();
+        } catch (FeignException ex) {
+            return null;
+        }
+    }
 }

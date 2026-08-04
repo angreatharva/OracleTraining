@@ -1,0 +1,36 @@
+<div class="oj-flex oj-sm-flex-direction-column">
+  <h2 class="oj-typography-heading-md">My team</h2>
+  <p class="oj-typography-body-sm oj-text-color-secondary">
+    Investors who report to you. You can view their portfolios and trades, but not act on their behalf.
+  </p>
+
+  <oj-bind-if test="[[isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[isEmpty()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">
+      No investors are assigned to you yet. Use the Onboard screen to add one.
+    </p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasMembers()]]">
+    <oj-table id="teamTable"
+              aria-label="My team"
+              data="[[dataProvider]]"
+              class="oj-sm-margin-2x-vertical"
+              columns='[
+                {"headerText": "Name",   "field": "fullName"},
+                {"headerText": "Email",  "field": "email"},
+                {"headerText": "Phone",  "field": "phone"},
+                {"headerText": "Status", "field": "status"}
+              ]'>
+    </oj-table>
+  </oj-bind-if>
+</div>

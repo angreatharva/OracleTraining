@@ -2,6 +2,7 @@ package com.example.tradingmicroservice.controllers;
 
 import com.example.tradingmicroservice.dto.request.CreatePortfolioStatementRequest;
 import com.example.tradingmicroservice.dto.response.PortfolioStatementResponse;
+import com.example.tradingmicroservice.security.AuthorizationHelper;
 import com.example.tradingmicroservice.services.IPortfolioStatementService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -22,22 +23,33 @@ import java.util.List;
 public class PortfolioStatementController implements IPortfolioStatementController {
 
     private final IPortfolioStatementService statementService;
+    private final AuthorizationHelper authorization;
 
-    public PortfolioStatementController(IPortfolioStatementService statementService) {
+    public PortfolioStatementController(IPortfolioStatementService statementService,
+                                        AuthorizationHelper authorization) {
         this.statementService = statementService;
+        this.authorization = authorization;
     }
 
+    /**
+     * Statement creation takes opening/closing values straight from the request body, so
+     * letting an end user call it would let them author their own statement figures.
+     * SERVICE-only, matching the {@code /internal} path it already advertises.
+     */
     @PostMapping("/internal")
     @Override
     public ResponseEntity<PortfolioStatementResponse> create(
             @Valid @RequestBody CreatePortfolioStatementRequest request) {
+        authorization.assertServiceCall();
         return ResponseEntity.status(HttpStatus.CREATED).body(statementService.create(request));
     }
 
     @GetMapping("/{id}")
     @Override
     public PortfolioStatementResponse getById(@PathVariable Long id) {
-        return statementService.getById(id);
+        PortfolioStatementResponse statement = statementService.getById(id);
+        authorization.assertCanAccessPortfolioAccount(statement.portfolioAccountId());
+        return statement;
     }
 
     @GetMapping
@@ -47,6 +59,7 @@ public class PortfolioStatementController implements IPortfolioStatementControll
             @RequestParam(required = false) String status,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate) {
-        return statementService.getAll(portfolioAccountId, status, startDate, endDate);
+        Long allowedAccount = authorization.restrictPortfolioAccountFilter(portfolioAccountId);
+        return statementService.getAll(allowedAccount, status, startDate, endDate);
     }
 }

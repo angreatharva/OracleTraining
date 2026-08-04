@@ -6,16 +6,22 @@ import com.example.tradingmicroservice.clients.ProductServiceClient;
 import com.example.tradingmicroservice.clients.model.CreditResult;
 import com.example.tradingmicroservice.clients.model.DebitResult;
 import com.example.tradingmicroservice.clients.model.ProductQuote;
+import com.example.commonsecurity.JwtService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -47,6 +53,30 @@ class TradingApiIntegrationTest {
     @MockBean
     private PortfolioServiceClient portfolioServiceClient;
 
+    @Autowired
+    private JwtService jwtService;
+
+    /**
+     * These tests drive the API as a trusted internal caller.
+     *
+     * <p>A SERVICE token is used rather than an investor one because the endpoints exercised
+     * here include {@code POST /api/portfolio-statements/internal}, which is SERVICE-only by
+     * design. It also keeps the test focused on the trade saga instead of on ownership
+     * resolution, which would otherwise need the mocked Portfolio client to answer
+     * {@code getAccount} for every request.</p>
+     */
+    private String serviceToken;
+
+    @BeforeEach
+    void issueServiceToken() {
+        serviceToken = jwtService.generateServiceToken("TRADING-TEST", Duration.ofMinutes(5));
+    }
+
+    /** Adds the bearer token every secured endpoint now requires. */
+    private MockHttpServletRequestBuilder authorized(MockHttpServletRequestBuilder request) {
+        return request.header(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken);
+    }
+
     @Test
     void createAndRetrieveCompletedBuyTradeShowsApiResults() throws Exception {
         when(productServiceClient.getActiveProduct(1L))
@@ -66,7 +96,7 @@ class TradingApiIntegrationTest {
                 }
                 """;
 
-        String createResponse = mockMvc.perform(post("/api/trade-transactions")
+        String createResponse = mockMvc.perform(authorized(post("/api/trade-transactions"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createRequest))
                 .andDo(print())
@@ -83,7 +113,7 @@ class TradingApiIntegrationTest {
         System.out.println("\n=== TRADE TRANSACTION CREATED ===");
         System.out.println(createResponse);
 
-        mockMvc.perform(get("/api/trade-transactions/{id}", transactionId))
+        mockMvc.perform(authorized(get("/api/trade-transactions/{id}", transactionId)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.transactionId").value(transactionId))
@@ -99,7 +129,7 @@ class TradingApiIntegrationTest {
         when(bankServiceClient.credit(eq(11L), any()))
                 .thenReturn(new CreditResult(true, "TRADE-1", null));
         doNothing().when(portfolioServiceClient).applyCompletedTrade(any());
-        String transactionResponse = mockMvc.perform(post("/api/trade-transactions")
+        String transactionResponse = mockMvc.perform(authorized(post("/api/trade-transactions"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -131,7 +161,7 @@ class TradingApiIntegrationTest {
                 }
                 """.formatted(transactionId, transactionId);
 
-        String statementResponse = mockMvc.perform(post("/api/portfolio-statements/internal")
+        String statementResponse = mockMvc.perform(authorized(post("/api/portfolio-statements/internal"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(statementRequest))
                 .andDo(print())

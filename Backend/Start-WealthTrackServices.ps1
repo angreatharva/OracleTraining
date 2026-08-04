@@ -9,13 +9,27 @@ written to the logs directory beside this script.
 
 [CmdletBinding()]
 param(
-    [int]$EurekaStartupTimeoutSeconds = 90
+    [int]$EurekaStartupTimeoutSeconds = 90,
+
+    # Directory used by the JDK to auto-bind the AF_UNIX sockets behind java.nio Selectors.
+    # Must not contain spaces - see $jvmArguments below.
+    [string]$UnixDomainSocketTempDir = 'C:\wtms-tmp'
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
 $logDirectory = Join-Path $projectRoot 'logs'
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
+
+# Embedded Tomcat opens a java.nio Selector, which on Windows is backed by an AF_UNIX
+# socket that the JDK auto-binds inside 'jdk.net.unixdomain.tmpdir' (default: the user's
+# temp directory). When that path contains a space - as it does for a Windows profile like
+# "C:\Users\Atharva Angre\..." - the native connect() fails with
+# "SocketException: Invalid argument: connect", surfacing as
+# "IOException: Unable to establish loopback connection" and killing startup *after* the
+# database connects successfully. Pointing the JDK at a space-free directory avoids it.
+New-Item -ItemType Directory -Path $UnixDomainSocketTempDir -Force | Out-Null
+$jvmArguments = "-Djdk.net.unixdomain.tmpdir=$UnixDomainSocketTempDir"
 
 function Test-PortListening {
     param([int]$Port)
@@ -43,8 +57,17 @@ function Start-WealthTrackService {
 
     $standardOutput = Join-Path $logDirectory "$Name.out.log"
     $standardError = Join-Path $logDirectory "$Name.err.log"
+    # Every argument is quoted explicitly: Start-Process joins ArgumentList with spaces, so
+    # an unquoted path such as "C:\Users\Atharva Angre\..." would be split into two arguments.
+    $arguments = @(
+        '-f'
+        '"{0}"' -f $pomFile
+        'spring-boot:run'
+        '"-Dspring-boot.run.jvmArguments={0}"' -f $script:jvmArguments
+    )
+
     $process = Start-Process -FilePath 'mvn.cmd' `
-        -ArgumentList '-f', $pomFile, 'spring-boot:run' `
+        -ArgumentList $arguments `
         -WorkingDirectory $serviceDirectory `
         -WindowStyle Hidden `
         -RedirectStandardOutput $standardOutput `

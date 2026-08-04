@@ -4,9 +4,12 @@ server:
 spring:
   config:
     import:
-      - optional:file:portfolioMicroService/portfoliomicroservice/.env[.properties]
-      - optional:file:portfoliomicroservice/.env[.properties]
-      - optional:file:.env[.properties]
+      # Resolved against the process working directory, which varies: `mvn spring-boot:run`
+      # uses the service folder, while an IDE run configuration usually uses the repository
+      # or Backend root. All plausible roots are listed so the .env is found either way.
+      - optional:file:./.env[.properties]
+      - optional:file:PortfolioMicroService/portfoliomicroservice/.env[.properties]
+      - optional:file:Backend/PortfolioMicroService/portfoliomicroservice/.env[.properties]
 
   application:
     name: ${PORTFOLIO_APPLICATION_NAME:PORTFOLIO-SERVICE}
@@ -29,6 +32,14 @@ spring:
     hibernate:
       ddl-auto: ${PORTFOLIO_JPA_DDL_AUTO:update}
     show-sql: ${PORTFOLIO_JPA_SHOW_SQL:true}
+
+wealthtrack:
+  jwt:
+    # No default on purpose: a missing secret must fail startup rather than start the
+    # service with an empty signing key. Must match every other service's value.
+    secret: ${PORTFOLIO_JWT_SECRET}
+    issuer: ${PORTFOLIO_JWT_ISSUER:wealthtrack}
+    expiry-seconds: ${PORTFOLIO_JWT_EXPIRY_SECONDS:3600}
 
 eureka:
   client:

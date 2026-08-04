@@ -1,9 +1,14 @@
 package com.example.bankmicroservice.controllers;
 
 import com.example.bankmicroservice.dto.response.KycDocumentResponse;
+import com.example.bankmicroservice.security.AuthorizationHelper;
+import com.example.bankmicroservice.security.JwtAuthenticationFilter;
 import com.example.bankmicroservice.services.IKycDocumentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -18,7 +23,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(KycDocumentController.class)
+/**
+ * Slice test for the controller's HTTP contract only - security is disabled here, see
+ * {@code BankAccountControllerTest} for the rationale.
+ */
+@WebMvcTest(controllers = KycDocumentController.class,
+        excludeAutoConfiguration = {SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class})
+@AutoConfigureMockMvc(addFilters = false)
 class KycDocumentControllerTest {
 
     @Autowired
@@ -26,6 +37,12 @@ class KycDocumentControllerTest {
 
     @MockBean
     private IKycDocumentService kycDocumentService;
+
+    @MockBean
+    private AuthorizationHelper authorizationHelper;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void createReturns201() throws Exception {

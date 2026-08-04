@@ -4,9 +4,12 @@ server:
 spring:
   config:
     import:
-      - optional:file:userMicroService/usermicroservice/.env[.properties]
-      - optional:file:usermicroservice/.env[.properties]
-      - optional:file:.env[.properties]
+      # Resolved against the process working directory, which varies: `mvn spring-boot:run`
+      # uses the service folder, while an IDE run configuration usually uses the repository
+      # or Backend root. All plausible roots are listed so the .env is found either way.
+      - optional:file:./.env[.properties]
+      - optional:file:UserMicroService/usermicroservice/.env[.properties]
+      - optional:file:Backend/UserMicroService/usermicroservice/.env[.properties]
 
   application:
     name: ${USER_APPLICATION_NAME:USER-SERVICE}
@@ -21,6 +24,14 @@ spring:
     hibernate:
       ddl-auto: ${USER_JPA_DDL_AUTO:update}
     show-sql: ${USER_JPA_SHOW_SQL:true}
+
+wealthtrack:
+  jwt:
+    # No default on purpose: a missing secret must fail startup loudly rather than start the
+    # service with an empty signing key. The same value must be set for every service.
+    secret: ${USER_JWT_SECRET}
+    issuer: ${USER_JWT_ISSUER:wealthtrack}
+    expiry-seconds: ${USER_JWT_EXPIRY_SECONDS:3600}
 
 eureka:
   client:

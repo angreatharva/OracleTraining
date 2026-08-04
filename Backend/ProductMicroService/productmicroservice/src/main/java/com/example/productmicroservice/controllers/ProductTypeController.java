@@ -1,5 +1,6 @@
 package com.example.productmicroservice.controllers;
 
+import com.example.productmicroservice.security.AuthorizationHelper;
 import com.example.productmicroservice.services.IProductTypeService;
 import com.example.productmicroservice.dto.request.CreateProductTypeRequest;
 import com.example.productmicroservice.dto.response.ProductTypeResponse;
@@ -24,15 +25,18 @@ import java.util.List;
 public class ProductTypeController implements IProductTypeController {
 
     private final IProductTypeService productTypeService;
+    private final AuthorizationHelper authorization;
 
-    public ProductTypeController(IProductTypeService productTypeService) {
+    public ProductTypeController(IProductTypeService productTypeService, AuthorizationHelper authorization) {
         this.productTypeService = productTypeService;
+        this.authorization = authorization;
     }
 
     @PostMapping
     @Override
     public ResponseEntity<ProductTypeResponse> create(
             @Valid @RequestBody CreateProductTypeRequest request) {
+        authorization.assertManager();
         return ResponseEntity.status(HttpStatus.CREATED).body(productTypeService.create(request));
     }
 
@@ -55,12 +59,14 @@ public class ProductTypeController implements IProductTypeController {
     public ProductTypeResponse update(
             @PathVariable Long id,
             @Valid @RequestBody CreateProductTypeRequest request) {
+        authorization.assertManager();
         return productTypeService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @Override
     public ResponseEntity<Void> delete(@PathVariable Long id) {
+        authorization.assertManager();
         productTypeService.delete(id);
         return ResponseEntity.noContent().build();
     }

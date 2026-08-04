@@ -42,6 +42,17 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "Request validation failed", request, errors);
     }
 
+    /**
+     * Must be declared explicitly: the catch-all below would otherwise turn every
+     * authorization failure into a 500.
+     */
+    @ExceptionHandler(com.example.bankmicroservice.security.AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDenied(
+            com.example.bankmicroservice.security.AccessDeniedException exception,
+            HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN, exception.getMessage(), request, Map.of());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnexpected(Exception exception, HttpServletRequest request) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", request, Map.of());

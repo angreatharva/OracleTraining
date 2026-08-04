@@ -1,0 +1,53 @@
+<div class="oj-flex oj-sm-flex-direction-column">
+  <h2 class="oj-typography-heading-md">Dashboard</h2>
+
+  <oj-bind-if test="[[isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[isEmpty()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">
+      No holdings yet. Use the Trade screen to make your first purchase.
+    </p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasPositions()]]">
+    <div class="oj-flex oj-sm-margin-2x-vertical">
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Invested</div>
+        <div class="oj-typography-heading-sm"><oj-bind-text value="[[totalInvested().toFixed(2)]]"></oj-bind-text></div>
+      </div>
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Current value</div>
+        <div class="oj-typography-heading-sm"><oj-bind-text value="[[totalValue().toFixed(2)]]"></oj-bind-text></div>
+      </div>
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Profit / loss</div>
+        <div :class="[['oj-typography-heading-sm ' + profitLossClass()]]">
+          <oj-bind-text value="[[totalProfitLoss().toFixed(2)]]"></oj-bind-text>
+        </div>
+      </div>
+    </div>
+
+    <oj-table id="positionsTable"
+              aria-label="Current positions"
+              data="[[dataProvider]]"
+              class="oj-sm-margin-2x-vertical"
+              columns='[
+                {"headerText": "Product",   "field": "productName"},
+                {"headerText": "Quantity",  "field": "currentQuantity"},
+                {"headerText": "Avg cost",  "field": "averageBuyPrice"},
+                {"headerText": "Price",     "field": "currentPrice"},
+                {"headerText": "Invested",  "field": "investedValue"},
+                {"headerText": "Value",     "field": "currentValuation"},
+                {"headerText": "P/L",       "field": "profitLoss"}
+              ]'>
+    </oj-table>
+  </oj-bind-if>
+</div>

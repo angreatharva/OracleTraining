@@ -26,6 +26,13 @@ public interface PortfolioServiceClient {
     @GetMapping("/api/portfolios/by-user/{userId}")
     PortfolioAccountSummary getAccountByUser(@PathVariable("userId") Long userId);
 
+    /**
+     * Reverse lookup used only for authorization: a trade row stores a portfolio account id
+     * but no user id, so this is how Trading discovers who a trade belongs to.
+     */
+    @GetMapping("/api/portfolios/{portfolioAccountId}")
+    PortfolioAccountSummary getAccount(@PathVariable("portfolioAccountId") Long portfolioAccountId);
+
     @GetMapping("/api/portfolios/{portfolioAccountId}/holdings")
     List<PortfolioHoldingSnapshot> getHoldings(
             @PathVariable("portfolioAccountId") Long portfolioAccountId);

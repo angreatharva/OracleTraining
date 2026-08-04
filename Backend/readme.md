@@ -11,14 +11,87 @@ The project is split into independently runnable services. Each service has its 
 | Component | Port | Current responsibility | Status |
 |---|---:|---|---|
 | Eureka Server | 8080 | Registers services and lets them find one another by name. | Implemented |
-| API Gateway | 8081 | Single public entry point; forwards requests to the right service. | Implemented |
-| User Service | 8082 | Roles, users, and user details. | Implemented |
+| API Gateway | 8081 | Single public entry point; forwards requests to the right service. Validates the JWT and adds CORS. | Implemented |
+| User Service | 8082 | Roles, users, user details. Also issues the login token. | Implemented |
 | Bank Service | 8083 | Bank accounts, KYC metadata, balance debit, and balance credit. | Implemented |
 | Portfolio Service | 8084 | Portfolio accounts, holdings, current quantity, average cost, and holding value. | Implemented |
 | Trading Service | 8085 | Buy/sell trade records, trade orchestration, portfolio statements, and investment overview. | Implemented |
 | Product Service | 8086 | Product types, investment products, and their current price. | Implemented |
+| **CommonSecurity** | - | Shared JWT library used by the gateway and all five business services. Not a running service. | Implemented |
+
+All endpoints require a bearer token except `POST /api/auth/login`. See section 1.1.
 
 The key working business scenario is a stock/product buy or sell submitted to Trading Service. Trading validates the product and portfolio first, moves money through Bank Service, changes the holding through Portfolio Service, and stores the final trade record.
+
+## 1.1 Authentication and authorization
+
+Sign in once, then send the returned token on every request.
+
+```text
+POST /api/auth/login          {"email": "...", "password": "..."}   -> 200 {token, expiresAt, roleName, user}
+GET  /api/auth/me                                                   -> 200 UserResponse
+POST /api/auth/change-password {"currentPassword", "newPassword"}   -> 204
+```
+
+```bash
+curl -X POST http://localhost:8081/user/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"priya.shah@wealthtrack.test","password":"Manager@123"}'
+
+curl http://localhost:8081/trading/api/trade-transactions \
+  -H "Authorization: Bearer <token>"
+```
+
+**Two roles**, already seeded in the `role` table:
+
+| Role | Can do |
+|---|---|
+| `INVESTOR` | Only their own data: their portfolio, holdings, trades, statements, bank accounts and KYC documents. |
+| `MANAGER` | Everything an investor can do for **their own direct reports** (`user.manager_id = me`), plus: create users and portfolio accounts, manage the product catalogue, verify KYC documents, change bank account status. |
+
+**The ownership rule**, applied identically everywhere: a caller may act on a user if it is
+themselves, or if they are a MANAGER and that user reports to them. Anything else is `403`.
+The manager check reads `manager_id` from the database, not from the token, so an old token
+cannot widen access after someone is reassigned.
+
+**Some endpoints reject end users entirely** and only accept a service token that Trading
+mints for itself. These move money or mutate holdings, and letting a browser call them
+directly would let an investor credit their own account:
+
+```text
+POST /api/bank-accounts/{id}/debit          POST /api/portfolios/internal/trades
+POST /api/bank-accounts/{id}/credit         POST /api/portfolios/internal/trades/validate
+                                            POST /api/portfolio-statements/internal
+```
+
+The gateway additionally returns `403` for the three `/internal` paths, so they are not
+reachable from outside at all.
+
+**Where validation happens.** The gateway checks the token, and every service checks it
+again independently. That is deliberate: ports 8082-8086 are directly reachable, so a
+gateway-only check would be bypassed by anyone on the same machine.
+
+### Login credentials (development)
+
+Created by `UserMicroService/usermicroservice/src/main/resources/db/V2__set_login_passwords.sql`.
+Run it once after the schema seed, or nobody can log in - the original seed stores
+placeholder text in `password_hash`, not real BCrypt hashes.
+
+```bash
+mysql -u root -p mydb < Backend/UserMicroService/usermicroservice/src/main/resources/db/V2__set_login_passwords.sql
+```
+
+| Email | Password | Role |
+|---|---|---|
+| `priya.shah@wealthtrack.test` | `Manager@123` | MANAGER |
+| `aarav.mehta@wealthtrack.test` | `Investor@123` | INVESTOR |
+| `diya.iyer@wealthtrack.test` | `Investor@123` | INVESTOR |
+| `kabir.singh@wealthtrack.test` | `Investor@123` | INVESTOR |
+| `meera.nair@wealthtrack.test` | `Investor@123` | INVESTOR |
+| `rohan.verma@wealthtrack.test` | `Investor@123` | INVESTOR |
+
+Passwords are BCrypt-hashed by the server. `POST /api/users` takes a plaintext `password`
+field; it is never stored as sent.
 
 ## 2. Architecture at a glance
 
@@ -55,16 +128,26 @@ Eureka does **not** contain business logic or database tables for users/products
 ## 3. Repository structure
 
 ```text
-C:\oracle\OracleTraning\
-├── eurekaServer\eurekaserver\
-├── APIGateway\apigateway\
-├── userMicroService\usermicroservice\
-├── bankMicroService\bankmicroservice\
-├── portfolioMicroService\portfoliomicroservice\
-├── tradingMicroService\tradingmicroservice\
-├── productMicroService\productmicroservice\
-└── MAIN\                              legacy/reference monolith
+WTMS\
+├── Backend\
+│   ├── CommonSecurity\commonsecurity\      shared JWT library - build this first
+│   ├── EurekaServer\eurekaserver\
+│   ├── APIGateway\apigateway\
+│   ├── UserMicroService\usermicroservice\
+│   ├── BankMicroService\bankmicroservice\
+│   ├── PortfolioMicroService\portfoliomicroservice\
+│   ├── TradingMicroService\tradingmicroservice\
+│   ├── ProductMicroService\productmicroservice\
+│   ├── MAIN\                               legacy/reference monolith
+│   └── Start-WealthTrackServices.ps1
+└── Frontend\wtms\                          Oracle JET application
 ```
+
+Each service also has a `security\` package (JWT filter, `AuthorizationHelper`) and a
+`config\` package holding `JwtConfig` and `SecurityConfig`. The JWT beans live in
+`JwtConfig` rather than `SecurityConfig` on purpose - putting them together creates a bean
+cycle (`SecurityConfig` -> `JwtAuthenticationFilter` -> `JwtService`) that Spring rejects at
+startup.
 
 Within a Spring Boot service, the usual responsibility is:
 
@@ -354,7 +437,24 @@ TRADING_DB_PASSWORD=your_mysql_password
 TRADING_EUREKA_URL=http://localhost:8080/eureka/
 TRADING_FEIGN_CONNECT_TIMEOUT_MS=3000
 TRADING_FEIGN_READ_TIMEOUT_MS=10000
+TRADING_JWT_SECRET=a_long_random_shared_secret_at_least_32_chars
 ```
+
+### The JWT secret
+
+Every service and the gateway need `<PREFIX>_JWT_SECRET`, and **the value must be identical
+in all seven** - one signs the token, the rest verify it. Minimum 32 characters (HS256 uses
+a 256-bit key). There is deliberately no default: a service with a missing secret fails to
+start rather than coming up unable to verify anything.
+
+```text
+USER_JWT_SECRET   BANK_JWT_SECRET   PORTFOLIO_JWT_SECRET
+TRADING_JWT_SECRET   PRODUCT_JWT_SECRET   GATEWAY_JWT_SECRET
+```
+
+Optional, all with sensible defaults: `<PREFIX>_JWT_ISSUER` (`wealthtrack`),
+`<PREFIX>_JWT_EXPIRY_SECONDS` (3600), `TRADING_SERVICE_TOKEN_SECONDS` (120), and
+`GATEWAY_CORS_ORIGINS` (`http://localhost:8000`, the `ojet serve` origin).
 
 Bank and Portfolio have equivalent `BANK_FEIGN_*` and `PORTFOLIO_FEIGN_*`
 timeout variables. Feign resolves `USER-SERVICE`, `PRODUCT-SERVICE`,
@@ -383,26 +483,52 @@ If MySQL says `using password: NO`, Spring did not receive the expected password
 - MySQL 8+ (currently configured around database `mydb`)
 - Free ports 8080 to 8086
 
-### Start in this order
+### Step 1: build the shared security library (once)
 
-1. Eureka Server
-2. User Service and Product Service
-3. Bank Service, Portfolio Service, and Trading Service
-4. API Gateway
-
-From `C:\oracle\OracleTraning`:
+Every service depends on it, so this must succeed before anything else will build.
 
 ```powershell
-mvn -f .\eurekaServer\eurekaserver\pom.xml spring-boot:run
-mvn -f .\userMicroService\usermicroservice\pom.xml spring-boot:run
-mvn -f .\productMicroService\productmicroservice\pom.xml spring-boot:run
-mvn -f .\bankMicroService\bankmicroservice\pom.xml spring-boot:run
-mvn -f .\portfolioMicroService\portfoliomicroservice\pom.xml spring-boot:run
-mvn -f .\tradingMicroService\tradingmicroservice\pom.xml spring-boot:run
+mvn -f .\CommonSecurity\commonsecurity\pom.xml install
+```
+
+### Step 2: start everything
+
+```powershell
+.\Start-WealthTrackServices.ps1
+```
+
+The script starts services in dependency order, waits for Eureka, skips anything already
+listening, and writes logs to `Backend\logs\`.
+
+To start by hand instead, use this order: Eureka -> (User, Product) -> (Bank, Portfolio,
+Trading) -> Gateway.
+
+```powershell
+mvn -f .\EurekaServer\eurekaserver\pom.xml spring-boot:run
+mvn -f .\UserMicroService\usermicroservice\pom.xml spring-boot:run
+mvn -f .\ProductMicroService\productmicroservice\pom.xml spring-boot:run
+mvn -f .\BankMicroService\bankmicroservice\pom.xml spring-boot:run
+mvn -f .\PortfolioMicroService\portfoliomicroservice\pom.xml spring-boot:run
+mvn -f .\TradingMicroService\tradingmicroservice\pom.xml spring-boot:run
 mvn -f .\APIGateway\apigateway\pom.xml spring-boot:run
 ```
 
 Open `http://localhost:8080/` and check that every running service appears in the Eureka dashboard before testing a cross-service trade.
+
+### Windows: "Unable to establish loopback connection"
+
+If a service reports this and dies *after* the database connects successfully, it is not a
+database problem. On Windows the JDK backs `java.nio` Selectors with an AF_UNIX socket
+created inside `jdk.net.unixdomain.tmpdir`, which defaults to your temp directory - and if
+your user profile path contains a space (`C:\Users\First Last\...`) the connect fails.
+
+The start script already passes the fix. When running Maven by hand, add:
+
+```powershell
+-Dspring-boot.run.jvmArguments="-Djdk.net.unixdomain.tmpdir=C:\wtms-tmp"
+```
+
+Note `java.io.tmpdir` does **not** override it; it must be `jdk.net.unixdomain.tmpdir`.
 
 ## 12. Test through Swagger
 
@@ -414,13 +540,18 @@ Open `http://localhost:8080/` and check that every running service appears in th
 | Trading | `http://localhost:8085/swagger-ui/index.html` |
 | Product | `http://localhost:8086/swagger-ui/index.html` |
 
+Swagger UI itself is reachable without a token, but every business endpoint is not. Get a
+token from `POST /api/auth/login`, then paste `Bearer <token>` into Swagger's **Authorize**
+box before calling anything else. Use the MANAGER account for the setup steps below -
+creating users, products and portfolio accounts is manager-only.
+
 Suggested live test sequence:
 
-1. Create a user role, then a user.
+1. Log in as the seeded manager and authorize Swagger with the token.
 2. Create a product type and an `ACTIVE` product with a current price.
 3. Create a funded bank account for the user.
 4. Create an active portfolio account and a holding for that product.
-5. Submit a BUY through Trading Swagger.
+5. Log in as the investor and submit a BUY through Trading Swagger with *their* token.
 6. Verify the Bank balance decreased, holding quantity increased, and trade became `COMPLETED`.
 7. Change/check the product price, then submit a SELL.
 8. Verify the Bank balance increased, holding quantity decreased, and trade became `COMPLETED`.
@@ -457,7 +588,10 @@ It logs initial cash, debit/credit decisions, product price, holding quantity, c
 
 The current code is ready for development/testing of the core flow, but it is not yet a production brokerage system. Major next steps are:
 
-- authentication, authorization, and user identity propagated between services;
+- **token lifecycle**: no refresh token, and logout is client-side only. Nothing tracks
+  issued tokens, so a token stays valid until it expires - short expiry is the only limit;
+- **secret management**: the JWT secret is a shared value in `.env`, symmetric HS256. A
+  production system would use asymmetric keys and a real secret store;
 - a UI/frontend;
 - automatic first-holding creation for a user’s first BUY;
 - real market-price feed and product price history;

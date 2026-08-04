@@ -9,6 +9,14 @@ spring:
       ddl-auto: create-drop
     show-sql: false
 
+wealthtrack:
+  jwt:
+    # Test-only signing key. The real one comes from USER_JWT_SECRET in .env, which tests
+    # deliberately do not load. Must still be >= 32 characters for HS256.
+    secret: test-only-jwt-secret-not-used-outside-tests
+    issuer: wealthtrack
+    expiry-seconds: 3600
+
 eureka:
   client:
     enabled: false

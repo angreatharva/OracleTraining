@@ -4,9 +4,12 @@ server:
 spring:
   config:
     import:
-      - optional:file:bankMicroService/bankmicroservice/.env[.properties]
-      - optional:file:bankmicroservice/.env[.properties]
-      - optional:file:.env[.properties]
+      # Resolved against the process working directory, which varies: `mvn spring-boot:run`
+      # uses the service folder, while an IDE run configuration usually uses the repository
+      # or Backend root. All plausible roots are listed so the .env is found either way.
+      - optional:file:./.env[.properties]
+      - optional:file:BankMicroService/bankmicroservice/.env[.properties]
+      - optional:file:Backend/BankMicroService/bankmicroservice/.env[.properties]
 
   application:
     name: ${BANK_APPLICATION_NAME:BANK-SERVICE}
@@ -29,6 +32,14 @@ spring:
     hibernate:
       ddl-auto: ${BANK_JPA_DDL_AUTO:update}
     show-sql: ${BANK_JPA_SHOW_SQL:true}
+
+wealthtrack:
+  jwt:
+    # No default on purpose: a missing secret must fail startup rather than start the
+    # service with an empty signing key. Must match every other service's value.
+    secret: ${BANK_JWT_SECRET}
+    issuer: ${BANK_JWT_ISSUER:wealthtrack}
+    expiry-seconds: ${BANK_JWT_EXPIRY_SECONDS:3600}
 
 eureka:
   client:

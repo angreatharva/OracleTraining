@@ -12,3 +12,11 @@ spring:
 eureka:
   client:
     enabled: false
+
+wealthtrack:
+  jwt:
+    # Test-only signing key; the real one comes from TRADING_JWT_SECRET in .env.
+    secret: test-only-jwt-secret-not-used-outside-tests
+    issuer: wealthtrack
+    expiry-seconds: 3600
+    service-token-seconds: 120

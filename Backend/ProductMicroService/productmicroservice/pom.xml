@@ -53,6 +53,19 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- Authentication: validates the bearer token issued by User Service -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Shared JWT primitives; build CommonSecurity first with mvn install -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>commonsecurity</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
 
         <!-- Spring Data JPA -->
         <dependency>

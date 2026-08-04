@@ -3,10 +3,15 @@ package com.example.portfoliomicroservice.controllers;
 import com.example.portfoliomicroservice.dto.request.CreatePortfolioAccountRequest;
 import com.example.portfoliomicroservice.dto.response.PortfolioAccountResponse;
 import com.example.portfoliomicroservice.enums.AccountStatus;
+import com.example.portfoliomicroservice.security.AuthorizationHelper;
+import com.example.portfoliomicroservice.security.JwtAuthenticationFilter;
 import com.example.portfoliomicroservice.services.PortfolioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -22,7 +27,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PortfolioController.class)
+/**
+ * Slice test for the controller's HTTP contract only.
+ *
+ * <p>Security is switched off here: {@code addFilters = false} skips the JWT filter chain and
+ * {@link AuthorizationHelper} is mocked, so its assert* methods do nothing and the test stays
+ * about request mapping and status codes.</p>
+ */
+@WebMvcTest(controllers = PortfolioController.class,
+        excludeAutoConfiguration = {SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class})
+@AutoConfigureMockMvc(addFilters = false)
 class PortfolioControllerTest {
 
     @Autowired
@@ -33,6 +47,14 @@ class PortfolioControllerTest {
 
     @MockBean
     private PortfolioService portfolioService;
+
+    /** Mocked: default no-op behaviour means "allowed". */
+    @MockBean
+    private AuthorizationHelper authorizationHelper;
+
+    /** Satisfies SecurityConfig's constructor; never invoked because filters are disabled. */
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void createAccount_shouldReturnCreatedPortfolio() throws Exception {

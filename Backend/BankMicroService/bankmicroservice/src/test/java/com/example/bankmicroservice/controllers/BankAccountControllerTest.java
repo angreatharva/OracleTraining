@@ -1,11 +1,15 @@
 package com.example.bankmicroservice.controllers;
 
 import com.example.bankmicroservice.dto.response.BankAccountResponse;
+import com.example.bankmicroservice.security.AuthorizationHelper;
+import com.example.bankmicroservice.security.JwtAuthenticationFilter;
 import com.example.bankmicroservice.services.IBankAccountService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -20,7 +24,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(BankAccountController.class)
+/**
+ * Slice test for the controller's HTTP contract only.
+ *
+ * <p>Security is deliberately switched off here: {@code addFilters = false} skips the JWT
+ * filter chain and {@link AuthorizationHelper} is mocked so its assert* methods do nothing.
+ * That keeps this test about request mapping and status codes. The authorization rules
+ * themselves are exercised against a running service, not in this slice.</p>
+ */
+@WebMvcTest(controllers = BankAccountController.class,
+        excludeAutoConfiguration = {SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class})
+@AutoConfigureMockMvc(addFilters = false)
 class BankAccountControllerTest {
 
     @Autowired
@@ -31,6 +45,14 @@ class BankAccountControllerTest {
 
     @MockBean
     private IBankAccountService bankAccountService;
+
+    /** Mocked: default no-op behaviour means "allowed". */
+    @MockBean
+    private AuthorizationHelper authorizationHelper;
+
+    /** Satisfies SecurityConfig's constructor; never invoked because filters are disabled. */
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void createReturns201() throws Exception {

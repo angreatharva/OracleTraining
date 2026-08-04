@@ -4,9 +4,12 @@ server:
 spring:
   config:
     import:
+      # Resolved against the process working directory, which varies: `mvn spring-boot:run`
+      # uses the service folder, while an IDE run configuration usually uses the repository
+      # or Backend root. All plausible roots are listed so the .env is found either way.
+      - optional:file:./.env[.properties]
       - optional:file:APIGateway/apigateway/.env[.properties]
-      - optional:file:apigateway/.env[.properties]
-      - optional:file:.env[.properties]
+      - optional:file:Backend/APIGateway/apigateway/.env[.properties]
 
   application:
     name: ${GATEWAY_APPLICATION_NAME:WTMS-GATEWAY}
@@ -15,6 +18,19 @@ spring:
     gateway:
       server:
         webflux:
+          # Browser clients (the Oracle JET frontend) run on a different origin to the
+          # gateway, so without this every call fails preflight. Origins are configurable so
+          # a deployed frontend does not need a code change.
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: ${GATEWAY_CORS_ORIGINS:http://localhost:8000}
+                allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+                allowedHeaders: "*"
+                exposedHeaders: "*"
+                allowCredentials: true
+                maxAge: 3600
+
           routes:
             - id: USER-SERVICE
               uri: lb://USER-SERVICE
@@ -80,6 +96,14 @@ resilience4j:
     configs:
       default:
         timeout-duration: ${GATEWAY_TIMEOUT_DURATION:5s}
+
+wealthtrack:
+  jwt:
+    # No default on purpose: a missing secret must fail startup rather than let the gateway
+    # come up unable to verify any token. Must match every service's value.
+    secret: ${GATEWAY_JWT_SECRET}
+    issuer: ${GATEWAY_JWT_ISSUER:wealthtrack}
+    expiry-seconds: ${GATEWAY_JWT_EXPIRY_SECONDS:3600}
 
 eureka:
   client:

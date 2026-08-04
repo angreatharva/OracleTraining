@@ -32,6 +32,17 @@ public class ApiExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI(), errors);
     }
 
+    /**
+     * Must be declared explicitly: the catch-all below would otherwise turn every
+     * authorization failure into a 500.
+     */
+    @ExceptionHandler(com.example.portfoliomicroservice.security.AccessDeniedException.class)
+    ResponseEntity<ApiError> accessDenied(
+            com.example.portfoliomicroservice.security.AccessDeniedException ex,
+            HttpServletRequest request) {
+        return error(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI(), Map.of());
+    }
+
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiError> generic(Exception ex, HttpServletRequest request) {
         return error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", request.getRequestURI(), Map.of());

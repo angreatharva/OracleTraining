@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>commonsecurity</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>commonsecurity</name>
+    <description>
+        Shared JWT primitives for the WealthTrack services.
+
+        Deliberately a plain Java 17 JAR with no Spring Boot parent and no Spring
+        dependencies: the API Gateway runs Spring Boot 4.0.7 / WebFlux while the five
+        business services run Spring Boot 3.5.4 / servlet, so anything shared between them
+        must not bind to a single Boot line.
+
+        Signing uses the JDK's own HMAC-SHA256 (javax.crypto.Mac) rather than a third-party
+        JWT library. Besides removing a dependency, this pins the algorithm to HS256 with no
+        negotiation, so the "alg: none" and algorithm-confusion attacks that affect
+        general-purpose JWT libraries are not reachable here.
+
+        Build and install before any service that depends on it:
+            mvn -f Backend/CommonSecurity/commonsecurity/pom.xml install
+    </description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jackson.version>2.19.0</jackson.version>
+    </properties>
+
+    <dependencies>
+
+        <!--
+            provided scope: every consuming service already ships Jackson via
+            spring-boot-starter-web / -webflux. Keeping it non-transitive lets each Boot
+            line manage its own Jackson version instead of us forcing one.
+        -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <!-- Aligned with junit-platform-launcher 1.12.2, which is available offline. -->
+            <version>5.12.2</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!-- Pinned to a version whose junit-platform provider is available offline. -->
+                <version>3.5.3</version>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

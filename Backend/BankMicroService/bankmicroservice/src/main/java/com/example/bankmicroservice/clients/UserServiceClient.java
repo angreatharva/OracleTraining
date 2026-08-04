@@ -31,8 +31,26 @@ public interface UserServiceClient {
     }
 
     /**
-     * Minimal projection of User Service's response needed by Bank Service.
+     * Resolves the manager of a user, for the "a MANAGER may act on their direct reports"
+     * authorization rule.
+     *
+     * @return the manager's user id, or {@code null} if the user has no manager or cannot
+     *         be read. Returning null rather than throwing keeps a User Service hiccup from
+     *         turning an authorization check into a 500 - the caller simply gets denied.
      */
-    record UserResponse(Long userId, String status) {
+    default Long findManagerId(Long userId) {
+        try {
+            UserResponse user = getUserById(userId);
+            return user == null ? null : user.managerId();
+        } catch (FeignException exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Minimal projection of User Service's response needed by Bank Service. Unknown JSON
+     * fields are ignored by Boot's default ObjectMapper, so this stays a partial view.
+     */
+    record UserResponse(Long userId, Long managerId, String status) {
     }
 }

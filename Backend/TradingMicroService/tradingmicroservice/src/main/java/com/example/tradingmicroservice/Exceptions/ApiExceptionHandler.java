@@ -31,11 +31,18 @@ public class ApiExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
+    @ExceptionHandler(com.example.tradingmicroservice.security.AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(
+            com.example.tradingmicroservice.security.AccessDeniedException exception) {
+        return error(HttpStatus.FORBIDDEN, exception.getMessage());
+    }
+
     private ResponseEntity<Map<String, Object>> error(HttpStatus status, String message) {
+        // Map.of rejects nulls, and several of these exceptions can carry a null message.
         return ResponseEntity.status(status).body(Map.of(
                 "timestamp", LocalDateTime.now(),
                 "status", status.value(),
-                "message", message
+                "message", message == null ? status.getReasonPhrase() : message
         ));
     }
 }

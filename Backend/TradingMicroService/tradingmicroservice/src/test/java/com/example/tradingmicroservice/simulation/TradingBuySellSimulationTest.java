@@ -190,6 +190,8 @@ class TradingBuySellSimulationTest {
         }
 
         @Override public PortfolioAccountSummary getAccountByUser(Long userId) { return new PortfolioAccountSummary(1L, userId); }
+        /** Reverse lookup used by authorization; the simulation always owns account 1 as user 2. */
+        @Override public PortfolioAccountSummary getAccount(Long portfolioAccountId) { return new PortfolioAccountSummary(portfolioAccountId, 2L); }
         @Override public List<PortfolioHoldingSnapshot> getHoldings(Long portfolioAccountId) { return new ArrayList<>(); }
     }
 }

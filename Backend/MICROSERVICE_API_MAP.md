@@ -15,11 +15,15 @@ OpenAPI 3.0.3 contract is in [`openapi.yaml`](./openapi.yaml).
   registration/discovery protocol are supplied by Netflix Eureka libraries; their full
   framework schema cannot be derived from this repository without inventing a contract,
   so they are not represented as business operations in `openapi.yaml`.
-- No service currently configures Spring Security or an equivalent authentication or
-  authorization layer. All business and `internal` endpoints are unauthenticated.
+- **Every endpoint requires a bearer token except `POST /api/auth/login`.** The gateway
+  validates the token and each of the five business services validates it again
+  independently, because ports 8082-8086 are directly reachable. See section
+  "Authentication and authorization" below, and section 1.1 of `readme.md`.
 - Inter-service calls are synchronous REST over Spring Cloud OpenFeign and are resolved
   by Eureka service name. No gRPC, message broker, or application event integration is
-  implemented.
+  implemented. Bank and Portfolio forward the caller's token on those calls; Trading uses
+  a short-lived SERVICE token instead, because its downstream calls are exactly the ones
+  end-user tokens are barred from.
 
 ## Architecture
 
@@ -59,11 +63,32 @@ flowchart LR
 | Trading Service | 8085 | `TRADING-SERVICE` | BUY/SELL orchestration, compensation, statements, investment overview | Product, Portfolio, and Bank Services |
 | Product Service | 8086 | `PRODUCT-SERVICE` | Product types, investable product catalog, price and active state | None |
 
+## Authentication and authorization
+
+| Method | Path | Purpose | Auth |
+|---|---|---|---|
+| POST | `/api/auth/login` | Exchange email + password for a bearer token | **None** |
+| GET | `/api/auth/me` | Read the signed-in user | Any |
+| POST | `/api/auth/change-password` | Change your own password | Any |
+
+Roles are `INVESTOR` and `MANAGER` (seeded as `role_id` 2 and 1). The rule applied in every
+service: a caller may act on a user if it is themselves, or if they are a MANAGER and that
+user's `manager_id` is the caller. Otherwise `403`.
+
+In the tables below the `Auth` column means:
+
+- **Any** - any authenticated user.
+- **Owner** - the ownership rule above, resolved from the record being touched.
+- **MANAGER** - manager role required.
+- **SERVICE** - internal service token only; end-user tokens are rejected with `403`.
+
+The three `/internal` paths are additionally blocked at the gateway, so they are not
+reachable from outside regardless of token.
+
 ## APIs exposed
 
-All JSON body operations use `Content-Type: application/json`. There are no custom
-request headers. `Auth` is `None` for every row because the current code has no
-authentication or authorization.
+All JSON body operations use `Content-Type: application/json`. Every request except login
+carries `Authorization: Bearer <token>`.
 
 ### API Gateway
 
@@ -93,26 +118,26 @@ the status alone as proof that the downstream operation succeeded.
 
 | Method | Path | Purpose | Success | Auth |
 |---|---|---|---|---|
-| POST | `/api/roles` | Create a uniquely named role | 201 `RoleResponse` | None |
-| GET | `/api/roles` | List roles | 200 array | None |
-| GET | `/api/roles/{id}` | Get role by ID | 200 / 404 | None |
-| GET | `/api/roles/name/{roleName}` | Get role by name | 200 / 404 | None |
-| PUT | `/api/roles/{id}` | Replace role name | 200 | None |
-| DELETE | `/api/roles/{id}` | Delete only when unused by users | 204 | None |
-| POST | `/api/users` | Create a user for an existing role/optional manager | 201 `UserResponse` | None |
-| GET | `/api/users` | List users | 200 array | None |
-| GET | `/api/users/{id}` | Get user; consumed by Bank and Portfolio validation | 200 / 404 | None |
-| GET | `/api/users/email/{email}` | Get user by unique email | 200 / 404 | None |
-| GET | `/api/users/role/{roleId}` | List users assigned to a role | 200 array | None |
-| GET | `/api/users/manager/{managerId}` | List direct subordinates | 200 array | None |
-| PUT | `/api/users/{id}` | Replace user fields and relationships | 200 | None |
-| DELETE | `/api/users/{id}` | Delete only when no subordinates exist | 204 | None |
-| POST | `/api/user-details` | Create one risk/KYC profile per user | 201 `UserDetailResponse` | None |
-| GET | `/api/user-details` | List user profiles | 200 array | None |
-| GET | `/api/user-details/{id}` | Get profile by profile ID | 200 / 404 | None |
-| GET | `/api/user-details/user/{userId}` | Get profile by user ID | 200 / 404 | None |
-| PUT | `/api/user-details/{id}` | Replace a profile | 200 | None |
-| DELETE | `/api/user-details/{id}` | Permanently delete a profile | 204 | None |
+| POST | `/api/roles` | Create a uniquely named role | 201 `RoleResponse` | MANAGER |
+| GET | `/api/roles` | List roles | 200 array | Any |
+| GET | `/api/roles/{id}` | Get role by ID | 200 / 404 | Any |
+| GET | `/api/roles/name/{roleName}` | Get role by name | 200 / 404 | Any |
+| PUT | `/api/roles/{id}` | Replace role name | 200 | MANAGER |
+| DELETE | `/api/roles/{id}` | Delete only when unused by users | 204 | MANAGER |
+| POST | `/api/users` | Create a user for an existing role/optional manager | 201 `UserResponse` | MANAGER |
+| GET | `/api/users` | List users | 200 array | MANAGER |
+| GET | `/api/users/{id}` | Get user; consumed by Bank and Portfolio validation | 200 / 404 | Owner |
+| GET | `/api/users/email/{email}` | Get user by unique email | 200 / 404 | Owner |
+| GET | `/api/users/role/{roleId}` | List users assigned to a role | 200 array | MANAGER |
+| GET | `/api/users/manager/{managerId}` | List direct subordinates | 200 array | Owner |
+| PUT | `/api/users/{id}` | Replace user fields and relationships | 200 | MANAGER |
+| DELETE | `/api/users/{id}` | Delete only when no subordinates exist | 204 | MANAGER |
+| POST | `/api/user-details` | Create one risk/KYC profile per user | 201 `UserDetailResponse` | MANAGER |
+| GET | `/api/user-details` | List user profiles | 200 array | MANAGER |
+| GET | `/api/user-details/{id}` | Get profile by profile ID | 200 / 404 | Owner |
+| GET | `/api/user-details/user/{userId}` | Get profile by user ID | 200 / 404 | Owner |
+| PUT | `/api/user-details/{id}` | Replace a profile | 200 | MANAGER |
+| DELETE | `/api/user-details/{id}` | Permanently delete a profile | 204 | MANAGER |
 
 User status defaults to `ACTIVE`. User responses intentionally omit `passwordHash`.
 Duplicate email/role names and protected deletes are mapped to 400, not 409.
@@ -121,19 +146,19 @@ Duplicate email/role names and protected deletes are mapped to 400, not 409.
 
 | Method | Path | Purpose | Success | Auth |
 |---|---|---|---|---|
-| POST | `/api/bank-accounts` | Validate ACTIVE user and register account | 201 `BankAccountResponse` | None |
-| GET | `/api/bank-accounts` | Filter by `userId`, `status`, `primary` | 200 array | None |
-| GET | `/api/bank-accounts/{id}` | Get masked account and balance | 200 / 404 | None |
-| PUT | `/api/bank-accounts/{id}` | Update mutable account metadata/status | 200 | None |
-| PATCH | `/api/bank-accounts/{id}/primary` | Make an ACTIVE account primary | 200 | None |
-| POST | `/api/bank-accounts/{id}/debit` | Lock and debit account | 200 `DebitResult` | None |
-| POST | `/api/bank-accounts/{id}/credit` | Lock and credit account | 200 `CreditResult` | None |
-| DELETE | `/api/bank-accounts/{id}` | Soft-close account | 204 | None |
-| POST | `/api/kyc-documents` | Validate ACTIVE user and create KYC metadata | 201 `KycDocumentResponse` | None |
-| GET | `/api/kyc-documents` | Filter by `userId`, `verificationStatus`, `documentType` | 200 array | None |
-| GET | `/api/kyc-documents/{id}` | Get masked KYC document metadata | 200 / 404 | None |
-| PUT | `/api/kyc-documents/{id}/verification` | Set PENDING/VERIFIED/REJECTED | 200 | None |
-| DELETE | `/api/kyc-documents/{id}` | Soft-deactivate KYC metadata | 204 | None |
+| POST | `/api/bank-accounts` | Validate ACTIVE user and register account | 201 `BankAccountResponse` | Owner |
+| GET | `/api/bank-accounts` | Filter by `userId`, `status`, `primary` | 200 array | Owner |
+| GET | `/api/bank-accounts/{id}` | Get masked account and balance | 200 / 404 | Owner |
+| PUT | `/api/bank-accounts/{id}` | Update mutable account metadata/status | 200 | MANAGER |
+| PATCH | `/api/bank-accounts/{id}/primary` | Make an ACTIVE account primary | 200 | Owner |
+| POST | `/api/bank-accounts/{id}/debit` | Lock and debit account | 200 `DebitResult` | SERVICE |
+| POST | `/api/bank-accounts/{id}/credit` | Lock and credit account | 200 `CreditResult` | SERVICE |
+| DELETE | `/api/bank-accounts/{id}` | Soft-close account | 204 | MANAGER |
+| POST | `/api/kyc-documents` | Validate ACTIVE user and create KYC metadata | 201 `KycDocumentResponse` | Owner |
+| GET | `/api/kyc-documents` | Filter by `userId`, `verificationStatus`, `documentType` | 200 array | Owner |
+| GET | `/api/kyc-documents/{id}` | Get masked KYC document metadata | 200 / 404 | Owner |
+| PUT | `/api/kyc-documents/{id}/verification` | Set PENDING/VERIFIED/REJECTED | 200 | MANAGER |
+| DELETE | `/api/kyc-documents/{id}` | Soft-deactivate KYC metadata | 204 | MANAGER |
 
 Debit and credit business rejection uses HTTP 200 with a false result flag. Transaction
 references are echoed but not persisted, checked for uniqueness, or used for
@@ -144,19 +169,19 @@ idempotency. Account numbers and document numbers are masked in responses.
 | Method | Path | Purpose | Success | Auth |
 |---|---|---|---|---|
 | GET | `/` | Plain-text application liveness message | 200 text | None |
-| POST | `/api/portfolios` | Validate ACTIVE user and open one portfolio | 201 `PortfolioAccountResponse` | None |
-| GET | `/api/portfolios` | List portfolio accounts | 200 array | None |
-| GET | `/api/portfolios/{portfolioAccountId}` | Get portfolio account | 200 / 404 | None |
-| GET | `/api/portfolios/by-user/{userId}` | Get portfolio by user; consumed by Trading | 200 / 404 | None |
-| PATCH | `/api/portfolios/{portfolioAccountId}/status` | Change ACTIVE/SUSPENDED/CLOSED state | 200 | None |
-| POST | `/api/portfolios/{portfolioAccountId}/holdings` | Validate Product and add/increase holding | 201 `PortfolioHoldingResponse` | None |
-| GET | `/api/portfolios/{portfolioAccountId}/holdings` | List holdings, optional `status` | 200 array | None |
-| GET | `/api/portfolios/holdings/{holdingId}` | Get holding | 200 / 404 | None |
-| PATCH | `/api/portfolios/holdings/{holdingId}` | Partially update holding | 200 | None |
-| DELETE | `/api/portfolios/holdings/{holdingId}` | Delete empty or CLOSED holding | 204 | None |
-| POST | `/api/portfolios/internal/trades/validate` | Validate Trading command before money moves | 204 | None |
-| POST | `/api/portfolios/internal/trades` | Apply funded BUY/SELL to holding | 204 | None |
-| GET | `/api/portfolios/{portfolioAccountId}/summary` | Return account, holdings, cost/value/P&L | 200 `PortfolioSummaryResponse` | None |
+| POST | `/api/portfolios` | Validate ACTIVE user and open one portfolio | 201 `PortfolioAccountResponse` | MANAGER |
+| GET | `/api/portfolios` | List portfolio accounts | 200 array | MANAGER |
+| GET | `/api/portfolios/{portfolioAccountId}` | Get portfolio account | 200 / 404 | Owner |
+| GET | `/api/portfolios/by-user/{userId}` | Get portfolio by user; consumed by Trading | 200 / 404 | Owner |
+| PATCH | `/api/portfolios/{portfolioAccountId}/status` | Change ACTIVE/SUSPENDED/CLOSED state | 200 | MANAGER |
+| POST | `/api/portfolios/{portfolioAccountId}/holdings` | Validate Product and add/increase holding | 201 `PortfolioHoldingResponse` | Owner |
+| GET | `/api/portfolios/{portfolioAccountId}/holdings` | List holdings, optional `status` | 200 array | Owner |
+| GET | `/api/portfolios/holdings/{holdingId}` | Get holding | 200 / 404 | Owner |
+| PATCH | `/api/portfolios/holdings/{holdingId}` | Partially update holding | 200 | MANAGER |
+| DELETE | `/api/portfolios/holdings/{holdingId}` | Delete empty or CLOSED holding | 204 | MANAGER |
+| POST | `/api/portfolios/internal/trades/validate` | Validate Trading command before money moves | 204 | SERVICE |
+| POST | `/api/portfolios/internal/trades` | Apply funded BUY/SELL to holding | 204 | SERVICE |
+| GET | `/api/portfolios/{portfolioAccountId}/summary` | Return account, holdings, cost/value/P&L | 200 `PortfolioSummaryResponse` | Owner |
 
 The summary uses stored holding `marketValue`; it does not refresh quotes. The internal
 trade apply endpoint validates `transactionId` but does not persist/deduplicate it, so a
@@ -166,16 +191,16 @@ duplicate call can apply the same quantity twice.
 
 | Method | Path | Purpose | Success | Auth |
 |---|---|---|---|---|
-| POST | `/api/product-types` | Create unique normalized product type | 201 `ProductTypeResponse` | None |
-| GET | `/api/product-types` | Filter by `status`, exact `typeName` | 200 array | None |
-| GET | `/api/product-types/{id}` | Get product type | 200 / 404 | None |
-| PUT | `/api/product-types/{id}` | Replace product type | 200 | None |
-| DELETE | `/api/product-types/{id}` | Delete only when unused by products | 204 | None |
-| POST | `/api/products` | Create uniquely named investment product | 201 `InvestmentProductResponse` | None |
-| GET | `/api/products` | Filter by type/status/risk/price method/name | 200 array | None |
-| GET | `/api/products/{id}` | Get quote/catalog record; consumed by Portfolio/Trading | 200 / 404 | None |
-| PUT | `/api/products/{id}` | Replace investment product | 200 | None |
-| DELETE | `/api/products/{id}` | Permanently delete product | 204 | None |
+| POST | `/api/product-types` | Create unique normalized product type | 201 `ProductTypeResponse` | MANAGER |
+| GET | `/api/product-types` | Filter by `status`, exact `typeName` | 200 array | Any |
+| GET | `/api/product-types/{id}` | Get product type | 200 / 404 | Any |
+| PUT | `/api/product-types/{id}` | Replace product type | 200 | MANAGER |
+| DELETE | `/api/product-types/{id}` | Delete only when unused by products | 204 | MANAGER |
+| POST | `/api/products` | Create uniquely named investment product | 201 `InvestmentProductResponse` | MANAGER |
+| GET | `/api/products` | Filter by type/status/risk/price method/name | 200 array | Any |
+| GET | `/api/products/{id}` | Get quote/catalog record; consumed by Portfolio/Trading | 200 / 404 | Any |
+| PUT | `/api/products/{id}` | Replace investment product | 200 | MANAGER |
+| DELETE | `/api/products/{id}` | Permanently delete product | 204 | MANAGER |
 
 Product status defaults to ACTIVE. Maturity cannot precede issue date. The service does
 not query Portfolio or Trading before deleting a product.
@@ -184,13 +209,13 @@ not query Portfolio or Trading before deleting a product.
 
 | Method | Path | Purpose | Success | Auth |
 |---|---|---|---|---|
-| POST | `/api/trade-transactions` | Execute synchronous BUY/SELL saga | 201 completed / 422 failed trade | None |
-| GET | `/api/trade-transactions` | Filter by portfolio/status/type/date-time range | 200 array | None |
-| GET | `/api/trade-transactions/{id}` | Get stored trade | 200 / 404 | None |
-| POST | `/api/portfolio-statements/internal` | Create GENERATED statement from supplied values and stored trades | 201 | None |
-| GET | `/api/portfolio-statements` | Filter statements by portfolio/status/date range | 200 array | None |
-| GET | `/api/portfolio-statements/{id}` | Get statement and transaction IDs | 200 / 404 | None |
-| GET | `/api/investment-overview/users/{userId}` | Aggregate Portfolio holdings, completed trades, and Product prices | 200 | None |
+| POST | `/api/trade-transactions` | Execute synchronous BUY/SELL saga | 201 completed / 422 failed trade | Owner |
+| GET | `/api/trade-transactions` | Filter by portfolio/status/type/date-time range | 200 array | Owner |
+| GET | `/api/trade-transactions/{id}` | Get stored trade | 200 / 404 | Owner |
+| POST | `/api/portfolio-statements/internal` | Create GENERATED statement from supplied values and stored trades | 201 | SERVICE |
+| GET | `/api/portfolio-statements` | Filter statements by portfolio/status/date range | 200 array | Owner |
+| GET | `/api/portfolio-statements/{id}` | Get statement and transaction IDs | 200 / 404 | Owner |
+| GET | `/api/investment-overview/users/{userId}` | Aggregate Portfolio holdings, completed trades, and Product prices | 200 | Owner |
 
 Trading replaces the submitted `unitPrice` with Product Service `currentPrice`. An
 execution failure is persisted as `FAILED` and returned as HTTP 422 with
@@ -200,7 +225,12 @@ that immediate response and is not persisted, so later GETs return it as null.
 ## Inter-service communication contracts
 
 All rows below are synchronous REST through OpenFeign unless stated otherwise.
-Service names are resolved through Eureka. No call adds authentication headers.
+Service names are resolved through Eureka. Every call carries an `Authorization` header:
+Bank and Portfolio forward the end user's own token, so the downstream service applies the
+same ownership rule to the nested call. Trading instead sends a short-lived SERVICE token,
+because Bank's debit/credit and Portfolio's `/internal/**` are closed to end-user tokens by
+design. A SERVICE token bypasses ownership checks, which is why Trading authorizes the
+caller at its own controller before the saga starts.
 
 | Caller | Target | API/event | Request projection | Response projection | Timeout | Retry |
 |---|---|---|---|---|---|---|
@@ -228,8 +258,8 @@ Feign environment overrides:
   `PORTFOLIO_FEIGN_READ_TIMEOUT_MS`
 - Trading: `TRADING_FEIGN_CONNECT_TIMEOUT_MS`, `TRADING_FEIGN_READ_TIMEOUT_MS`
 
-No service-specific retryer, circuit breaker, backoff, idempotency key, trace/correlation
-header, or service-to-service credential is configured.
+No service-specific retryer, circuit breaker, backoff, idempotency key, or trace/correlation
+header is configured. Service-to-service credentials are configured - see above.
 
 ## Main communication flows
 
@@ -301,8 +331,9 @@ not reverse business calls.
 ### Exposed or undocumented integrations
 
 - Both Portfolio `/internal/trades*` endpoints and Trading
-  `/portfolio-statements/internal` are routable and unauthenticated. “Internal” is only
-  a path convention.
+  `/portfolio-statements/internal` now require a SERVICE token, and the gateway returns 403
+  for those paths, so they are not reachable from outside. "Internal" is enforced, not just
+  a naming convention.
 - No code in another microservice consumes the statement creation endpoint. Its caller
   is therefore not determinable from this repository.
 - Local defaults point all persistence services at the same MySQL database (`mydb`).
@@ -393,9 +424,12 @@ A successful delete/soft-delete returns `204 No Content`.
    Operation-level server entries include the required gateway prefix.
 3. Start Eureka first, then the target service; start the Gateway when testing a gateway
    server entry.
-4. No authorization credential is currently required or accepted.
-5. Configure database and Eureka environment variables as documented in the root
-   `README.md` and each service's `.env.example`.
+4. Call `POST /api/auth/login` first, then paste `Bearer <token>` into Swagger's
+   **Authorize** box. Everything else returns 401 without it.
+5. Configure database, Eureka and `*_JWT_SECRET` environment variables as documented in
+   `readme.md` and each service's `.env.example`. The JWT secret must be identical across
+   all services and the gateway.
 
 The shared 400/401/403/404/409/422/500 response components are reusable templates.
-401/403 are deliberately labeled as inactive until security is actually implemented.
+401 means the token is missing, expired or invalid; 403 means the token is valid but the
+caller is not entitled to that record.

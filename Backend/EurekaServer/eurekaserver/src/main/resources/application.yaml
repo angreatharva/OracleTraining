@@ -4,9 +4,12 @@ server:
 spring:
   config:
     import:
-      - optional:file:eurekaServer/eurekaserver/.env[.properties]
-      - optional:file:eurekaserver/.env[.properties]
-      - optional:file:.env[.properties]
+      # Resolved against the process working directory, which varies: `mvn spring-boot:run`
+      # uses the service folder, while an IDE run configuration usually uses the repository
+      # or Backend root. All plausible roots are listed so the .env is found either way.
+      - optional:file:./.env[.properties]
+      - optional:file:EurekaServer/eurekaserver/.env[.properties]
+      - optional:file:Backend/EurekaServer/eurekaserver/.env[.properties]
 
   application:
     name: ${EUREKA_APPLICATION_NAME:WTMS-EUREKA-SERVER}

@@ -1,6 +1,7 @@
 package com.example.usermicroservice.controllers;
 
 import com.example.usermicroservice.dto.request.CreateUserRequest;
+import com.example.usermicroservice.dto.request.UpdateUserRequest;
 import com.example.usermicroservice.dto.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -13,6 +14,6 @@ public interface IUserController {
     UserResponse getByEmail(String email);
     List<UserResponse> getByRoleId(Long roleId);
     List<UserResponse> getByManagerId(Long managerId);
-    UserResponse update(Long id, CreateUserRequest request);
+    UserResponse update(Long id, UpdateUserRequest request);
     void delete(Long id);
 }

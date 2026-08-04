@@ -45,6 +45,18 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
         </dependency>
+
+        <!--
+            Shared JWT primitives; build CommonSecurity first with mvn install.
+            Note there is deliberately no spring-boot-starter-security here: the gateway
+            only needs to validate a token and reject, which a plain reactive WebFilter does
+            without pulling the whole Spring Security stack into a Boot 4 / WebFlux app.
+        -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>commonsecurity</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -56,6 +68,17 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <!--
+            Was missing entirely, so ApigatewayApplicationTests could not compile - and
+            because spring-boot:run forks the lifecycle through test-compile, that stopped
+            the gateway from starting at all.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
 

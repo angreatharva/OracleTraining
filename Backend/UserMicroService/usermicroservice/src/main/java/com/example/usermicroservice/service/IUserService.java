@@ -1,6 +1,7 @@
 package com.example.usermicroservice.service;
 
 import com.example.usermicroservice.dto.request.CreateUserRequest;
+import com.example.usermicroservice.dto.request.UpdateUserRequest;
 import com.example.usermicroservice.dto.response.UserResponse;
 
 import java.util.List;
@@ -12,6 +13,6 @@ public interface IUserService {
     List<UserResponse> getAll();
     List<UserResponse> getByRoleId(Long roleId);
     List<UserResponse> getByManagerId(Long managerId);
-    UserResponse update(Long id, CreateUserRequest request);
+    UserResponse update(Long id, UpdateUserRequest request);
     void delete(Long id);
 }
