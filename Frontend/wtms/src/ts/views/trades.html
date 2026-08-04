@@ -1,0 +1,11 @@
+<div class="oj-flex oj-sm-flex-direction-column">
+  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[heading]]"></oj-bind-text></h2>
+  <p class="oj-typography-body-md oj-text-color-secondary">
+    Trade history and the BUY/SELL form go here.
+  </p>
+  <oj-bind-if test="[[errorMessage()]]">
+    <div class="oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+</div>
