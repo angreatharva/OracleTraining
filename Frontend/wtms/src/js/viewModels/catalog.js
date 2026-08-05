@@ -50,14 +50,6 @@ define([
       status: ko.observable("ACTIVE")
     };
 
-    self.productTypeOptions = ko.pureComputed(function () {
-      return self.productTypes().map(function (t) { return t.productTypeId; });
-    });
-    self.productTypeLabel = function (id) {
-      var t = self.productTypes().filter(function (x) { return x.productTypeId === id; })[0];
-      return t ? t.typeName : ("Type " + id);
-    };
-
     self.hasProducts = ko.pureComputed(function () {
       return !self.state.isLoading() && self.products().length > 0;
     });

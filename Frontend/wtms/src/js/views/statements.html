@@ -60,25 +60,21 @@
     </div>
   </oj-bind-if>
 
-  <oj-bind-if test="[[hasStatements()]]">
-    <oj-bind-for-each data="[[statements]]">
-      <template>
-        <div class="oj-panel oj-sm-margin-1x-vertical">
-          <div class="oj-flex oj-sm-align-items-center">
-            <div class="oj-flex-item oj-typography-body-md">
-              #<oj-bind-text value="[[$current.data.statementId]]"></oj-bind-text>
-              &nbsp;
-              <oj-bind-text value="[[$parent.format.date($current.data.statementStart)]]"></oj-bind-text>
-              &ndash;
-              <oj-bind-text value="[[$parent.format.date($current.data.statementEnd)]]"></oj-bind-text>
-            </div>
-            <div class="oj-sm-margin-2x-end oj-typography-body-md">
-              <oj-bind-text value="[[$parent.format.money($current.data.closingValue)]]"></oj-bind-text>
-            </div>
-            <oj-button on-oj-action="[[function () { $parent.select($current.data); }]]">View</oj-button>
-          </div>
+  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
+  <div data-bind="foreach: statements">
+    <div class="oj-panel oj-sm-margin-1x-vertical">
+      <div class="oj-flex oj-sm-align-items-center">
+        <div class="oj-flex-item oj-typography-body-md">
+          <span data-bind="text: '#' + $data.statementId"></span>
+          &nbsp;
+          <span data-bind="text: $parent.format.date($data.statementStart)"></span>
+          &ndash;
+          <span data-bind="text: $parent.format.date($data.statementEnd)"></span>
         </div>
-      </template>
-    </oj-bind-for-each>
-  </oj-bind-if>
+        <div class="oj-sm-margin-2x-end oj-typography-body-md"
+             data-bind="text: $parent.format.money($data.closingValue)"></div>
+        <oj-button data-bind="click: function () { $parent.select($data); }">View</oj-button>
+      </div>
+    </div>
+  </div>
 </div>

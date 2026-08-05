@@ -34,7 +34,10 @@
       <oj-form-layout max-columns="2" direction="row">
         <oj-label for="productTypeId">Product type</oj-label>
         <select id="productTypeId"
-                data-bind="options: productTypeOptions(), optionsText: function (id) { return productTypeLabel(id); }, value: form.productTypeId"></select>
+                data-bind="options: productTypes,
+                           optionsText: 'typeName',
+                           optionsValue: 'productTypeId',
+                           value: form.productTypeId"></select>
 
         <oj-input-text label-hint="Name" value="{{form.productName}}"></oj-input-text>
         <oj-input-number label-hint="Base price" value="{{form.basePrice}}" min="0.01"></oj-input-number>
@@ -64,32 +67,26 @@
     <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
-  <oj-bind-if test="[[hasProducts()]]">
-    <oj-bind-for-each data="[[products]]">
-      <template>
-        <div class="oj-panel oj-sm-margin-1x-vertical">
-          <div class="oj-flex oj-sm-align-items-center">
-            <div class="oj-flex-item">
-              <div class="oj-typography-body-md">
-                <strong><oj-bind-text value="[[$current.data.productName]]"></oj-bind-text></strong>
-              </div>
-              <div class="oj-typography-body-sm oj-text-color-secondary">
-                <oj-bind-text value="[[$current.data.productTypeCode]]"></oj-bind-text>
-                &middot; risk <oj-bind-text value="[[$current.data.riskCategory]]"></oj-bind-text>
-                &middot; <oj-bind-text value="[[$current.data.priceMethod]]"></oj-bind-text>
-                &middot;
-                <span :class="[[$parent.format.statusClass($current.data.status)]]">
-                  <oj-bind-text value="[[$current.data.status]]"></oj-bind-text>
-                </span>
-              </div>
-            </div>
-            <div class="oj-sm-margin-2x-end oj-typography-heading-sm">
-              <oj-bind-text value="[[$parent.format.money($current.data.currentPrice)]]"></oj-bind-text>
-            </div>
-            <oj-button on-oj-action="[[function () { $parent.startEdit($current.data); }]]">Edit</oj-button>
+  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
+  <div data-bind="foreach: products">
+    <div class="oj-panel oj-sm-margin-1x-vertical">
+      <div class="oj-flex oj-sm-align-items-center">
+        <div class="oj-flex-item">
+          <div class="oj-typography-body-md">
+            <strong data-bind="text: $data.productName"></strong>
+          </div>
+          <div class="oj-typography-body-sm oj-text-color-secondary">
+            <span data-bind="text: $data.productTypeCode"></span>
+            &middot; risk <span data-bind="text: $data.riskCategory"></span>
+            &middot; <span data-bind="text: $data.priceMethod"></span>
+            &middot;
+            <span data-bind="text: $data.status, css: $parent.format.statusClass($data.status)"></span>
           </div>
         </div>
-      </template>
-    </oj-bind-for-each>
-  </oj-bind-if>
+        <div class="oj-sm-margin-2x-end oj-typography-heading-sm"
+             data-bind="text: $parent.format.money($data.currentPrice)"></div>
+        <oj-button data-bind="click: function () { $parent.startEdit($data); }">Edit</oj-button>
+      </div>
+    </div>
+  </div>
 </div>

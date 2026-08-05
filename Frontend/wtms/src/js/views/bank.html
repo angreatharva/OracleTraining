@@ -23,44 +23,39 @@
     </p>
   </oj-bind-if>
 
-  <oj-bind-if test="[[hasAccounts()]]">
-    <oj-bind-for-each data="[[accounts]]">
-      <template>
-        <div class="oj-panel oj-sm-margin-1x-vertical">
-          <div class="oj-flex oj-sm-align-items-center">
-            <div class="oj-flex-item">
-              <div class="oj-typography-body-md">
-                <strong><oj-bind-text value="[[$current.data.bankName]]"></oj-bind-text></strong>
-                &nbsp;<oj-bind-text value="[[$current.data.maskedAccountNumber]]"></oj-bind-text>
-              </div>
-              <div class="oj-typography-body-sm oj-text-color-secondary">
-                <oj-bind-text value="[[$current.data.accountType]]"></oj-bind-text>
-                <oj-bind-if test="[[$current.data.branchName]]">
-                  &middot; <oj-bind-text value="[[$current.data.branchName]]"></oj-bind-text>
-                </oj-bind-if>
-                &middot;
-                <span :class="[[$parent.format.statusClass($current.data.status)]]">
-                  <oj-bind-text value="[[$current.data.status]]"></oj-bind-text>
-                </span>
-                <oj-bind-if test="[[$current.data.primaryAccount]]">
-                  &middot; <strong>Primary</strong>
-                </oj-bind-if>
-              </div>
-            </div>
-
-            <div class="oj-typography-heading-sm oj-sm-margin-2x-end">
-              <oj-bind-text value="[[$parent.format.money($current.data.balance)]]"></oj-bind-text>
-            </div>
-
-            <oj-bind-if test="[[!$current.data.primaryAccount && $current.data.status === 'ACTIVE']]">
-              <oj-button on-oj-action="[[function () { $parent.makePrimary($current.data); }]]"
-                         disabled="[[$parent.busyAccountId() === $current.data.bankAccountId]]">
-                Make primary
-              </oj-button>
-            </oj-bind-if>
+  <!--
+    Knockout's foreach, NOT oj-bind-for-each. $parent is undefined inside oj-bind-for-each,
+    and referencing it throws a binding error that silently removes the entire list from the
+    DOM - the screen renders its heading and nothing else. Verified in the browser.
+  -->
+  <div data-bind="foreach: accounts">
+    <div class="oj-panel oj-sm-margin-1x-vertical">
+      <div class="oj-flex oj-sm-align-items-center">
+        <div class="oj-flex-item">
+          <div class="oj-typography-body-md">
+            <strong data-bind="text: $data.bankName"></strong>
+            <span data-bind="text: ' ' + $data.maskedAccountNumber"></span>
+          </div>
+          <div class="oj-typography-body-sm oj-text-color-secondary">
+            <span data-bind="text: $data.accountType"></span>
+            <span data-bind="visible: $data.branchName">
+              &middot; <span data-bind="text: $data.branchName"></span>
+            </span>
+            &middot;
+            <span data-bind="text: $data.status, css: $parent.format.statusClass($data.status)"></span>
+            <span data-bind="visible: $data.primaryAccount">&middot; <strong>Primary</strong></span>
           </div>
         </div>
-      </template>
-    </oj-bind-for-each>
-  </oj-bind-if>
+
+        <div class="oj-typography-heading-sm oj-sm-margin-2x-end"
+             data-bind="text: $parent.format.money($data.balance)"></div>
+
+        <oj-button data-bind="visible: !$data.primaryAccount && $data.status === 'ACTIVE',
+                              click: function () { $parent.makePrimary($data); },
+                              disable: $parent.busyAccountId() === $data.bankAccountId">
+          Make primary
+        </oj-button>
+      </div>
+    </div>
+  </div>
 </div>

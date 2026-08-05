@@ -21,32 +21,27 @@
     </p>
   </oj-bind-if>
 
-  <oj-bind-if test="[[hasMembers()]]">
-    <oj-bind-for-each data="[[members]]">
-      <template>
-        <div class="oj-panel oj-sm-margin-1x-vertical">
-          <div class="oj-flex oj-sm-align-items-center">
-            <div class="oj-flex-item">
-              <div class="oj-typography-body-md">
-                <strong><oj-bind-text value="[[$current.data.fullName]]"></oj-bind-text></strong>
-              </div>
-              <div class="oj-typography-body-sm oj-text-color-secondary">
-                <oj-bind-text value="[[$current.data.email]]"></oj-bind-text>
-                <oj-bind-if test="[[$current.data.phone]]">
-                  &nbsp;&middot;&nbsp;<oj-bind-text value="[[$current.data.phone]]"></oj-bind-text>
-                </oj-bind-if>
-                &nbsp;&middot;&nbsp;
-                <span :class="[[$parent.format.statusClass($current.data.status)]]">
-                  <oj-bind-text value="[[$current.data.status]]"></oj-bind-text>
-                </span>
-              </div>
-            </div>
-            <oj-button on-oj-action="[[function () { $parent.openMember($current.data); }]]">
-              View portfolio
-            </oj-button>
+  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
+  <div data-bind="foreach: members">
+    <div class="oj-panel oj-sm-margin-1x-vertical">
+      <div class="oj-flex oj-sm-align-items-center">
+        <div class="oj-flex-item">
+          <div class="oj-typography-body-md">
+            <strong data-bind="text: $data.fullName"></strong>
+          </div>
+          <div class="oj-typography-body-sm oj-text-color-secondary">
+            <span data-bind="text: $data.email"></span>
+            <span data-bind="visible: $data.phone">
+              &middot; <span data-bind="text: $data.phone"></span>
+            </span>
+            &middot;
+            <span data-bind="text: $data.status, css: $parent.format.statusClass($data.status)"></span>
           </div>
         </div>
-      </template>
-    </oj-bind-for-each>
-  </oj-bind-if>
+        <oj-button data-bind="click: function () { $parent.openMember($data); }">
+          View portfolio
+        </oj-button>
+      </div>
+    </div>
+  </div>
 </div>

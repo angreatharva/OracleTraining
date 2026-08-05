@@ -32,42 +32,36 @@
     </p>
   </oj-bind-if>
 
-  <oj-bind-if test="[[hasPending()]]">
-    <oj-bind-for-each data="[[pending]]">
-      <template>
-        <div class="oj-panel oj-sm-margin-1x-vertical">
-          <div class="oj-flex oj-sm-align-items-center">
-            <div class="oj-flex-item">
-              <div class="oj-typography-body-md">
-                <strong><oj-bind-text value="[[$current.data.ownerName]]"></oj-bind-text></strong>
-                &nbsp;&middot;&nbsp;
-                <oj-bind-text value="[[$current.data.documentType]]"></oj-bind-text>
-                &nbsp;<oj-bind-text value="[[$current.data.maskedDocumentNumber]]"></oj-bind-text>
-              </div>
-              <div class="oj-typography-body-sm oj-text-color-secondary">
-                submitted <oj-bind-text value="[[$parent.format.date($current.data.submittedDate)]]"></oj-bind-text>
-                &middot;
-                <span :class="[[$parent.format.statusClass($current.data.verificationStatus)]]">
-                  <oj-bind-text value="[[$current.data.verificationStatus]]"></oj-bind-text>
-                </span>
-              </div>
-            </div>
-
-            <oj-bind-if test="[[$current.data.verificationStatus === 'PENDING']]">
-              <oj-button chroming="callToAction"
-                         disabled="[[$parent.busyId() === $current.data.kycDocumentId]]"
-                         on-oj-action="[[function () { $parent.approve($current.data); }]]">
-                Approve
-              </oj-button>
-              <oj-button class="oj-sm-margin-1x-start"
-                         disabled="[[$parent.busyId() === $current.data.kycDocumentId]]"
-                         on-oj-action="[[function () { $parent.reject($current.data); }]]">
-                Reject
-              </oj-button>
-            </oj-bind-if>
+  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
+  <div data-bind="foreach: pending">
+    <div class="oj-panel oj-sm-margin-1x-vertical">
+      <div class="oj-flex oj-sm-align-items-center">
+        <div class="oj-flex-item">
+          <div class="oj-typography-body-md">
+            <strong data-bind="text: $data.ownerName"></strong>
+            <span data-bind="text: ' · ' + $data.documentType + ' ' + $data.maskedDocumentNumber"></span>
+          </div>
+          <div class="oj-typography-body-sm oj-text-color-secondary">
+            <span data-bind="text: 'submitted ' + $parent.format.date($data.submittedDate)"></span>
+            &middot;
+            <span data-bind="text: $data.verificationStatus,
+                             css: $parent.format.statusClass($data.verificationStatus)"></span>
           </div>
         </div>
-      </template>
-    </oj-bind-for-each>
-  </oj-bind-if>
+
+        <oj-button chroming="callToAction"
+                   data-bind="visible: $data.verificationStatus === 'PENDING',
+                              click: function () { $parent.approve($data); },
+                              disable: $parent.busyId() === $data.kycDocumentId">
+          Approve
+        </oj-button>
+        <oj-button class="oj-sm-margin-1x-start"
+                   data-bind="visible: $data.verificationStatus === 'PENDING',
+                              click: function () { $parent.reject($data); },
+                              disable: $parent.busyId() === $data.kycDocumentId">
+          Reject
+        </oj-button>
+      </div>
+    </div>
+  </div>
 </div>
