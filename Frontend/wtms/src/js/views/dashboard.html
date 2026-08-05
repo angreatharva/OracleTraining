@@ -1,13 +1,13 @@
 <div class="oj-flex oj-sm-flex-direction-column">
   <h2 class="oj-typography-heading-md">Dashboard</h2>
 
-  <oj-bind-if test="[[isLoading()]]">
+  <oj-bind-if test="[[state.isLoading()]]">
     <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
-  <oj-bind-if test="[[errorMessage()]]">
+  <oj-bind-if test="[[state.errorMessage()]]">
     <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
     </div>
   </oj-bind-if>
 
@@ -21,16 +21,20 @@
     <div class="oj-flex oj-sm-margin-2x-vertical">
       <div class="oj-panel oj-sm-margin-1x oj-flex-item">
         <div class="oj-typography-body-sm oj-text-color-secondary">Invested</div>
-        <div class="oj-typography-heading-sm"><oj-bind-text value="[[totalInvested().toFixed(2)]]"></oj-bind-text></div>
+        <div class="oj-typography-heading-sm">
+          <oj-bind-text value="[[format.money(totalInvested())]]"></oj-bind-text>
+        </div>
       </div>
       <div class="oj-panel oj-sm-margin-1x oj-flex-item">
         <div class="oj-typography-body-sm oj-text-color-secondary">Current value</div>
-        <div class="oj-typography-heading-sm"><oj-bind-text value="[[totalValue().toFixed(2)]]"></oj-bind-text></div>
+        <div class="oj-typography-heading-sm">
+          <oj-bind-text value="[[format.money(totalValue())]]"></oj-bind-text>
+        </div>
       </div>
       <div class="oj-panel oj-sm-margin-1x oj-flex-item">
         <div class="oj-typography-body-sm oj-text-color-secondary">Profit / loss</div>
         <div :class="[['oj-typography-heading-sm ' + profitLossClass()]]">
-          <oj-bind-text value="[[totalProfitLoss().toFixed(2)]]"></oj-bind-text>
+          <oj-bind-text value="[[format.signedMoney(totalProfitLoss())]]"></oj-bind-text>
         </div>
       </div>
     </div>
@@ -40,14 +44,19 @@
               data="[[dataProvider]]"
               class="oj-sm-margin-2x-vertical"
               columns='[
-                {"headerText": "Product",   "field": "productName"},
-                {"headerText": "Quantity",  "field": "currentQuantity"},
-                {"headerText": "Avg cost",  "field": "averageBuyPrice"},
-                {"headerText": "Price",     "field": "currentPrice"},
-                {"headerText": "Invested",  "field": "investedValue"},
-                {"headerText": "Value",     "field": "currentValuation"},
-                {"headerText": "P/L",       "field": "profitLoss"}
+                {"headerText": "Product",  "field": "productName"},
+                {"headerText": "Quantity", "field": "currentQuantity"},
+                {"headerText": "Avg cost", "field": "averageBuyPrice"},
+                {"headerText": "Price",    "field": "currentPrice"},
+                {"headerText": "Invested", "field": "investedValue"},
+                {"headerText": "Value",    "field": "currentValuation"},
+                {"headerText": "P/L",      "field": "profitLoss"}
               ]'>
     </oj-table>
+
+    <p class="oj-typography-body-sm oj-text-color-secondary">
+      Valued at live product prices. The Portfolio screen shows each holding's last stored
+      valuation instead, so the two can differ.
+    </p>
   </oj-bind-if>
 </div>

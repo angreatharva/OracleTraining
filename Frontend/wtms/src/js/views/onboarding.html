@@ -1,12 +1,71 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
+  <h2 class="oj-typography-heading-md">Onboard an investor</h2>
+  <p class="oj-typography-body-sm oj-text-color-secondary">
+    Creates the login, the risk profile and the portfolio account. These are three separate
+    calls with no shared transaction, so each result is reported individually.
+  </p>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.successMessage()]]">
+    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
+      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasResult()]]">
+    <div class="oj-panel oj-sm-margin-2x-vertical">
+      <oj-bind-for-each data="[[steps]]">
+        <template>
+          <div class="oj-typography-body-sm oj-sm-margin-1x-vertical">
+            <span :class="[[$current.data.status === 'ok' ? 'oj-text-color-success'
+                            : ($current.data.status === 'failed' ? 'oj-text-color-danger'
+                            : 'oj-text-color-secondary')]]">
+              <oj-bind-text value="[[$current.data.status === 'ok' ? '✓'
+                                     : ($current.data.status === 'failed' ? '✕' : '–')]]"></oj-bind-text>
+              &nbsp;<oj-bind-text value="[[$current.data.label]]"></oj-bind-text>
+            </span>
+            <oj-bind-if test="[[$current.data.detail]]">
+              <span class="oj-text-color-secondary">
+                &nbsp;&mdash;&nbsp;<oj-bind-text value="[[$current.data.detail]]"></oj-bind-text>
+              </span>
+            </oj-bind-if>
+          </div>
+        </template>
+      </oj-bind-for-each>
+    </div>
+  </oj-bind-if>
+
   <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
+    <oj-form-layout max-columns="2" direction="row">
+      <oj-input-text id="fullName" label-hint="Full name" value="{{fullName}}"></oj-input-text>
+      <oj-input-text id="email" label-hint="Email" value="{{email}}"></oj-input-text>
+      <oj-input-text id="phone" label-hint="Phone (optional)" value="{{phone}}"></oj-input-text>
+      <oj-input-password id="password" label-hint="Initial password (min 8 characters)"
+                         value="{{password}}" autocomplete="new-password">
+      </oj-input-password>
+      <oj-input-text id="dateOfBirth" label-hint="Date of birth (YYYY-MM-DD, optional)"
+                     value="{{dateOfBirth}}">
+      </oj-input-text>
+
+      <oj-label for="riskLevel">Risk level</oj-label>
+      <select id="riskLevel" data-bind="options: riskLevelOptions, value: riskLevel"></select>
+    </oj-form-layout>
+
     <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
+      The investor is assigned to you as their manager, and starts with KYC status PENDING.
     </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
+
+    <div class="oj-flex oj-sm-justify-content-flex-end">
+      <oj-button chroming="callToAction"
+                 disabled="[[!canSubmit()]]"
+                 on-oj-action="[[submit]]">
+        <oj-bind-text value="[[isSubmitting() ? 'Onboarding...' : 'Onboard investor']]"></oj-bind-text>
+      </oj-button>
+    </div>
   </div>
 </div>

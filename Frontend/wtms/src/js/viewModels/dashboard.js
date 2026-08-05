@@ -1,76 +1,69 @@
 /**
  * Investor dashboard - the reference pattern for a data-loading screen.
  *
- * Copy this shape for new screens: observables for data / isLoading / errorMessage, load in
- * `connected()`, and always route failures through ApiErrorNormalizer so every service's
- * error body renders the same way.
+ * Copy this shape for new screens: a ScreenState for the loading/error plumbing, load in
+ * `connected()`, and let ScreenState.run turn any service failure into a displayable
+ * message. `run` never rejects, so a falsy result means "it failed and the message is
+ * already on state.errorMessage".
+ *
+ * One call does the work here: the backend already aggregates holdings, completed trades and
+ * live Product prices into positions.
  */
 define([
   "knockout",
   "ojs/ojarraydataprovider",
   "services/TradingService",
   "services/SessionStore",
-  "services/ApiErrorNormalizer"
-], function (ko, ArrayDataProvider, TradingService, SessionStore, ApiErrorNormalizer) {
+  "utils/ScreenState",
+  "utils/format"
+], function (ko, ArrayDataProvider, TradingService, SessionStore, ScreenState, format) {
   "use strict";
 
   function DashboardViewModel() {
     var self = this;
 
-    self.isLoading = ko.observable(false);
-    self.errorMessage = ko.observable("");
-    self.positions = ko.observableArray([]);
+    self.state = ScreenState.create();
+    self.format = format;
 
+    self.positions = ko.observableArray([]);
     self.dataProvider = new ArrayDataProvider(self.positions, { keyAttributes: "productId" });
 
     self.totalInvested = ko.pureComputed(function () {
-      return self.positions().reduce(function (sum, p) { return sum + (p.investedValue || 0); }, 0);
+      return self.positions().reduce(function (sum, p) {
+        return sum + (Number(p.investedValue) || 0);
+      }, 0);
     });
     self.totalValue = ko.pureComputed(function () {
-      return self.positions().reduce(function (sum, p) { return sum + (p.currentValuation || 0); }, 0);
+      return self.positions().reduce(function (sum, p) {
+        return sum + (Number(p.currentValuation) || 0);
+      }, 0);
     });
     self.totalProfitLoss = ko.pureComputed(function () {
       return self.totalValue() - self.totalInvested();
     });
     self.profitLossClass = ko.pureComputed(function () {
-      return self.totalProfitLoss() < 0 ? "oj-text-color-danger" : "oj-text-color-success";
+      return format.profitLossClass(self.totalProfitLoss());
     });
 
     self.hasPositions = ko.pureComputed(function () {
-      return !self.isLoading() && self.positions().length > 0;
+      return !self.state.isLoading() && self.positions().length > 0;
     });
     self.isEmpty = ko.pureComputed(function () {
-      return !self.isLoading() && !self.errorMessage() && self.positions().length === 0;
+      return !self.state.isLoading() && !self.state.errorMessage() && self.positions().length === 0;
     });
 
     self.load = function () {
       var userId = SessionStore.userId();
-      if (!userId) {
-        return;
-      }
-      self.isLoading(true);
-      self.errorMessage("");
+      if (!userId) { return; }
 
-      // One call: the backend already aggregates holdings, completed trades and live
-      // Product prices into positions.
-      TradingService.getInvestmentOverview(userId)
-        .then(function (overview) {
-          self.positions(overview.positions || []);
-          self.isLoading(false);
-        })
-        .catch(function (error) {
-          var normalized = ApiErrorNormalizer.normalize(error);
-          // 404 just means this investor has no portfolio account yet - not an error state.
-          if (normalized.status === 404) {
-            self.positions([]);
-          } else {
-            self.errorMessage(normalized.message);
-          }
-          self.isLoading(false);
-        });
+      // 404 means no portfolio account yet, which is a normal state for a new investor.
+      self.state.runAllowingNotFound(function () {
+        return TradingService.getInvestmentOverview(userId);
+      }).then(function (overview) {
+        self.positions(overview ? (overview.positions || []) : []);
+      });
     };
 
-    /** Called by oj-module each time the view is attached. */
     self.connected = function () {
       self.load();
     };

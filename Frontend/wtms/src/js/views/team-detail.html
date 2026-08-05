@@ -1,12 +1,81 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
+  <oj-bind-if test="[[noUser()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">
+      No investor selected. Open this screen from the Team list.
     </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
-  </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[member()]]">
+    <h2 class="oj-typography-heading-md"><oj-bind-text value="[[member().fullName]]"></oj-bind-text></h2>
+    <div class="oj-typography-body-sm oj-text-color-secondary">
+      <oj-bind-text value="[[member().email]]"></oj-bind-text>
+      &nbsp;&middot;&nbsp;
+      <span :class="[[format.statusClass(member().status)]]">
+        <oj-bind-text value="[[member().status]]"></oj-bind-text>
+      </span>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasPositions()]]">
+    <div class="oj-flex oj-sm-margin-2x-vertical">
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Current value</div>
+        <div class="oj-typography-heading-sm">
+          <oj-bind-text value="[[format.money(totalValue())]]"></oj-bind-text>
+        </div>
+      </div>
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Profit / loss</div>
+        <div :class="[['oj-typography-heading-sm ' + profitLossClass()]]">
+          <oj-bind-text value="[[format.signedMoney(totalProfitLoss())]]"></oj-bind-text>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="oj-typography-heading-sm">Positions</h3>
+    <oj-table id="memberPositions"
+              aria-label="Positions"
+              data="[[positionsDP]]"
+              class="oj-sm-margin-2x-vertical"
+              columns='[
+                {"headerText": "Product",  "field": "productName"},
+                {"headerText": "Quantity", "field": "currentQuantity"},
+                {"headerText": "Avg cost", "field": "averageBuyPrice"},
+                {"headerText": "Price",    "field": "currentPrice"},
+                {"headerText": "Value",    "field": "currentValuation"},
+                {"headerText": "P/L",      "field": "profitLoss"}
+              ]'>
+    </oj-table>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[!hasPositions() && !state.isLoading() && member()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">No holdings.</p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasTrades()]]">
+    <h3 class="oj-typography-heading-sm">Recent trades</h3>
+    <oj-table id="memberTrades"
+              aria-label="Trades"
+              data="[[tradesDP]]"
+              class="oj-sm-margin-2x-vertical"
+              columns='[
+                {"headerText": "#",      "field": "transactionId"},
+                {"headerText": "Date",   "field": "transactionDate"},
+                {"headerText": "Type",   "field": "transactionType"},
+                {"headerText": "Qty",    "field": "quantity"},
+                {"headerText": "Total",  "field": "totalAmount"},
+                {"headerText": "Status", "field": "transactionStatus"}
+              ]'>
+    </oj-table>
+  </oj-bind-if>
 </div>

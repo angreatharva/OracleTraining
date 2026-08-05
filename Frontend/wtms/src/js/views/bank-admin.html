@@ -1,12 +1,77 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
+  <h2 class="oj-typography-heading-md">Account administration</h2>
+  <p class="oj-typography-body-sm oj-text-color-secondary">
+    Bank accounts belonging to your direct reports. You can block or reactivate an account;
+    you cannot move money.
+  </p>
+
+  <oj-form-layout max-columns="1" direction="column" class="oj-sm-margin-2x-vertical">
+    <oj-label for="teamMember">Investor</oj-label>
+    <select id="teamMember"
+            data-bind="options: team, optionsText: 'fullName', optionsValue: 'userId', value: selectedUserId"></select>
+  </oj-form-layout>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.successMessage()]]">
+    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
+      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[isEmpty()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">
+      This investor has no bank accounts on file.
     </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
-  </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasAccounts()]]">
+    <oj-bind-for-each data="[[accounts]]">
+      <template>
+        <div class="oj-panel oj-sm-margin-1x-vertical">
+          <div class="oj-flex oj-sm-align-items-center">
+            <div class="oj-flex-item">
+              <div class="oj-typography-body-md">
+                <strong><oj-bind-text value="[[$current.data.bankName]]"></oj-bind-text></strong>
+                &nbsp;<oj-bind-text value="[[$current.data.maskedAccountNumber]]"></oj-bind-text>
+              </div>
+              <div class="oj-typography-body-sm oj-text-color-secondary">
+                <oj-bind-text value="[[$current.data.accountType]]"></oj-bind-text>
+                &middot;
+                <span :class="[[$parent.format.statusClass($current.data.status)]]">
+                  <oj-bind-text value="[[$current.data.status]]"></oj-bind-text>
+                </span>
+                <oj-bind-if test="[[$current.data.primaryAccount]]">&middot; <strong>Primary</strong></oj-bind-if>
+              </div>
+            </div>
+
+            <div class="oj-sm-margin-2x-end oj-typography-heading-sm">
+              <oj-bind-text value="[[$parent.format.money($current.data.balance)]]"></oj-bind-text>
+            </div>
+
+            <oj-bind-if test="[[$current.data.status === 'ACTIVE']]">
+              <oj-button disabled="[[$parent.busyId() === $current.data.bankAccountId]]"
+                         on-oj-action="[[function () { $parent.block($current.data); }]]">
+                Block
+              </oj-button>
+            </oj-bind-if>
+            <oj-bind-if test="[[$current.data.status !== 'ACTIVE' && $current.data.status !== 'CLOSED']]">
+              <oj-button disabled="[[$parent.busyId() === $current.data.bankAccountId]]"
+                         on-oj-action="[[function () { $parent.activate($current.data); }]]">
+                Reactivate
+              </oj-button>
+            </oj-bind-if>
+          </div>
+        </div>
+      </template>
+    </oj-bind-for-each>
+  </oj-bind-if>
 </div>

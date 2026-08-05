@@ -1,12 +1,69 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
+  <h2 class="oj-typography-heading-md">KYC documents</h2>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.successMessage()]]">
+    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
+      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
   <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
+    <h3 class="oj-typography-heading-sm">Submit a document</h3>
     <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
+      Metadata only &mdash; there is no file upload. Once submitted the number is masked and
+      cannot be edited, so check it before sending.
     </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
+
+    <oj-form-layout max-columns="3" direction="row">
+      <oj-label for="docType">Type</oj-label>
+      <select id="docType" data-bind="options: documentTypeOptions, value: newDocumentType"></select>
+
+      <oj-input-text id="docNumber"
+                     label-hint="Document number"
+                     value="{{newDocumentNumber}}">
+      </oj-input-text>
+
+      <oj-input-text id="fileName"
+                     label-hint="File name (optional)"
+                     value="{{newFileName}}">
+      </oj-input-text>
+    </oj-form-layout>
+
+    <div class="oj-flex oj-sm-justify-content-flex-end">
+      <oj-button chroming="callToAction"
+                 disabled="[[!canSubmit()]]"
+                 on-oj-action="[[submit]]">
+        <oj-bind-text value="[[isSubmitting() ? 'Submitting...' : 'Submit']]"></oj-bind-text>
+      </oj-button>
+    </div>
   </div>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[isEmpty()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">No documents submitted yet.</p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasDocuments()]]">
+    <oj-table id="kycTable"
+              aria-label="My KYC documents"
+              data="[[documentsDP]]"
+              columns='[
+                {"headerText": "Type",      "field": "documentType"},
+                {"headerText": "Number",    "field": "maskedDocumentNumber"},
+                {"headerText": "File",      "field": "fileName"},
+                {"headerText": "Submitted", "field": "submittedDate"},
+                {"headerText": "Verified",  "field": "verifiedDate"},
+                {"headerText": "Status",    "field": "verificationStatus"}
+              ]'>
+    </oj-table>
+  </oj-bind-if>
 </div>

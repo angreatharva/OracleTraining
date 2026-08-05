@@ -1,12 +1,88 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
+  <h2 class="oj-typography-heading-md">Profile</h2>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[user()]]">
+    <div class="oj-panel oj-sm-margin-2x-vertical">
+      <div class="oj-typography-heading-sm"><oj-bind-text value="[[user().fullName]]"></oj-bind-text></div>
+      <div class="oj-typography-body-sm oj-text-color-secondary">
+        <oj-bind-text value="[[user().email]]"></oj-bind-text>
+        <oj-bind-if test="[[user().phone]]">
+          &nbsp;&middot;&nbsp;<oj-bind-text value="[[user().phone]]"></oj-bind-text>
+        </oj-bind-if>
+        &nbsp;&middot;&nbsp;<oj-bind-text value="[[roleName]]"></oj-bind-text>
+        &nbsp;&middot;&nbsp;
+        <span :class="[[format.statusClass(user().status)]]">
+          <oj-bind-text value="[[user().status]]"></oj-bind-text>
+        </span>
+      </div>
+
+      <oj-bind-if test="[[detail()]]">
+        <div class="oj-typography-body-sm oj-sm-margin-2x-top">
+          Risk level <strong><oj-bind-text value="[[detail().riskLevel || '—']]"></oj-bind-text></strong>
+          &nbsp;&middot;&nbsp; score
+          <strong><oj-bind-text value="[[detail().riskScore == null ? '—' : detail().riskScore]]"></oj-bind-text></strong>
+          &nbsp;&middot;&nbsp; KYC
+          <span :class="[[format.statusClass(detail().kycStatus)]]">
+            <oj-bind-text value="[[detail().kycStatus || '—']]"></oj-bind-text>
+          </span>
+        </div>
+      </oj-bind-if>
+
+      <oj-bind-if test="[[!detail()]]">
+        <div class="oj-typography-body-sm oj-text-color-secondary oj-sm-margin-2x-top">
+          No risk profile on file yet.
+        </div>
+      </oj-bind-if>
+    </div>
+  </oj-bind-if>
+
   <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
-    </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
+    <h3 class="oj-typography-heading-sm">Change password</h3>
+
+    <oj-bind-if test="[[passwordState.errorMessage()]]">
+      <div role="alert" class="oj-typography-body-md oj-text-color-danger">
+        <oj-bind-text value="[[passwordState.errorMessage]]"></oj-bind-text>
+      </div>
+    </oj-bind-if>
+
+    <oj-bind-if test="[[passwordState.successMessage()]]">
+      <div role="status" class="oj-typography-body-md oj-text-color-success">
+        <oj-bind-text value="[[passwordState.successMessage]]"></oj-bind-text>
+      </div>
+    </oj-bind-if>
+
+    <oj-form-layout max-columns="1" direction="column">
+      <oj-input-password id="currentPassword" label-hint="Current password"
+                         value="{{currentPassword}}" autocomplete="current-password">
+      </oj-input-password>
+      <oj-input-password id="newPassword" label-hint="New password (min 8 characters)"
+                         value="{{newPassword}}" autocomplete="new-password">
+      </oj-input-password>
+      <oj-input-password id="confirmPassword" label-hint="Confirm new password"
+                         value="{{confirmPassword}}" autocomplete="new-password">
+      </oj-input-password>
+    </oj-form-layout>
+
+    <oj-bind-if test="[[passwordMismatch()]]">
+      <div class="oj-typography-body-sm oj-text-color-danger">The two new passwords do not match.</div>
+    </oj-bind-if>
+
+    <div class="oj-flex oj-sm-justify-content-flex-end oj-sm-margin-2x-top">
+      <oj-button chroming="callToAction"
+                 disabled="[[!canChangePassword()]]"
+                 on-oj-action="[[changePassword]]">
+        <oj-bind-text value="[[isChanging() ? 'Changing...' : 'Change password']]"></oj-bind-text>
+      </oj-button>
+    </div>
   </div>
 </div>

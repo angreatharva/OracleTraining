@@ -1,12 +1,95 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
-    </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
+  <div class="oj-flex oj-sm-align-items-center">
+    <h2 class="oj-typography-heading-md oj-flex-item">Product catalogue</h2>
+    <oj-button chroming="callToAction" on-oj-action="[[startCreate]]">New product</oj-button>
   </div>
+
+  <p class="oj-typography-body-sm oj-text-color-secondary">
+    Current price is the price trades execute at &mdash; Trading ignores whatever price a
+    client submits and reads this value instead.
+  </p>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.successMessage()]]">
+    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
+      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[showForm()]]">
+    <div class="oj-panel oj-sm-margin-2x-vertical">
+      <h3 class="oj-typography-heading-sm"><oj-bind-text value="[[formTitle]]"></oj-bind-text></h3>
+
+      <oj-bind-if test="[[formState.errorMessage()]]">
+        <div role="alert" class="oj-typography-body-md oj-text-color-danger">
+          <oj-bind-text value="[[formState.errorMessage]]"></oj-bind-text>
+        </div>
+      </oj-bind-if>
+
+      <oj-form-layout max-columns="2" direction="row">
+        <oj-label for="productTypeId">Product type</oj-label>
+        <select id="productTypeId"
+                data-bind="options: productTypeOptions(), optionsText: function (id) { return productTypeLabel(id); }, value: form.productTypeId"></select>
+
+        <oj-input-text label-hint="Name" value="{{form.productName}}"></oj-input-text>
+        <oj-input-number label-hint="Base price" value="{{form.basePrice}}" min="0.01"></oj-input-number>
+        <oj-input-number label-hint="Current price" value="{{form.currentPrice}}" min="0.01"></oj-input-number>
+        <oj-input-number label-hint="Minimum investment" value="{{form.minimumInvestment}}" min="0.01"></oj-input-number>
+
+        <oj-label for="riskCategory">Risk</oj-label>
+        <select id="riskCategory" data-bind="options: riskOptions, value: form.riskCategory"></select>
+
+        <oj-label for="priceMethod">Price method</oj-label>
+        <select id="priceMethod" data-bind="options: priceMethodOptions, value: form.priceMethod"></select>
+
+        <oj-label for="productStatus">Status</oj-label>
+        <select id="productStatus" data-bind="options: statusOptions, value: form.status"></select>
+      </oj-form-layout>
+
+      <div class="oj-flex oj-sm-justify-content-flex-end oj-sm-margin-2x-top">
+        <oj-button on-oj-action="[[cancel]]" chroming="borderless">Cancel</oj-button>
+        <oj-button chroming="callToAction" disabled="[[!canSave()]]" on-oj-action="[[save]]">
+          <oj-bind-text value="[[isSaving() ? 'Saving...' : 'Save']]"></oj-bind-text>
+        </oj-button>
+      </div>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasProducts()]]">
+    <oj-bind-for-each data="[[products]]">
+      <template>
+        <div class="oj-panel oj-sm-margin-1x-vertical">
+          <div class="oj-flex oj-sm-align-items-center">
+            <div class="oj-flex-item">
+              <div class="oj-typography-body-md">
+                <strong><oj-bind-text value="[[$current.data.productName]]"></oj-bind-text></strong>
+              </div>
+              <div class="oj-typography-body-sm oj-text-color-secondary">
+                <oj-bind-text value="[[$current.data.productTypeCode]]"></oj-bind-text>
+                &middot; risk <oj-bind-text value="[[$current.data.riskCategory]]"></oj-bind-text>
+                &middot; <oj-bind-text value="[[$current.data.priceMethod]]"></oj-bind-text>
+                &middot;
+                <span :class="[[$parent.format.statusClass($current.data.status)]]">
+                  <oj-bind-text value="[[$current.data.status]]"></oj-bind-text>
+                </span>
+              </div>
+            </div>
+            <div class="oj-sm-margin-2x-end oj-typography-heading-sm">
+              <oj-bind-text value="[[$parent.format.money($current.data.currentPrice)]]"></oj-bind-text>
+            </div>
+            <oj-button on-oj-action="[[function () { $parent.startEdit($current.data); }]]">Edit</oj-button>
+          </div>
+        </div>
+      </template>
+    </oj-bind-for-each>
+  </oj-bind-if>
 </div>

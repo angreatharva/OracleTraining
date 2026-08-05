@@ -1,26 +1,65 @@
 /**
- * Bank accounts - not implemented yet.
+ * The investor's own bank accounts.
  *
- * Next step: list accounts and let the user set a primary
- * Primary API: BankService.listAccounts, BankService.makePrimary
- *
- * Follow the pattern in viewModels/dashboard.js (investor) or viewModels/team.js (manager):
- * observables for data / isLoading / errorMessage, load in connected(), and normalise
- * failures through services/ApiErrorNormalizer.
+ * Read plus "make primary" only. Creating an account needs the real account number, which
+ * is write-only server-side, and changing status is manager-only - so neither belongs here.
  */
-define(["knockout"], function (ko) {
+define([
+  "knockout",
+  "ojs/ojarraydataprovider",
+  "services/BankService",
+  "utils/ScreenState",
+  "utils/format"
+], function (ko, ArrayDataProvider, BankService, ScreenState, format) {
   "use strict";
 
-  function ScreenViewModel() {
+  function BankViewModel() {
     var self = this;
-    self.title = ko.observable("Bank accounts");
-    self.note = ko.observable("list accounts and let the user set a primary");
-    self.api = ko.observable("BankService.listAccounts, BankService.makePrimary");
+
+    self.state = ScreenState.create();
+    self.format = format;
+
+    self.accounts = ko.observableArray([]);
+    self.accountsDP = new ArrayDataProvider(self.accounts, { keyAttributes: "bankAccountId" });
+    self.busyAccountId = ko.observable(null);
+
+    self.hasAccounts = ko.pureComputed(function () {
+      return !self.state.isLoading() && self.accounts().length > 0;
+    });
+    self.isEmpty = ko.pureComputed(function () {
+      return !self.state.isLoading() && !self.state.errorMessage() && self.accounts().length === 0;
+    });
+
+    self.load = function () {
+      // No userId needed: the backend narrows an investor to their own accounts.
+      self.state.runAllowingNotFound(function () {
+        return BankService.listAccounts();
+      }).then(function (accounts) {
+        self.accounts(accounts || []);
+      });
+    };
+
+    /** @param {{bankAccountId:number, status:string, primaryAccount:boolean}} account */
+    self.makePrimary = function (account) {
+      if (account.primaryAccount || account.status !== "ACTIVE") {
+        return;
+      }
+      self.busyAccountId(account.bankAccountId);
+      self.state.run(function () {
+        return BankService.makePrimary(account.bankAccountId);
+      }).then(function (updated) {
+        self.busyAccountId(null);
+        if (updated) {
+          self.state.successMessage("Primary account updated.");
+          self.load();
+        }
+      });
+    };
 
     self.connected = function () {
-      // Load data here.
+      self.load();
     };
   }
 
-  return ScreenViewModel;
+  return BankViewModel;
 });

@@ -1,12 +1,73 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
-    </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
+  <div class="oj-flex oj-sm-align-items-center">
+    <h2 class="oj-typography-heading-md oj-flex-item">KYC queue</h2>
+    <oj-button on-oj-action="[[toggleShowAll]]" chroming="borderless">
+      <oj-bind-text value="[[showAll() ? 'Show pending only' : 'Show all documents']]"></oj-bind-text>
+    </oj-button>
   </div>
+
+  <p class="oj-typography-body-sm oj-text-color-secondary">
+    Documents belonging to your direct reports.
+  </p>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.successMessage()]]">
+    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
+      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[isEmpty()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">
+      <oj-bind-text value="[[showAll() ? 'No documents for your team.' : 'Nothing waiting for verification.']]"></oj-bind-text>
+    </p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasPending()]]">
+    <oj-bind-for-each data="[[pending]]">
+      <template>
+        <div class="oj-panel oj-sm-margin-1x-vertical">
+          <div class="oj-flex oj-sm-align-items-center">
+            <div class="oj-flex-item">
+              <div class="oj-typography-body-md">
+                <strong><oj-bind-text value="[[$current.data.ownerName]]"></oj-bind-text></strong>
+                &nbsp;&middot;&nbsp;
+                <oj-bind-text value="[[$current.data.documentType]]"></oj-bind-text>
+                &nbsp;<oj-bind-text value="[[$current.data.maskedDocumentNumber]]"></oj-bind-text>
+              </div>
+              <div class="oj-typography-body-sm oj-text-color-secondary">
+                submitted <oj-bind-text value="[[$parent.format.date($current.data.submittedDate)]]"></oj-bind-text>
+                &middot;
+                <span :class="[[$parent.format.statusClass($current.data.verificationStatus)]]">
+                  <oj-bind-text value="[[$current.data.verificationStatus]]"></oj-bind-text>
+                </span>
+              </div>
+            </div>
+
+            <oj-bind-if test="[[$current.data.verificationStatus === 'PENDING']]">
+              <oj-button chroming="callToAction"
+                         disabled="[[$parent.busyId() === $current.data.kycDocumentId]]"
+                         on-oj-action="[[function () { $parent.approve($current.data); }]]">
+                Approve
+              </oj-button>
+              <oj-button class="oj-sm-margin-1x-start"
+                         disabled="[[$parent.busyId() === $current.data.kycDocumentId]]"
+                         on-oj-action="[[function () { $parent.reject($current.data); }]]">
+                Reject
+              </oj-button>
+            </oj-bind-if>
+          </div>
+        </div>
+      </template>
+    </oj-bind-for-each>
+  </oj-bind-if>
 </div>

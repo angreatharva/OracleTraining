@@ -1,12 +1,53 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
-    </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
+  <h2 class="oj-typography-heading-md">Trade history</h2>
+
+  <div class="oj-flex oj-sm-align-items-flex-end oj-sm-margin-2x-vertical">
+    <oj-form-layout max-columns="2" direction="row" class="oj-flex-item">
+      <oj-label for="statusFilter">Status</oj-label>
+      <select id="statusFilter" data-bind="options: statusOptions, value: statusFilter"></select>
+
+      <oj-label for="typeFilter">Type</oj-label>
+      <select id="typeFilter" data-bind="options: typeOptions, value: typeFilter"></select>
+    </oj-form-layout>
+
+    <div class="oj-sm-margin-2x-start">
+      <oj-button on-oj-action="[[applyFilters]]">Apply</oj-button>
+      <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear</oj-button>
+    </div>
   </div>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[isEmpty()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">No trades match.</p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasTrades()]]">
+    <oj-table id="tradesTable"
+              aria-label="Trade history"
+              data="[[tradesDP]]"
+              columns='[
+                {"headerText": "#",        "field": "transactionId"},
+                {"headerText": "Date",     "field": "transactionDate"},
+                {"headerText": "Type",     "field": "transactionType"},
+                {"headerText": "Quantity", "field": "quantity"},
+                {"headerText": "Price",    "field": "unitPrice"},
+                {"headerText": "Total",    "field": "totalAmount"},
+                {"headerText": "Status",   "field": "transactionStatus"}
+              ]'>
+    </oj-table>
+
+    <p class="oj-typography-body-sm oj-text-color-secondary">
+      A failed trade shows no reason here &mdash; the backend does not store it. The reason
+      appears only on the Trade screen at the moment the order is rejected.
+    </p>
+  </oj-bind-if>
 </div>

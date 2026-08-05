@@ -17,6 +17,7 @@ define([
   "ojs/ojresponsiveknockoututils",
   "config/appConfig",
   "config/routes",
+  "config/navigation",
   "services/SessionStore",
   "services/AuthService",
   "services/ApiClient",
@@ -29,7 +30,7 @@ define([
 ], function (
   ko, Context, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter,
   ArrayDataProvider, ModuleElementUtils, ResponsiveUtils, ResponsiveKnockoutUtils,
-  appConfig, routes, SessionStore, AuthService, ApiClient
+  appConfig, routes, navigation, SessionStore, AuthService, ApiClient
 ) {
   "use strict";
 
@@ -158,6 +159,9 @@ define([
 
       self.moduleAdapter(new ModuleRouterAdapter(self.router));
       self.selection = new KnockoutRouterAdapter(self.router);
+      // Screens navigate through this rather than capturing the router, which is replaced
+      // whenever a different role signs in.
+      navigation.setRouter(self.router);
 
       self.navDataProvider(
         new ArrayDataProvider(

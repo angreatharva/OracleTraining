@@ -1,16 +1,17 @@
 <div class="oj-flex oj-sm-flex-direction-column">
   <h2 class="oj-typography-heading-md">My team</h2>
   <p class="oj-typography-body-sm oj-text-color-secondary">
-    Investors who report to you. You can view their portfolios and trades, but not act on their behalf.
+    Investors who report to you. You can view their portfolios and trades, but not act on
+    their behalf.
   </p>
 
-  <oj-bind-if test="[[isLoading()]]">
+  <oj-bind-if test="[[state.isLoading()]]">
     <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
-  <oj-bind-if test="[[errorMessage()]]">
+  <oj-bind-if test="[[state.errorMessage()]]">
     <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
     </div>
   </oj-bind-if>
 
@@ -21,16 +22,31 @@
   </oj-bind-if>
 
   <oj-bind-if test="[[hasMembers()]]">
-    <oj-table id="teamTable"
-              aria-label="My team"
-              data="[[dataProvider]]"
-              class="oj-sm-margin-2x-vertical"
-              columns='[
-                {"headerText": "Name",   "field": "fullName"},
-                {"headerText": "Email",  "field": "email"},
-                {"headerText": "Phone",  "field": "phone"},
-                {"headerText": "Status", "field": "status"}
-              ]'>
-    </oj-table>
+    <oj-bind-for-each data="[[members]]">
+      <template>
+        <div class="oj-panel oj-sm-margin-1x-vertical">
+          <div class="oj-flex oj-sm-align-items-center">
+            <div class="oj-flex-item">
+              <div class="oj-typography-body-md">
+                <strong><oj-bind-text value="[[$current.data.fullName]]"></oj-bind-text></strong>
+              </div>
+              <div class="oj-typography-body-sm oj-text-color-secondary">
+                <oj-bind-text value="[[$current.data.email]]"></oj-bind-text>
+                <oj-bind-if test="[[$current.data.phone]]">
+                  &nbsp;&middot;&nbsp;<oj-bind-text value="[[$current.data.phone]]"></oj-bind-text>
+                </oj-bind-if>
+                &nbsp;&middot;&nbsp;
+                <span :class="[[$parent.format.statusClass($current.data.status)]]">
+                  <oj-bind-text value="[[$current.data.status]]"></oj-bind-text>
+                </span>
+              </div>
+            </div>
+            <oj-button on-oj-action="[[function () { $parent.openMember($current.data); }]]">
+              View portfolio
+            </oj-button>
+          </div>
+        </div>
+      </template>
+    </oj-bind-for-each>
   </oj-bind-if>
 </div>

@@ -1,12 +1,76 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
+  <h2 class="oj-typography-heading-md">Portfolio</h2>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[!hasAccount() && !state.isLoading() && !state.errorMessage()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">
+      You do not have a portfolio account yet. Ask your manager to open one.
     </p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasAccount()]]">
+    <div class="oj-panel oj-sm-margin-2x-vertical">
+      <div class="oj-typography-body-sm oj-text-color-secondary">
+        Account #<oj-bind-text value="[[account().portfolioAccountId]]"></oj-bind-text>
+        &nbsp;&middot;&nbsp; opened <oj-bind-text value="[[format.date(account().openedDate)]]"></oj-bind-text>
+        &nbsp;&middot;&nbsp;
+        <span :class="[[format.statusClass(account().accountStatus)]]">
+          <oj-bind-text value="[[account().accountStatus]]"></oj-bind-text>
+        </span>
+      </div>
+    </div>
+
+    <div class="oj-flex oj-sm-margin-2x-vertical">
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Total cost</div>
+        <div class="oj-typography-heading-sm"><oj-bind-text value="[[format.money(totalCost())]]"></oj-bind-text></div>
+      </div>
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Market value</div>
+        <div class="oj-typography-heading-sm"><oj-bind-text value="[[format.money(marketValue())]]"></oj-bind-text></div>
+      </div>
+      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
+        <div class="oj-typography-body-sm oj-text-color-secondary">Unrealised gain / loss</div>
+        <div :class="[['oj-typography-heading-sm ' + gainLossClass()]]">
+          <oj-bind-text value="[[format.signedMoney(unrealizedGainLoss())]]"></oj-bind-text>
+        </div>
+      </div>
+    </div>
+
     <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
+      These figures use each holding's last stored valuation. The Dashboard re-reads live
+      prices, so the two screens can legitimately differ.
     </p>
-  </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[isEmpty()]]">
+    <p class="oj-typography-body-md oj-text-color-secondary">
+      No holdings yet. Use the Trade screen to make your first purchase.
+    </p>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasHoldings()]]">
+    <oj-table id="holdingsTable"
+              aria-label="Holdings"
+              data="[[holdingsDP]]"
+              class="oj-sm-margin-2x-vertical"
+              columns='[
+                {"headerText": "Product",    "field": "productName"},
+                {"headerText": "Quantity",   "field": "quantity"},
+                {"headerText": "Avg cost",   "field": "averageCost"},
+                {"headerText": "Market value","field": "marketValue"},
+                {"headerText": "Gain / loss","field": "unrealizedGainLoss"},
+                {"headerText": "Status",     "field": "holdingStatus"}
+              ]'>
+    </oj-table>
+  </oj-bind-if>
 </div>

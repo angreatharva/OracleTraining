@@ -1,12 +1,119 @@
 <div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md"><oj-bind-text value="[[title]]"></oj-bind-text></h2>
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-md">Not built yet.</p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>Next step:</strong> <oj-bind-text value="[[note]]"></oj-bind-text>
-    </p>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      <strong>API:</strong> <code><oj-bind-text value="[[api]]"></oj-bind-text></code>
-    </p>
+  <h2 class="oj-typography-heading-md">Place an order</h2>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[state.errorMessage()]]">
+    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
+      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <!-- Outcome of the last submit. A FAILED trade is a normal result, not an error. -->
+  <oj-bind-if test="[[tradeSucceeded()]]">
+    <div role="status" class="oj-panel oj-sm-margin-2x-vertical">
+      <div class="oj-typography-body-md oj-text-color-success"><strong>Trade completed.</strong></div>
+      <div class="oj-typography-body-sm">
+        <oj-bind-text value="[[lastTrade().transactionType]]"></oj-bind-text>
+        <oj-bind-text value="[[' ' + format.quantity(lastTrade().quantity) + ' ']]"></oj-bind-text>
+        units at
+        <oj-bind-text value="[[format.money(lastTrade().unitPrice)]]"></oj-bind-text>
+        &mdash; total
+        <oj-bind-text value="[[format.money(lastTrade().totalAmount)]]"></oj-bind-text>
+        (transaction #<oj-bind-text value="[[lastTrade().transactionId]]"></oj-bind-text>)
+      </div>
+      <oj-button on-oj-action="[[reset]]" class="oj-sm-margin-2x-top">Place another</oj-button>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[tradeFailed()]]">
+    <div role="alert" class="oj-panel oj-sm-margin-2x-vertical">
+      <div class="oj-typography-body-md oj-text-color-danger">
+        <strong>Trade rejected
+          (<oj-bind-text value="[[lastTrade().transactionStatus]]"></oj-bind-text>).</strong>
+      </div>
+      <div class="oj-typography-body-sm">
+        <oj-bind-text value="[[lastTrade().failureReason || 'The server did not give a reason.']]"></oj-bind-text>
+      </div>
+      <div class="oj-typography-body-sm oj-text-color-secondary oj-sm-margin-1x-top">
+        Recorded as transaction #<oj-bind-text value="[[lastTrade().transactionId]]"></oj-bind-text>.
+        This reason is shown once only &mdash; it is not stored with the trade.
+      </div>
+      <oj-button on-oj-action="[[reset]]" class="oj-sm-margin-2x-top">Try again</oj-button>
+    </div>
+  </oj-bind-if>
+
+  <oj-form-layout max-columns="2" direction="row" class="oj-sm-margin-2x-vertical">
+    <oj-select-single id="product"
+                      label-hint="Product"
+                      data="[[productsDP]]"
+                      value="{{selectedProductId}}"
+                      item-text="productName">
+    </oj-select-single>
+
+    <oj-select-single id="bankAccount"
+                      label-hint="Bank account"
+                      data="[[bankAccountsDP]]"
+                      value="{{selectedBankAccountId}}"
+                      item-text="maskedAccountNumber">
+    </oj-select-single>
+
+    <oj-buttonset-one id="side" value="{{transactionType}}" label-hint="Side">
+      <oj-option value="BUY">Buy</oj-option>
+      <oj-option value="SELL">Sell</oj-option>
+    </oj-buttonset-one>
+
+    <oj-input-number id="quantity"
+                     label-hint="Quantity"
+                     value="{{quantity}}"
+                     min="0.01"
+                     step="1">
+    </oj-input-number>
+  </oj-form-layout>
+
+  <oj-bind-if test="[[selectedProduct()]]">
+    <div class="oj-panel oj-sm-margin-2x-vertical">
+      <div class="oj-typography-body-sm">
+        Current price <strong><oj-bind-text value="[[currentPriceText]]"></oj-bind-text></strong>
+        &nbsp;&middot;&nbsp; Estimated total
+        <strong><oj-bind-text value="[[estimatedTotalText]]"></oj-bind-text></strong>
+      </div>
+      <div class="oj-typography-body-sm oj-text-color-secondary">
+        Estimate only. The order executes at the price the server reads when it runs, which
+        may differ from the figure above.
+      </div>
+
+      <oj-bind-if test="[[isSell()]]">
+        <div class="oj-typography-body-sm oj-sm-margin-1x-top">
+          You currently hold
+          <strong><oj-bind-text value="[[format.quantity(heldQuantity())]]"></oj-bind-text></strong>
+          units.
+        </div>
+      </oj-bind-if>
+
+      <oj-bind-if test="[[willOpenHolding()]]">
+        <div class="oj-typography-body-sm oj-sm-margin-1x-top">
+          You do not hold this product yet, so a holding is opened first and the purchase
+          applied second &mdash; two separate steps.
+        </div>
+      </oj-bind-if>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[validationMessage()]]">
+    <div class="oj-typography-body-sm oj-text-color-secondary oj-sm-margin-1x-vertical">
+      <oj-bind-text value="[[validationMessage]]"></oj-bind-text>
+    </div>
+  </oj-bind-if>
+
+  <div class="oj-flex oj-sm-justify-content-flex-end oj-sm-margin-2x-vertical">
+    <oj-button id="submitTrade"
+               chroming="callToAction"
+               disabled="[[!canSubmit()]]"
+               on-oj-action="[[submit]]">
+      <oj-bind-text value="[[isSubmitting() ? 'Submitting...' : (isSell() ? 'Sell' : 'Buy')]]"></oj-bind-text>
+    </oj-button>
   </div>
 </div>

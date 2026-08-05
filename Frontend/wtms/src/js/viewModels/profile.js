@@ -1,26 +1,92 @@
 /**
- * Profile - not implemented yet.
+ * Own profile and password change. Reachable by both roles.
  *
- * Next step: show own user and risk profile, and allow a password change
- * Primary API: AuthService.me, UserService.getUserDetailByUserId, AuthService.changePassword
- *
- * Follow the pattern in viewModels/dashboard.js (investor) or viewModels/team.js (manager):
- * observables for data / isLoading / errorMessage, load in connected(), and normalise
- * failures through services/ApiErrorNormalizer.
+ * The risk/KYC profile (user-detail) is a separate record and may not exist, so a 404 there
+ * is normal rather than an error.
  */
-define(["knockout"], function (ko) {
+define([
+  "knockout",
+  "services/AuthService",
+  "services/UserService",
+  "services/SessionStore",
+  "utils/ScreenState",
+  "utils/format"
+], function (ko, AuthService, UserService, SessionStore, ScreenState, format) {
   "use strict";
 
-  function ScreenViewModel() {
+  function ProfileViewModel() {
     var self = this;
-    self.title = ko.observable("Profile");
-    self.note = ko.observable("show own user and risk profile, and allow a password change");
-    self.api = ko.observable("AuthService.me, UserService.getUserDetailByUserId, AuthService.changePassword");
+
+    self.state = ScreenState.create();
+    self.passwordState = ScreenState.create();
+    self.format = format;
+
+    self.user = ko.observable(null);
+    self.detail = ko.observable(null);
+    self.roleName = ko.observable(SessionStore.role() || "");
+
+    self.currentPassword = ko.observable("");
+    self.newPassword = ko.observable("");
+    self.confirmPassword = ko.observable("");
+    self.isChanging = ko.observable(false);
+
+    self.passwordMismatch = ko.pureComputed(function () {
+      return self.confirmPassword().length > 0 && self.newPassword() !== self.confirmPassword();
+    });
+
+    self.canChangePassword = ko.pureComputed(function () {
+      return !self.isChanging() &&
+        self.currentPassword().length > 0 &&
+        self.newPassword().length >= 8 &&
+        !self.passwordMismatch();
+    });
+
+    self.load = function () {
+      self.state.run(function () {
+        return AuthService.me();
+      }).then(function (user) {
+        if (!user) { return undefined; }
+        self.user(user);
+
+        // The risk/KYC profile is optional - absence is not an error.
+        return self.state.runAllowingNotFound(function () {
+          return UserService.getUserDetailByUserId(user.userId);
+        }).then(function (detail) {
+          self.detail(detail || null);
+          return undefined;
+        });
+      });
+    };
+
+    self.changePassword = function () {
+      if (!self.canChangePassword()) { return; }
+
+      self.isChanging(true);
+      self.passwordState.run(function () {
+        return AuthService.changePassword(self.currentPassword(), self.newPassword());
+      }).then(function (result) {
+        self.isChanging(false);
+        // changePassword returns 204, so a successful call resolves with null - which is
+        // indistinguishable from the handled-error undefined. Use the error message instead.
+        if (!self.passwordState.errorMessage()) {
+          self.passwordState.successMessage("Password changed. It applies the next time you sign in.");
+          self.currentPassword("");
+          self.newPassword("");
+          self.confirmPassword("");
+        }
+      });
+    };
 
     self.connected = function () {
-      // Load data here.
+      self.load();
+    };
+
+    self.disconnected = function () {
+      self.currentPassword("");
+      self.newPassword("");
+      self.confirmPassword("");
     };
   }
 
-  return ScreenViewModel;
+  return ProfileViewModel;
 });
