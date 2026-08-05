@@ -1,6 +1,6 @@
 package com.example.tradingmicroservice.services;
 
-import com.example.tradingmicroservice.Services.TradeTransactionService;
+import com.example.tradingmicroservice.services.TradeTransactionService;
 import com.example.tradingmicroservice.dto.request.CreateTradeTransactionRequest;
 import com.example.tradingmicroservice.dto.response.TradeTransactionResponse;
 import com.example.tradingmicroservice.clients.BankServiceClient;

@@ -1,4 +1,4 @@
-package com.example.productmicroservice.exceptions;
+package com.example.productmicroservice.Exceptions;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

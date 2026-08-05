@@ -1,10 +1,10 @@
 package com.example.productmicroservice.services;
 
-import com.example.productmicroservice.entities.InvestmentProduct;
-import com.example.productmicroservice.entities.ProductType;
-import com.example.productmicroservice.exceptions.ResourceNotFoundException;
-import com.example.productmicroservice.repositories.InvestmentProductRepository;
-import com.example.productmicroservice.repositories.ProductTypeRepository;
+import com.example.productmicroservice.Entities.InvestmentProduct;
+import com.example.productmicroservice.Entities.ProductType;
+import com.example.productmicroservice.Exceptions.ResourceNotFoundException;
+import com.example.productmicroservice.Repositories.InvestmentProductRepository;
+import com.example.productmicroservice.Repositories.ProductTypeRepository;
 import com.example.productmicroservice.dto.request.CreateInvestmentProductRequest;
 import com.example.productmicroservice.dto.response.InvestmentProductResponse;
 import com.example.productmicroservice.enums.PriceMethod;

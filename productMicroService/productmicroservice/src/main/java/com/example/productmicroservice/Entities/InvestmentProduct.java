@@ -1,4 +1,5 @@
-package com.example.productmicroservice.entities;
+package com.example.productmicroservice.Entities;
+import com.example.productmicroservice.Entities.ProductType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
