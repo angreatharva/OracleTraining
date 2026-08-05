@@ -1,17 +1,15 @@
 /**
- * Portfolio statements: list and detail.
- *
- * Read-only by design. Statement creation is a SERVICE-token endpoint - the opening and
- * closing values are supplied in the request body, so letting a user call it would let them
- * author their own figures.
+ * Investor transaction history. This screen intentionally uses the Trading endpoint rather
+ * than portfolio statements: investors need to see the individual BUY and SELL records.
  */
 define([
   "knockout",
   "ojs/ojarraydataprovider",
+  "ojs/ojdatetimepicker",
   "services/TradingService",
   "utils/ScreenState",
   "utils/format"
-], function (ko, ArrayDataProvider, TradingService, ScreenState, format) {
+], function (ko, ArrayDataProvider, ojdatetimepicker, TradingService, ScreenState, format) {
   "use strict";
 
   function StatementsViewModel() {
@@ -19,48 +17,43 @@ define([
 
     self.state = ScreenState.create();
     self.format = format;
+    self.transactions = ko.observableArray([]);
+    self.transactionsDP = new ArrayDataProvider(self.transactions, { keyAttributes: "transactionId" });
+    self.startDate = ko.observable("");
+    self.endDate = ko.observable("");
 
-    self.statements = ko.observableArray([]);
-    self.statementsDP = new ArrayDataProvider(self.statements, { keyAttributes: "statementId" });
-    self.selected = ko.observable(null);
-
-    self.hasStatements = ko.pureComputed(function () {
-      return !self.state.isLoading() && self.statements().length > 0;
+    self.hasTransactions = ko.pureComputed(function () {
+      return !self.state.isLoading() && self.transactions().length > 0;
     });
     self.isEmpty = ko.pureComputed(function () {
-      return !self.state.isLoading() && !self.state.errorMessage() && self.statements().length === 0;
-    });
-
-    self.movement = ko.pureComputed(function () {
-      var s = self.selected();
-      return s ? Number(s.closingValue) - Number(s.openingValue) : 0;
-    });
-    self.movementClass = ko.pureComputed(function () {
-      return format.profitLossClass(self.movement());
+      return !self.state.isLoading() && !self.state.errorMessage() && self.transactions().length === 0;
     });
 
     self.load = function () {
+      var filter = {};
+      // oj-input-date supplies yyyy-mm-dd. Trading expects LocalDateTime, so make the
+      // range inclusive of both selected calendar days.
+      if (self.startDate()) { filter.startDate = self.startDate() + "T00:00:00"; }
+      if (self.endDate()) { filter.endDate = self.endDate() + "T23:59:59.999999999"; }
+
       self.state.runAllowingNotFound(function () {
-        return TradingService.listStatements();
-      }).then(function (statements) {
-        var rows = (statements || []).slice().sort(function (a, b) {
-          return String(b.statementEnd).localeCompare(String(a.statementEnd));
+        return TradingService.listTrades(filter);
+      }).then(function (transactions) {
+        var rows = (transactions || []).slice().sort(function (a, b) {
+          return String(b.transactionDate).localeCompare(String(a.transactionDate));
         });
-        self.statements(rows);
+        self.transactions(rows);
       });
     };
 
-    self.select = function (statement) {
-      self.selected(statement);
-    };
-
-    self.clearSelection = function () {
-      self.selected(null);
-    };
-
-    self.connected = function () {
+    self.applyFilters = function () { self.load(); };
+    self.clearFilters = function () {
+      self.startDate("");
+      self.endDate("");
       self.load();
     };
+
+    self.connected = function () { self.load(); };
   }
 
   return StatementsViewModel;

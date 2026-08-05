@@ -1,12 +1,20 @@
 /**
  * Onboard a new investor.
  *
- * Three sequential calls, and the backend has no transaction spanning them:
+ * Four sequential calls, and the backend has no transaction spanning them:
  *   1. POST /api/users            -> creates the login
  *   2. POST /api/user-details     -> risk / KYC profile
  *   3. POST /api/portfolios       -> portfolio account
+ *   4. POST /api/bank-accounts    -> bank account
  *
- * If step 2 or 3 fails, the earlier records still exist. Rather than pretend otherwise, each
+ * The bank account is opened automatically: only userId (and, if given, the opening
+ * deposit) is sent. Bank Service fills in a house-bank name, IFSC and a generated account
+ * number for anything left blank, so the manager never has to key in bank details for a
+ * brand-new investor. It becomes the investor's primary account and its balance is
+ * thereafter maintained automatically by the trading flow's own debit/credit calls - nothing
+ * further to wire up here.
+ *
+ * If any step fails, the earlier records still exist. Rather than pretend otherwise, each
  * step reports its own outcome so the manager can see exactly how far it got and finish the
  * rest by hand. Steps are not retried automatically: re-running step 1 would fail on the
  * unique email anyway.
@@ -15,11 +23,12 @@ define([
   "knockout",
   "services/UserService",
   "services/PortfolioService",
+  "services/BankService",
   "services/SessionStore",
   "services/ApiErrorNormalizer",
   "utils/ScreenState",
   "models/enums"
-], function (ko, UserService, PortfolioService, SessionStore, ApiErrorNormalizer,
+], function (ko, UserService, PortfolioService, BankService, SessionStore, ApiErrorNormalizer,
              ScreenState, enums) {
   "use strict";
 
@@ -38,6 +47,7 @@ define([
     self.dateOfBirth = ko.observable("");
     self.riskLevel = ko.observable("MODERATE");
     self.riskLevelOptions = enums.RISK_LEVEL;
+    self.openingBalance = ko.observable("");
 
     self.isSubmitting = ko.observable(false);
     /** One entry per step: {label, status: 'ok'|'failed'|'skipped', detail}. */
@@ -94,12 +104,24 @@ define([
           }, function (error) {
             record("Open portfolio account", "failed", ApiErrorNormalizer.normalize(error).message);
           });
+        }).then(function () {
+          var deposit = self.openingBalance().trim();
+          return BankService.createAccount({
+            userId: user.userId,
+            openingBalance: deposit.length > 0 ? Number(deposit) : undefined
+          }).then(function (account) {
+            record("Open bank account", "ok",
+              account.bankName + " " + account.maskedAccountNumber);
+          }, function (error) {
+            record("Open bank account", "failed", ApiErrorNormalizer.normalize(error).message);
+          });
         });
       }, function (error) {
         var normalized = ApiErrorNormalizer.normalize(error);
         record("Create login", "failed", normalized.message);
         record("Create risk profile", "skipped", "not attempted - the login was not created");
         record("Open portfolio account", "skipped", "not attempted - the login was not created");
+        record("Open bank account", "skipped", "not attempted - the login was not created");
         self.state.fieldErrors(normalized.fieldErrors);
       }).then(function () {
         self.isSubmitting(false);
@@ -114,10 +136,12 @@ define([
           self.phone("");
           self.password("");
           self.dateOfBirth("");
+          self.openingBalance("");
         } else if (self.createdUser()) {
           self.state.errorMessage(
             "Partially completed. The login exists, but the steps marked below did not " +
-            "finish - complete them from the other screens."
+            "finish - complete them from the other screens (a bank account can be opened " +
+            "from Accounts)."
           );
         } else {
           self.state.errorMessage("Nothing was created.");

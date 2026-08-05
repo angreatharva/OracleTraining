@@ -28,12 +28,15 @@ define([], function () {
       });
     },
 
-    /** Up to 4 decimals, trailing zeros trimmed - holdings can be fractional. */
+    /** Two decimal places with thousands separators for all displayed unit quantities. */
     quantity: function (value) {
       if (isBlank(value) || isNaN(Number(value))) {
         return EMPTY;
       }
-      return Number(value).toLocaleString(undefined, { maximumFractionDigits: 4 });
+      return Number(value).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
     },
 
     /** A signed amount, so a loss reads as "-1,234.00" rather than "1,234.00". */

@@ -73,7 +73,21 @@ define([
     function setStatus(doc, status) {
       self.busyId(doc.kycDocumentId);
       self.state.run(function () {
-        return BankService.setVerification(doc.kycDocumentId, status);
+        return BankService.setVerification(doc.kycDocumentId, status).then(function (updatedDocument) {
+          // KYC documents live in Bank Service but Profile reads the distinct User Service
+          // profile. Keep the two records in sync when the manager makes the decision.
+          return UserService.getUserDetailByUserId(doc.userId).then(function (detail) {
+            return UserService.updateUserDetail(detail.userDetailId, {
+              userId: detail.userId,
+              dateOfBirth: detail.dateOfBirth,
+              riskLevel: detail.riskLevel,
+              riskScore: detail.riskScore,
+              kycStatus: status
+            });
+          }).then(function () {
+            return updatedDocument;
+          });
+        });
       }).then(function (updated) {
         self.busyId(null);
         if (updated) {

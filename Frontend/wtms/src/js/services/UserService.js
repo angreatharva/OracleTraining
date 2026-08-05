@@ -40,6 +40,11 @@ define(["services/ApiClient"], function (ApiClient) {
     /** MANAGER only. */
     createUserDetail: function (request) {
       return ApiClient.post("user", "/api/user-details", request);
+    },
+
+    /** MANAGER only. Updates an investor's risk/KYC profile. */
+    updateUserDetail: function (userDetailId, request) {
+      return ApiClient.put("user", "/api/user-details/" + userDetailId, request);
     }
   };
 });

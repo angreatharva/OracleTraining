@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
@@ -30,8 +31,20 @@ import java.util.stream.Stream;
 @Transactional
 public class BankAccountService implements IBankAccountService {
 
+    /**
+     * Used when onboarding opens an account automatically and the caller supplied no real
+     * bank details. This is not a real correspondent bank - it is WealthTrack acting as its
+     * own custodian for a new investor until the manager (or investor) links a real one via
+     * {@link #update}.
+     */
+    private static final String DEFAULT_BANK_NAME = "WealthTrack Bank";
+    private static final String DEFAULT_IFSC_CODE = "WTMS0000001";
+    private static final String ACCOUNT_NUMBER_PREFIX = "WT";
+    private static final int MAX_ACCOUNT_NUMBER_ATTEMPTS = 10;
+
     private final BankAccountRepository bankAccountRepository;
     private final UserServiceClient userServiceClient;
+    private final SecureRandom random = new SecureRandom();
 
     public BankAccountService(
             BankAccountRepository bankAccountRepository,
@@ -43,22 +56,32 @@ public class BankAccountService implements IBankAccountService {
     @Override
     public BankAccountResponse create(CreateBankAccountRequest request) {
         validateUser(request.userId());
-        String normalizedAccountNumber = normalize(request.accountNumber());
+
+        String normalizedAccountNumber = isBlank(request.accountNumber())
+                ? generateAccountNumber(request.userId())
+                : normalize(request.accountNumber());
 
         if (bankAccountRepository.existsByAccountNumber(normalizedAccountNumber)) {
             throw new DuplicateBankAccountException(normalizedAccountNumber);
         }
+
+        AccountType accountType = isBlank(request.accountType())
+                ? AccountType.SAVINGS
+                : EnumParser.parse(request.accountType(), AccountType.class, "accountType");
+
+        String bankName = isBlank(request.bankName()) ? DEFAULT_BANK_NAME : request.bankName().trim();
+        String ifscCode = upperToNull(request.ifscCode());
 
         boolean hasNoAccounts = bankAccountRepository.findByUserId(request.userId()).isEmpty();
         boolean shouldBePrimary = Boolean.TRUE.equals(request.primaryAccount()) || hasNoAccounts;
 
         BankAccount account = BankAccount.builder()
                 .userId(request.userId())
-                .bankName(request.bankName().trim())
+                .bankName(bankName)
                 .branchName(trimToNull(request.branchName()))
                 .accountNumber(normalizedAccountNumber)
-                .accountType(EnumParser.parse(request.accountType(), AccountType.class, "accountType"))
-                .ifscCode(upperToNull(request.ifscCode()))
+                .accountType(accountType)
+                .ifscCode(ifscCode == null ? DEFAULT_IFSC_CODE : ifscCode)
                 .balance(request.openingBalance() == null ? BigDecimal.ZERO : request.openingBalance())
                 .primaryAccount(shouldBePrimary)
                 .status(BankAccountStatus.ACTIVE)
@@ -69,6 +92,25 @@ public class BankAccountService implements IBankAccountService {
             bankAccountRepository.clearOtherPrimaryAccounts(saved.getUserId(), saved.getBankAccountId());
         }
         return toResponse(saved);
+    }
+
+    /**
+     * House-bank account numbers are internally generated, never entered by a person, so they
+     * only need to be unique - not meaningful. Retries on collision rather than trusting
+     * randomness alone, since {@code account_number} is a unique column.
+     */
+    private String generateAccountNumber(Long userId) {
+        for (int attempt = 0; attempt < MAX_ACCOUNT_NUMBER_ATTEMPTS; attempt++) {
+            String candidate = ACCOUNT_NUMBER_PREFIX + userId + String.format("%06d", random.nextInt(1_000_000));
+            if (!bankAccountRepository.existsByAccountNumber(candidate)) {
+                return candidate;
+            }
+        }
+        throw new IllegalStateException("Could not generate a unique account number for user " + userId);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     @Override

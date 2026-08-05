@@ -112,8 +112,8 @@
     <oj-button id="submitTrade"
                chroming="callToAction"
                disabled="[[!canSubmit()]]"
+               label="[[submitLabel()]]"
                on-oj-action="[[submit]]">
-      <oj-bind-text value="[[isSubmitting() ? 'Submitting...' : (isSell() ? 'Sell' : 'Buy')]]"></oj-bind-text>
     </oj-button>
   </div>
 </div>

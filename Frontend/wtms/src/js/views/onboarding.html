@@ -1,8 +1,8 @@
 <div class="oj-flex oj-sm-flex-direction-column">
   <h2 class="oj-typography-heading-md">Onboard an investor</h2>
   <p class="oj-typography-body-sm oj-text-color-secondary">
-    Creates the login, the risk profile and the portfolio account. These are three separate
-    calls with no shared transaction, so each result is reported individually.
+    Creates the login, the risk profile, the portfolio account and a bank account. These are
+    four separate calls with no shared transaction, so each result is reported individually.
   </p>
 
   <oj-bind-if test="[[state.errorMessage()]]">
@@ -54,10 +54,16 @@
 
       <oj-label for="riskLevel">Risk level</oj-label>
       <select id="riskLevel" data-bind="options: riskLevelOptions, value: riskLevel"></select>
+
+      <oj-input-text id="openingBalance" label-hint="Bank opening deposit (optional)"
+                     value="{{openingBalance}}">
+      </oj-input-text>
     </oj-form-layout>
 
     <p class="oj-typography-body-sm oj-text-color-secondary">
-      The investor is assigned to you as their manager, and starts with KYC status PENDING.
+      The investor is assigned to you as their manager, and starts with KYC status PENDING. A
+      bank account is opened for them automatically - bank name, IFSC and account number are
+      all generated, so you only need to set an opening deposit if you want one.
     </p>
 
     <div class="oj-flex oj-sm-justify-content-flex-end">

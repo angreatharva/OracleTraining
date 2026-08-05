@@ -75,6 +75,35 @@ class BankAccountServiceTest {
     }
 
     @Test
+    void createFillsInHouseBankDefaultsWhenOnlyUserIdIsGiven() {
+        // What onboarding sends: no bank details at all, just who the account is for.
+        CreateBankAccountRequest request = new CreateBankAccountRequest(
+                20L, null, null, null, null, null, null, null
+        );
+        when(userServiceClient.validateUser(20L))
+                .thenReturn(new UserValidationResult(20L, true, true, "ok"));
+        when(bankAccountRepository.existsByAccountNumber(any())).thenReturn(false);
+        when(bankAccountRepository.findByUserId(20L)).thenReturn(List.of());
+        when(bankAccountRepository.save(any(BankAccount.class))).thenAnswer(invocation -> {
+            BankAccount account = invocation.getArgument(0);
+            account.setBankAccountId(2L);
+            account.setCreatedAt(LocalDateTime.now());
+            account.setUpdatedAt(LocalDateTime.now());
+            return account;
+        });
+
+        BankAccountResponse response = service.create(request);
+
+        assertThat(response.bankName()).isEqualTo("WealthTrack Bank");
+        assertThat(response.ifscCode()).isEqualTo("WTMS0000001");
+        assertThat(response.accountType()).isEqualTo("SAVINGS");
+        assertThat(response.balance()).isEqualByComparingTo(BigDecimal.ZERO);
+        // First account for this user, so it becomes primary even though the request didn't ask.
+        assertThat(response.primaryAccount()).isTrue();
+        verify(bankAccountRepository).clearOtherPrimaryAccounts(20L, 2L);
+    }
+
+    @Test
     void debitReducesBalanceWhenFundsAreAvailable() {
         BankAccount account = activeAccount(new BigDecimal("500.00"));
         when(bankAccountRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(account));

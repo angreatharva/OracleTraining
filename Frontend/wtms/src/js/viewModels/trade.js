@@ -74,6 +74,12 @@ define([
 
     self.isSell = ko.pureComputed(function () { return self.transactionType() === "SELL"; });
 
+    // Keep the call-to-action label bound to the selected order side.
+    self.submitLabel = ko.pureComputed(function () {
+      if (self.isSubmitting()) { return "Submitting..."; }
+      return self.isSell() ? "Sell" : "Buy";
+    });
+
     self.willOpenHolding = ko.pureComputed(function () {
       return !self.isSell() && !!self.selectedProductId() && !self.existingHolding();
     });

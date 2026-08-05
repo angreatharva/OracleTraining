@@ -60,7 +60,16 @@ define([
       self.state.runAllowingNotFound(function () {
         return TradingService.getInvestmentOverview(userId);
       }).then(function (overview) {
-        self.positions(overview ? (overview.positions || []) : []);
+        self.positions((overview ? (overview.positions || []) : []).map(function (position) {
+          return Object.assign({}, position, {
+            currentQuantityDisplay: format.quantity(position.currentQuantity),
+            averageBuyPriceDisplay: format.money(position.averageBuyPrice),
+            currentPriceDisplay: format.money(position.currentPrice),
+            investedValueDisplay: format.money(position.investedValue),
+            currentValuationDisplay: format.money(position.currentValuation),
+            profitLossDisplay: format.signedMoney(position.profitLoss)
+          });
+        }));
       });
     };
 

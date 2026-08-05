@@ -28,6 +28,10 @@ define([
     self.busyId = ko.observable(null);
     self.statusOptions = enums.BANK_ACCOUNT_STATUS;
 
+    /** Opening deposit for a newly-opened account; everything else is filled in server-side. */
+    self.openingBalance = ko.observable("");
+    self.isOpeningAccount = ko.observable(false);
+
     self.hasAccounts = ko.pureComputed(function () {
       return !self.state.isLoading() && self.accounts().length > 0;
     });
@@ -88,6 +92,36 @@ define([
 
     self.block = function (account) { self.setStatus(account, "BLOCKED"); };
     self.activate = function (account) { self.setStatus(account, "ACTIVE"); };
+
+    /**
+     * Opens a new account for the selected investor. Only userId (and, optionally, an
+     * opening deposit) is sent - Bank Service fills in a house-bank name, IFSC and a
+     * generated account number for anything left blank. This is how a manager finishes an
+     * onboarding that reported the bank-account step as failed, or opens an additional
+     * account by hand.
+     */
+    self.openAccount = function () {
+      var userId = self.selectedUserId();
+      if (!userId || self.isOpeningAccount()) { return; }
+
+      var deposit = self.openingBalance().trim();
+      self.isOpeningAccount(true);
+      self.state.run(function () {
+        return BankService.createAccount({
+          userId: Number(userId),
+          openingBalance: deposit.length > 0 ? Number(deposit) : undefined
+        });
+      }).then(function (account) {
+        self.isOpeningAccount(false);
+        if (account) {
+          self.state.successMessage(
+            "Opened " + account.bankName + " " + account.maskedAccountNumber + "."
+          );
+          self.openingBalance("");
+          self.loadAccounts();
+        }
+      });
+    };
 
     self.connected = function () {
       self.loadTeam();

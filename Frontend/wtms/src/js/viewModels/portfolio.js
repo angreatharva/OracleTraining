@@ -86,7 +86,11 @@ define([
             });
             self.holdings(holdings.map(function (h) {
               return Object.assign({}, h, {
-                productName: nameById[h.productId] || ("Product " + h.productId)
+                productName: nameById[h.productId] || ("Product " + h.productId),
+                quantityDisplay: format.quantity(h.quantity),
+                averageCostDisplay: format.money(h.averageCost),
+                marketValueDisplay: format.money(h.marketValue),
+                unrealizedGainLossDisplay: format.signedMoney(h.unrealizedGainLoss)
               });
             }));
             return undefined;

@@ -14,6 +14,23 @@
                        value: selectedUserId"></select>
   </oj-form-layout>
 
+  <div class="oj-panel oj-sm-margin-2x-vertical">
+    <p class="oj-typography-body-sm oj-text-color-secondary">
+      Opens a house-bank account for the selected investor automatically - bank name, IFSC
+      and account number are all generated; only an opening deposit is optional.
+    </p>
+    <oj-form-layout max-columns="2" direction="row">
+      <oj-input-text id="openingBalance" label-hint="Opening deposit (optional)"
+                     value="{{openingBalance}}"></oj-input-text>
+    </oj-form-layout>
+    <div class="oj-flex oj-sm-justify-content-flex-end">
+      <oj-button disabled="[[!selectedUserId() || isOpeningAccount()]]"
+                 on-oj-action="[[openAccount]]">
+        <oj-bind-text value="[[isOpeningAccount() ? 'Opening...' : 'Open bank account']]"></oj-bind-text>
+      </oj-button>
+    </div>
+  </div>
+
   <oj-bind-if test="[[state.isLoading()]]">
     <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
