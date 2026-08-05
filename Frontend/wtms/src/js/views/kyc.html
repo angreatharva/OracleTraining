@@ -1,28 +1,71 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">KYC documents</h2>
+<div class="wtms-page">
 
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">KYC documents</h1>
+      <p class="wtms-page-subtitle">
+        Submit identity documents for verification. Only your manager can approve or reject them.
+      </p>
+    </div>
+    <div class="wtms-page-actions">
+      <oj-bind-if test="[[documents().length > 0]]">
+        <oj-c-badge size="md"
+                    variant="[[format.statusVariant(overallStatus())]]"
+                    label="[[overallStatus()]]">
+        </oj-c-badge>
+      </oj-bind-if>
+    </div>
+  </div>
+
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
+
+  <oj-bind-if test="[[documents().length > 0]]">
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Verified</span>
+          <span class="wtms-kpi-value oj-text-color-success">
+            <oj-bind-text value="[[verifiedCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Accepted by your manager</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Pending</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[pendingCount()]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">Awaiting verification</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Rejected</span>
+          <span class="wtms-kpi-value oj-text-color-danger">
+            <oj-bind-text value="[[rejectedCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Resubmit these</span>
+        </div>
+      </div>
     </div>
   </oj-bind-if>
 
-  <oj-bind-if test="[[state.successMessage()]]">
-    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
-      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
+  <div class="wtms-card">
+    <div class="wtms-card-header">
+      <h2 class="wtms-card-title">Submit a document</h2>
     </div>
-  </oj-bind-if>
 
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <h3 class="oj-typography-heading-sm">Submit a document</h3>
-    <p class="oj-typography-body-sm oj-text-color-secondary">
+    <div class="wtms-note oj-sm-margin-3x-bottom">
       Metadata only &mdash; there is no file upload. Once submitted the number is masked and
       cannot be edited, so check it before sending.
-    </p>
+    </div>
 
-    <oj-form-layout max-columns="3" direction="row">
-      <oj-label for="docType">Type</oj-label>
-      <select id="docType" data-bind="options: documentTypeOptions, value: newDocumentType"></select>
+    <oj-form-layout max-columns="3" direction="row" label-edge="inside">
+      <oj-c-select-single id="docType"
+                          label-hint="Type"
+                          data="[[documentTypeDP]]"
+                          item-text="label"
+                          value="{{newDocumentType}}">
+      </oj-c-select-single>
 
       <oj-input-text id="docNumber"
                      label-hint="Document number"
@@ -35,7 +78,7 @@
       </oj-input-text>
     </oj-form-layout>
 
-    <div class="oj-flex oj-sm-justify-content-flex-end">
+    <div class="wtms-form-actions">
       <oj-button chroming="callToAction"
                  disabled="[[!canSubmit()]]"
                  on-oj-action="[[submit]]">
@@ -45,25 +88,52 @@
   </div>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">No documents submitted yet.</p>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No documents submitted yet</span>
+        <span>Use the form above to submit your first one.</span>
+      </div>
+    </div>
   </oj-bind-if>
 
   <oj-bind-if test="[[hasDocuments()]]">
-    <oj-table id="kycTable"
-              aria-label="My KYC documents"
-              data="[[documentsDP]]"
-              columns='[
-                {"headerText": "Type",      "field": "documentType"},
-                {"headerText": "Number",    "field": "maskedDocumentNumber"},
-                {"headerText": "File",      "field": "fileName"},
-                {"headerText": "Submitted", "field": "submittedDate"},
-                {"headerText": "Verified",  "field": "verifiedDate"},
-                {"headerText": "Status",    "field": "verificationStatus"}
-              ]'>
-    </oj-table>
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Submitted documents</h2>
+      </div>
+      <oj-table id="kycTable"
+                aria-label="My KYC documents"
+                data="[[documentsDP]]"
+                class="wtms-list"
+                columns='[
+                  {"headerText": "Type",      "field": "documentType"},
+                  {"headerText": "Number",    "field": "maskedDocumentNumber", "className": "wtms-mono"},
+                  {"headerText": "File",      "field": "fileName"},
+                  {"headerText": "Submitted", "field": "submittedDate", "template": "submittedTemplate"},
+                  {"headerText": "Verified",  "field": "verifiedDate", "template": "verifiedTemplate"},
+                  {"headerText": "Status",    "field": "verificationStatus", "template": "statusTemplate"}
+                ]'>
+
+        <template slot="submittedTemplate" data-oj-as="cell">
+          <span class="wtms-mono"><oj-bind-text value="[[format.date(cell.data)]]"></oj-bind-text></span>
+        </template>
+
+        <template slot="verifiedTemplate" data-oj-as="cell">
+          <span class="wtms-mono"><oj-bind-text value="[[format.date(cell.data)]]"></oj-bind-text></span>
+        </template>
+
+        <template slot="statusTemplate" data-oj-as="cell">
+          <oj-c-badge size="sm"
+                      variant="[[format.statusVariant(cell.data)]]"
+                      label="[[cell.data]]">
+          </oj-c-badge>
+        </template>
+      </oj-table>
+    </div>
   </oj-bind-if>
 </div>

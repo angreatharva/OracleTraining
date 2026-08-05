@@ -11,9 +11,10 @@ define([
   "ojs/ojarraydataprovider",
   "services/TradingService",
   "utils/ScreenState",
+  "utils/derived",
   "utils/format",
   "models/enums"
-], function (ko, ArrayDataProvider, TradingService, ScreenState, format, enums) {
+], function (ko, ArrayDataProvider, TradingService, ScreenState, derived, format, enums) {
   "use strict";
 
   function TradesViewModel() {
@@ -31,6 +32,86 @@ define([
 
     self.statusOptions = [""].concat(enums.TRANSACTION_STATUS);
     self.typeOptions = [""].concat(enums.TRANSACTION_TYPE);
+
+    /**
+     * The same option lists as DataProviders, for oj-c-select-single. The empty-string
+     * entry is the "no filter" case the ApiClient drops from the query.
+     */
+    function optionsProvider(values, allLabel) {
+      return new ArrayDataProvider(
+        values.map(function (value) {
+          return { value: value, label: value === "" ? allLabel : value };
+        }),
+        { keyAttributes: "value" }
+      );
+    }
+
+    self.statusDP = optionsProvider(self.statusOptions, "All statuses");
+    self.typeDP = optionsProvider(self.typeOptions, "All types");
+
+    // ---------------------------------------------------------------------
+    // Presentation-only summaries over the rows already loaded.
+    // ---------------------------------------------------------------------
+
+    function countWhere(predicate) {
+      return self.trades().filter(predicate).length;
+    }
+
+    self.completedCount = ko.pureComputed(function () {
+      return countWhere(function (t) { return t.transactionStatus === "COMPLETED"; });
+    });
+    self.failedCount = ko.pureComputed(function () {
+      return countWhere(function (t) { return t.transactionStatus === "FAILED"; });
+    });
+
+    /** Completed trades only: pending and failed ones moved no money. */
+    self.settledValue = ko.pureComputed(function () {
+      return self.trades().reduce(function (sum, t) {
+        return t.transactionStatus === "COMPLETED" ? sum + (Number(t.totalAmount) || 0) : sum;
+      }, 0);
+    });
+
+    /** Completed value split by side - what was bought against what was sold. */
+    self.sideRows = derived.array(function () {
+      var totals = { BUY: 0, SELL: 0 };
+      self.trades().forEach(function (t) {
+        if (t.transactionStatus === "COMPLETED" && totals[t.transactionType] !== undefined) {
+          totals[t.transactionType] += Number(t.totalAmount) || 0;
+        }
+      });
+      return Object.keys(totals)
+        .filter(function (side) { return totals[side] > 0; })
+        .map(function (side) {
+          return {
+            id: "side-" + side,
+            series: side,
+            value: totals[side],
+            color: side === "SELL" ? "#b8862c" : "#3d7bb1"
+          };
+        });
+    });
+
+    self.sideDP = new ArrayDataProvider(self.sideRows, { keyAttributes: "id" });
+
+    /** Completed value per calendar day, oldest first - the shape of recent activity. */
+    self.dailyRows = derived.array(function () {
+      var byDay = {};
+      self.trades().forEach(function (t) {
+        if (t.transactionStatus !== "COMPLETED") { return; }
+        var day = format.date(t.transactionDate);
+        byDay[day] = (byDay[day] || 0) + (Number(t.totalAmount) || 0);
+      });
+      return Object.keys(byDay).sort().map(function (day) {
+        return { id: "day-" + day, group: day, value: byDay[day] };
+      });
+    });
+
+    self.dailyDP = new ArrayDataProvider(self.dailyRows, { keyAttributes: "id" });
+
+    /** One point is not a trend, and one bar is not a comparison. */
+    self.hasChartableData = ko.pureComputed(function () {
+      return self.dailyRows().length > 1 || self.sideRows().length > 1;
+    });
 
     self.hasTrades = ko.pureComputed(function () {
       return !self.state.isLoading() && self.trades().length > 0;

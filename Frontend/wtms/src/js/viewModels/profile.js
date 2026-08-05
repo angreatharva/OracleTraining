@@ -30,6 +30,39 @@ define([
     self.confirmPassword = ko.observable("");
     self.isChanging = ko.observable(false);
 
+    // ---------------------------------------------------------------------
+    // Presentation-only derivations over the two records already loaded.
+    // ---------------------------------------------------------------------
+
+    self.initials = ko.pureComputed(function () {
+      var user = self.user();
+      return user ? format.initials(user.fullName) : "?";
+    });
+
+    /**
+     * Risk level as a 5-point rating, so the gauge reads left-to-right as
+     * conservative-to-aggressive. LOW/MODERATE/HIGH are the only values the backend uses.
+     */
+    self.riskRating = ko.pureComputed(function () {
+      var detail = self.detail();
+      switch (detail && detail.riskLevel) {
+        case "LOW": return 1;
+        case "MODERATE": return 3;
+        case "HIGH": return 5;
+        default: return 0;
+      }
+    });
+
+    self.hasRiskScore = ko.pureComputed(function () {
+      var detail = self.detail();
+      return !!detail && detail.riskScore !== null && detail.riskScore !== undefined;
+    });
+
+    self.riskScoreValue = ko.pureComputed(function () {
+      var detail = self.detail();
+      return self.hasRiskScore() ? Number(detail.riskScore) : 0;
+    });
+
     self.passwordMismatch = ko.pureComputed(function () {
       return self.confirmPassword().length > 0 && self.newPassword() !== self.confirmPassword();
     });

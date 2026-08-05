@@ -1,62 +1,223 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">Dashboard</h2>
+<div class="wtms-page">
+
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Dashboard</h1>
+      <p class="wtms-page-subtitle">
+        Your positions valued at live product prices.
+      </p>
+    </div>
+  </div>
+
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">
-      No holdings yet. Use the Trade screen to make your first purchase.
-    </p>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No holdings yet</span>
+        <span>Use the Trade screen to make your first purchase.</span>
+      </div>
+    </div>
   </oj-bind-if>
 
   <oj-bind-if test="[[hasPositions()]]">
-    <div class="oj-flex oj-sm-margin-2x-vertical">
-      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
-        <div class="oj-typography-body-sm oj-text-color-secondary">Invested</div>
-        <div class="oj-typography-heading-sm">
-          <oj-bind-text value="[[format.money(totalInvested())]]"></oj-bind-text>
+
+    <!--
+      KPI row. oj-sm-12 / oj-md-4 stacks the tiles on a phone and puts three across from
+      tablet up; oj-flex-item-gutter supplies the spacing so no tile carries its own margin.
+    -->
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Invested</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(totalInvested())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">
+            Across <oj-bind-text value="[[positions().length]]"></oj-bind-text> products
+          </span>
         </div>
       </div>
-      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
-        <div class="oj-typography-body-sm oj-text-color-secondary">Current value</div>
-        <div class="oj-typography-heading-sm">
-          <oj-bind-text value="[[format.money(totalValue())]]"></oj-bind-text>
+
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Current value</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(totalValue())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">At live prices</span>
         </div>
       </div>
-      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
-        <div class="oj-typography-body-sm oj-text-color-secondary">Profit / loss</div>
-        <div :class="[['oj-typography-heading-sm ' + profitLossClass()]]">
-          <oj-bind-text value="[[format.signedMoney(totalProfitLoss())]]"></oj-bind-text>
+
+      <!--
+        The P/L tile carries a meter on a fixed -25%..+25% scale, so the same figure also
+        reads as "how good" at a glance rather than only as a number.
+      -->
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Profit / loss</span>
+          <span :class="[['wtms-kpi-value ' + profitLossClass()]]">
+            <oj-bind-text value="[[format.signedMoney(totalProfitLoss())]]"></oj-bind-text>
+          </span>
+          <oj-c-meter-bar class="wtms-kpi-meter"
+                          readonly="true"
+                          min="-25"
+                          max="25"
+                          size="sm"
+                          value="[[returnMeterValue()]]"
+                          thresholds="[[returnMeterThresholds]]"
+                          aria-label="Return on cost, percent">
+          </oj-c-meter-bar>
+          <span class="wtms-kpi-caption">
+            <oj-bind-text value="[[format.percent(returnPercent()) + ' return on cost']]"></oj-bind-text>
+          </span>
         </div>
       </div>
     </div>
 
-    <oj-table id="positionsTable"
-              aria-label="Current positions"
-              data="[[dataProvider]]"
-              class="oj-sm-margin-2x-vertical"
-              columns='[
-                {"headerText": "Product",  "field": "productName"},
-                {"headerText": "Quantity", "field": "currentQuantityDisplay"},
-                {"headerText": "Avg cost", "field": "averageBuyPriceDisplay"},
-                {"headerText": "Price",    "field": "currentPriceDisplay"},
-                {"headerText": "Invested", "field": "investedValueDisplay"},
-                {"headerText": "Value",    "field": "currentValuationDisplay"},
-                {"headerText": "P/L",      "field": "profitLossDisplay"}
-              ]'>
-    </oj-table>
+    <oj-bind-if test="[[hasChartableData()]]">
+      <!--
+        Two charts side by side from lg up, stacked below - two charts at tablet width are
+        unreadable. Both read the same positions array the table does, via ArrayDataProviders.
+      -->
+      <div class="oj-flex oj-flex-item-gutter">
+        <div class="oj-flex-item oj-sm-12 oj-lg-6">
+          <div class="wtms-card">
+            <div class="wtms-card-header">
+              <h2 class="wtms-card-title">Invested vs current value</h2>
+            </div>
+            <oj-chart id="investedVsValueChart"
+                      class="wtms-chart"
+                      type="bar"
+                      orientation="horizontal"
+                      data="[[investedVsValueDP]]"
+                      legend.position="bottom"
+                      hover-behavior="dim"
+                      animation-on-display="auto"
+                      animation-on-data-change="auto"
+                      aria-label="Invested amount against current value for each product">
+              <template slot="itemTemplate" data-oj-as="item">
+                <oj-chart-item value="[[item.data.value]]"
+                               group-id="[[ [item.data.group] ]]"
+                               series-id="[[item.data.series]]">
+                </oj-chart-item>
+              </template>
+            </oj-chart>
+          </div>
+        </div>
 
-    <p class="oj-typography-body-sm oj-text-color-secondary">
+        <div class="oj-flex-item oj-sm-12 oj-lg-6">
+          <div class="wtms-card">
+            <div class="wtms-card-header">
+              <h2 class="wtms-card-title">Allocation by value</h2>
+            </div>
+            <oj-chart id="allocationChart"
+                      class="wtms-chart"
+                      type="pie"
+                      data="[[allocationDP]]"
+                      style-defaults='{"pieInnerRadius": 0.62}'
+                      legend.position="bottom"
+                      hover-behavior="dim"
+                      animation-on-display="auto"
+                      animation-on-data-change="auto"
+                      aria-label="Share of portfolio value held in each product">
+              <template slot="itemTemplate" data-oj-as="item">
+                <oj-chart-item value="[[item.data.value]]"
+                               series-id="[[item.data.series]]"
+                               group-id="[[ ['Allocation'] ]]">
+                </oj-chart-item>
+              </template>
+            </oj-chart>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diverging bars: losses run left of the axis, gains right. -->
+      <div class="wtms-card">
+        <div class="wtms-card-header">
+          <h2 class="wtms-card-title">Profit / loss by product</h2>
+        </div>
+        <oj-chart id="profitLossChart"
+                  class="wtms-chart-short"
+                  type="bar"
+                  orientation="horizontal"
+                  data="[[profitLossDP]]"
+                  legend.rendered="off"
+                  hover-behavior="dim"
+                  animation-on-display="auto"
+                  animation-on-data-change="auto"
+                  aria-label="Profit or loss for each product">
+          <template slot="itemTemplate" data-oj-as="item">
+            <oj-chart-item value="[[item.data.value]]"
+                           group-id="[[ [item.data.group] ]]"
+                           series-id="[[item.data.group]]"
+                           color="[[item.data.color]]">
+            </oj-chart-item>
+          </template>
+        </oj-chart>
+      </div>
+    </oj-bind-if>
+
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Positions</h2>
+        <span class="wtms-list-secondary">
+          <oj-bind-text value="[[positions().length + ' holdings']]"></oj-bind-text>
+        </span>
+      </div>
+      <oj-table id="positionsTable"
+                aria-label="Current positions"
+                data="[[dataProvider]]"
+                class="wtms-list"
+                columns='[
+                  {"headerText": "Product",  "field": "productName"},
+                  {"headerText": "Quantity", "field": "currentQuantityDisplay", "className": "wtms-mono"},
+                  {"headerText": "Avg cost", "field": "averageBuyPriceDisplay", "className": "wtms-mono"},
+                  {"headerText": "Price",    "field": "currentPriceDisplay", "className": "wtms-mono"},
+                  {"headerText": "Invested", "field": "investedValueDisplay", "className": "wtms-mono"},
+                  {"headerText": "Value",    "field": "currentValuationDisplay", "className": "wtms-mono"},
+                  {"headerText": "P/L",      "field": "profitLoss", "template": "plTemplate"},
+                  {"headerText": "Weight",   "field": "weightPercent", "template": "weightTemplate"}
+                ]'>
+
+        <!-- Signed, and coloured by sign, so a loss is visible without reading the minus. -->
+        <template slot="plTemplate" data-oj-as="cell">
+          <span :class="[['wtms-mono ' + format.profitLossClass(cell.data)]]">
+            <oj-bind-text value="[[format.signedMoney(cell.data)]]"></oj-bind-text>
+          </span>
+        </template>
+
+        <!--
+          The weight cell pairs the number with a meter so relative position size is
+          scannable down the column. The number stays as text and the meter is hidden from
+          assistive technology, so it is decoration rather than a second reading of it.
+        -->
+        <template slot="weightTemplate" data-oj-as="cell">
+          <div class="oj-flex oj-sm-align-items-center">
+            <span class="wtms-weight-value oj-typography-body-sm">
+              <oj-bind-text value="[[format.percent(cell.data)]]"></oj-bind-text>
+            </span>
+            <oj-c-meter-bar class="wtms-row-meter oj-flex-item"
+                            readonly="true"
+                            min="0"
+                            max="100"
+                            size="sm"
+                            value="[[cell.data]]"
+                            aria-hidden="true">
+            </oj-c-meter-bar>
+          </div>
+        </template>
+      </oj-table>
+    </div>
+
+    <div class="wtms-note">
       Valued at live product prices. The Portfolio screen shows each holding's last stored
-      valuation instead, so the two can differ.
-    </p>
+      valuation instead, so the two can legitimately differ.
+    </div>
   </oj-bind-if>
 </div>

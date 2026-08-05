@@ -1,47 +1,107 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">My team</h2>
-  <p class="oj-typography-body-sm oj-text-color-secondary">
-    Investors who report to you. You can view their portfolios and trades, but not act on
-    their behalf.
-  </p>
+<div class="wtms-page">
+
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">My team</h1>
+      <p class="wtms-page-subtitle">
+        Investors who report to you. You can view their portfolios and trades, but not act on
+        their behalf.
+      </p>
+    </div>
+  </div>
+
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">
-      No investors are assigned to you yet. Use the Onboard screen to add one.
-    </p>
-  </oj-bind-if>
-
-  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
-  <div data-bind="foreach: members">
-    <div class="oj-panel oj-sm-margin-1x-vertical">
-      <div class="oj-flex oj-sm-align-items-center">
-        <div class="oj-flex-item">
-          <div class="oj-typography-body-md">
-            <strong data-bind="text: $data.fullName"></strong>
-          </div>
-          <div class="oj-typography-body-sm oj-text-color-secondary">
-            <span data-bind="text: $data.email"></span>
-            <span data-bind="visible: $data.phone">
-              &middot; <span data-bind="text: $data.phone"></span>
-            </span>
-            &middot;
-            <span data-bind="text: $data.status, css: $parent.format.statusClass($data.status)"></span>
-          </div>
-        </div>
-        <oj-button data-bind="click: function () { $parent.openMember($data); }">
-          View portfolio
-        </oj-button>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No investors assigned to you yet</span>
+        <span>Use the Onboard screen to add one.</span>
       </div>
     </div>
-  </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasMembers()]]">
+
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Team size</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[members().length]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">Direct reports</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Active</span>
+          <span class="wtms-kpi-value oj-text-color-success">
+            <oj-bind-text value="[[activeCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Able to sign in and trade</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Not active</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[inactiveCount()]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">Inactive or suspended</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Investors</h2>
+      </div>
+
+      <!--
+        Inside a JET template slot $parent is deliberately undefined, but the context still
+        extends this view model - so `format` and `openMember` resolve by name here.
+      -->
+      <oj-c-list-view id="teamList"
+                      class="wtms-list"
+                      data="[[dataProvider]]"
+                      gridlines='{"item": "visible"}'
+                      aria-label="Investors reporting to you">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-c-list-item-layout>
+
+            <oj-c-avatar slot="leading"
+                         size="sm"
+                         background="purple"
+                         initials="[[format.initials(item.data.fullName)]]">
+            </oj-c-avatar>
+
+            <span class="wtms-list-primary">
+              <oj-bind-text value="[[item.data.fullName]]"></oj-bind-text>
+            </span>
+
+            <span slot="secondary" class="wtms-list-secondary">
+              <oj-bind-text value="[[item.data.email]]"></oj-bind-text>
+              <oj-bind-if test="[[item.data.phone]]">
+                &middot; <oj-bind-text value="[[item.data.phone]]"></oj-bind-text>
+              </oj-bind-if>
+            </span>
+
+            <oj-c-badge slot="trailing"
+                        size="sm"
+                        variant="[[format.statusVariant(item.data.status)]]"
+                        label="[[item.data.status]]">
+            </oj-c-badge>
+
+            <oj-button slot="action"
+                       on-oj-action="[[function () { openMember(item.data); }]]">
+              View portfolio
+            </oj-button>
+
+          </oj-c-list-item-layout>
+        </template>
+      </oj-c-list-view>
+    </div>
+  </oj-bind-if>
 </div>

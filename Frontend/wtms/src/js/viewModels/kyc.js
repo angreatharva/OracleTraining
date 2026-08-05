@@ -28,6 +28,14 @@ define([
     self.documentsDP = new ArrayDataProvider(self.documents, { keyAttributes: "kycDocumentId" });
 
     self.documentTypeOptions = enums.DOCUMENT_TYPE;
+
+    /** The same list as a DataProvider, for oj-c-select-single. */
+    self.documentTypeDP = new ArrayDataProvider(
+      enums.DOCUMENT_TYPE.map(function (value) {
+        return { value: value, label: value.replace(/_/g, " ") };
+      }),
+      { keyAttributes: "value" }
+    );
     self.newDocumentType = ko.observable("PAN");
     self.newDocumentNumber = ko.observable("");
     self.newFileName = ko.observable("");
@@ -41,6 +49,32 @@ define([
     });
     self.canSubmit = ko.pureComputed(function () {
       return !self.isSubmitting() && self.newDocumentNumber().trim().length > 0;
+    });
+
+    // ---------------------------------------------------------------------
+    // Presentation-only counts over the documents already loaded.
+    // ---------------------------------------------------------------------
+
+    function countByStatus(status) {
+      return self.documents().filter(function (d) {
+        return d.verificationStatus === status;
+      }).length;
+    }
+
+    self.verifiedCount = ko.pureComputed(function () { return countByStatus("VERIFIED"); });
+    self.pendingCount = ko.pureComputed(function () { return countByStatus("PENDING"); });
+    self.rejectedCount = ko.pureComputed(function () { return countByStatus("REJECTED"); });
+
+    /**
+     * Overall standing, shown as a single line above the counts. Any rejection outranks a
+     * pending document, which in turn outranks a clean set - the worst state is the one
+     * that needs acting on.
+     */
+    self.overallStatus = ko.pureComputed(function () {
+      if (self.documents().length === 0) { return "NONE"; }
+      if (self.rejectedCount() > 0) { return "REJECTED"; }
+      if (self.pendingCount() > 0) { return "PENDING"; }
+      return "VERIFIED";
     });
 
     self.load = function () {

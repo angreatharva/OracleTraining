@@ -1,60 +1,72 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <div class="oj-flex oj-sm-align-items-center">
-    <h2 class="oj-typography-heading-md oj-flex-item">Product catalogue</h2>
-    <oj-button chroming="callToAction" on-oj-action="[[startCreate]]">New product</oj-button>
+<div class="wtms-page">
+
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Product catalogue</h1>
+      <p class="wtms-page-subtitle">
+        The products investors can trade, and the prices those trades execute at.
+      </p>
+    </div>
+    <div class="wtms-page-actions">
+      <oj-button chroming="callToAction" on-oj-action="[[startCreate]]">New product</oj-button>
+    </div>
   </div>
 
-  <p class="oj-typography-body-sm oj-text-color-secondary">
+  <div class="wtms-note">
     Current price is the price trades execute at &mdash; Trading ignores whatever price a
     client submits and reads this value instead.
-  </p>
+  </div>
 
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
 
-  <oj-bind-if test="[[state.successMessage()]]">
-    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
-      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
-
+  <!--
+    The editor sits above the list while open, so the row being changed stays in view
+    below it. PUT is a full replacement, which is why every field is prefilled on edit.
+  -->
   <oj-bind-if test="[[showForm()]]">
-    <div class="oj-panel oj-sm-margin-2x-vertical">
-      <h3 class="oj-typography-heading-sm"><oj-bind-text value="[[formTitle]]"></oj-bind-text></h3>
+    <div class="wtms-card">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title"><oj-bind-text value="[[formTitle]]"></oj-bind-text></h2>
+      </div>
 
-      <oj-bind-if test="[[formState.errorMessage()]]">
-        <div role="alert" class="oj-typography-body-md oj-text-color-danger">
-          <oj-bind-text value="[[formState.errorMessage]]"></oj-bind-text>
-        </div>
-      </oj-bind-if>
+      <oj-c-message-banner data="[[formState.messagesDP]]" type="section"></oj-c-message-banner>
 
-      <oj-form-layout max-columns="2" direction="row">
-        <oj-label for="productTypeId">Product type</oj-label>
-        <select id="productTypeId"
-                data-bind="options: productTypes,
-                           optionsText: 'typeName',
-                           optionsValue: 'productTypeId',
-                           value: form.productTypeId"></select>
+      <oj-form-layout max-columns="2" direction="row" label-edge="inside">
+        <oj-c-select-single id="productTypeId"
+                            label-hint="Product type"
+                            data="[[productTypesDP]]"
+                            item-text="typeName"
+                            value="{{form.productTypeId}}">
+        </oj-c-select-single>
 
         <oj-input-text label-hint="Name" value="{{form.productName}}"></oj-input-text>
         <oj-input-number label-hint="Base price" value="{{form.basePrice}}" min="0.01"></oj-input-number>
         <oj-input-number label-hint="Current price" value="{{form.currentPrice}}" min="0.01"></oj-input-number>
         <oj-input-number label-hint="Minimum investment" value="{{form.minimumInvestment}}" min="0.01"></oj-input-number>
 
-        <oj-label for="riskCategory">Risk</oj-label>
-        <select id="riskCategory" data-bind="options: riskOptions, value: form.riskCategory"></select>
+        <oj-c-select-single id="riskCategory"
+                            label-hint="Risk"
+                            data="[[riskDP]]"
+                            item-text="label"
+                            value="{{form.riskCategory}}">
+        </oj-c-select-single>
 
-        <oj-label for="priceMethod">Price method</oj-label>
-        <select id="priceMethod" data-bind="options: priceMethodOptions, value: form.priceMethod"></select>
+        <oj-c-select-single id="priceMethod"
+                            label-hint="Price method"
+                            data="[[priceMethodDP]]"
+                            item-text="label"
+                            value="{{form.priceMethod}}">
+        </oj-c-select-single>
 
-        <oj-label for="productStatus">Status</oj-label>
-        <select id="productStatus" data-bind="options: statusOptions, value: form.status"></select>
+        <oj-c-select-single id="productStatus"
+                            label-hint="Status"
+                            data="[[statusDP]]"
+                            item-text="label"
+                            value="{{form.status}}">
+        </oj-c-select-single>
       </oj-form-layout>
 
-      <div class="oj-flex oj-sm-justify-content-flex-end oj-sm-margin-2x-top">
+      <div class="wtms-form-actions">
         <oj-button on-oj-action="[[cancel]]" chroming="borderless">Cancel</oj-button>
         <oj-button chroming="callToAction" disabled="[[!canSave()]]" on-oj-action="[[save]]">
           <oj-bind-text value="[[isSaving() ? 'Saving...' : 'Save']]"></oj-bind-text>
@@ -64,29 +76,125 @@
   </oj-bind-if>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
-  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
-  <div data-bind="foreach: products">
-    <div class="oj-panel oj-sm-margin-1x-vertical">
-      <div class="oj-flex oj-sm-align-items-center">
-        <div class="oj-flex-item">
-          <div class="oj-typography-body-md">
-            <strong data-bind="text: $data.productName"></strong>
-          </div>
-          <div class="oj-typography-body-sm oj-text-color-secondary">
-            <span data-bind="text: $data.productTypeCode"></span>
-            &middot; risk <span data-bind="text: $data.riskCategory"></span>
-            &middot; <span data-bind="text: $data.priceMethod"></span>
-            &middot;
-            <span data-bind="text: $data.status, css: $parent.format.statusClass($data.status)"></span>
-          </div>
+  <oj-bind-if test="[[hasProducts()]]">
+
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Products</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[products().length]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">In the catalogue</span>
         </div>
-        <div class="oj-sm-margin-2x-end oj-typography-heading-sm"
-             data-bind="text: $parent.format.money($data.currentPrice)"></div>
-        <oj-button data-bind="click: function () { $parent.startEdit($data); }">Edit</oj-button>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Active</span>
+          <span class="wtms-kpi-value oj-text-color-success">
+            <oj-bind-text value="[[activeCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Tradable right now</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Product types</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[productTypes().length]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">Categories available</span>
+        </div>
       </div>
     </div>
-  </div>
+
+    <oj-bind-if test="[[hasChartableData()]]">
+      <div class="wtms-card">
+        <div class="wtms-card-header">
+          <h2 class="wtms-card-title">Catalogue by risk band</h2>
+          <span class="wtms-list-secondary">Number of products</span>
+        </div>
+        <oj-chart id="riskMixChart"
+                  class="wtms-chart-short"
+                  type="bar"
+                  data="[[riskMixDP]]"
+                  legend.rendered="off"
+                  hover-behavior="dim"
+                  animation-on-display="auto"
+                  animation-on-data-change="auto"
+                  aria-label="Number of products in each risk band">
+          <template slot="itemTemplate" data-oj-as="item">
+            <oj-chart-item value="[[item.data.value]]"
+                           group-id="[[ [item.data.group] ]]"
+                           series-id="Products">
+            </oj-chart-item>
+          </template>
+        </oj-chart>
+      </div>
+    </oj-bind-if>
+
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Products</h2>
+      </div>
+
+      <!--
+        oj-c-list-view replaces the hand-rolled foreach of panels. Inside a JET template
+        slot $parent is deliberately undefined, but the context still extends this view
+        model - so `format`, `riskRating` and `startEdit` resolve by name.
+      -->
+      <oj-c-list-view id="productList"
+                      class="wtms-list"
+                      data="[[productsDP]]"
+                      gridlines='{"item": "visible"}'
+                      aria-label="Product catalogue">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-c-list-item-layout>
+
+            <span slot="overline" class="wtms-list-secondary">
+              <oj-bind-text value="[[item.data.productTypeCode]]"></oj-bind-text>
+            </span>
+
+            <span class="wtms-list-primary">
+              <oj-bind-text value="[[item.data.productName]]"></oj-bind-text>
+            </span>
+
+            <span slot="secondary" class="wtms-list-secondary">
+              <oj-bind-text value="[[item.data.priceMethod]]"></oj-bind-text>
+              &middot; minimum
+              <oj-bind-text value="[[format.money(item.data.minimumInvestment)]]"></oj-bind-text>
+            </span>
+
+            <!-- Risk as a readonly gauge: comparable at a glance down the column. -->
+            <div slot="tertiary" class="oj-flex oj-sm-align-items-center oj-sm-margin-1x-top">
+              <oj-c-rating-gauge readonly="true"
+                                 max="5"
+                                 size="sm"
+                                 value="[[riskRating(item.data.riskCategory)]]"
+                                 aria-label="[['Risk ' + item.data.riskCategory]]">
+              </oj-c-rating-gauge>
+              <span class="wtms-list-secondary oj-sm-margin-1x-start">
+                <oj-bind-text value="[[item.data.riskCategory]]"></oj-bind-text>
+              </span>
+            </div>
+
+            <div slot="metadata" class="wtms-amount">
+              <oj-bind-text value="[[format.money(item.data.currentPrice)]]"></oj-bind-text>
+            </div>
+
+            <oj-c-badge slot="trailing"
+                        size="sm"
+                        variant="[[format.statusVariant(item.data.status)]]"
+                        label="[[item.data.status]]">
+            </oj-c-badge>
+
+            <oj-button slot="action"
+                       on-oj-action="[[function () { startEdit(item.data); }]]">
+              Edit
+            </oj-button>
+
+          </oj-c-list-item-layout>
+        </template>
+      </oj-c-list-view>
+    </div>
+  </oj-bind-if>
 </div>

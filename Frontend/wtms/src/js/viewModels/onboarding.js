@@ -21,6 +21,7 @@
  */
 define([
   "knockout",
+  "ojs/ojarraydataprovider",
   "services/UserService",
   "services/PortfolioService",
   "services/BankService",
@@ -28,8 +29,8 @@ define([
   "services/ApiErrorNormalizer",
   "utils/ScreenState",
   "models/enums"
-], function (ko, UserService, PortfolioService, BankService, SessionStore, ApiErrorNormalizer,
-             ScreenState, enums) {
+], function (ko, ArrayDataProvider, UserService, PortfolioService, BankService, SessionStore,
+             ApiErrorNormalizer, ScreenState, enums) {
   "use strict";
 
   /** role_id 2 = INVESTOR, seeded in the schema. */
@@ -48,6 +49,25 @@ define([
     self.riskLevel = ko.observable("MODERATE");
     self.riskLevelOptions = enums.RISK_LEVEL;
     self.openingBalance = ko.observable("");
+
+    /** The same list as a DataProvider, for oj-c-select-single. */
+    self.riskLevelDP = new ArrayDataProvider(
+      enums.RISK_LEVEL.map(function (value) { return { value: value, label: value }; }),
+      { keyAttributes: "value" }
+    );
+
+    /** Step decoration. Presentation only - `status` is still 'ok' | 'failed' | 'skipped'. */
+    self.stepIcon = function (status) {
+      if (status === "ok") { return "✓"; }
+      return status === "failed" ? "✕" : "–";
+    };
+
+    self.stepIconClass = function (status) {
+      if (status === "ok") { return "wtms-step-icon wtms-step-ok"; }
+      return status === "failed"
+        ? "wtms-step-icon wtms-step-failed"
+        : "wtms-step-icon wtms-step-skipped";
+    };
 
     self.isSubmitting = ko.observable(false);
     /** One entry per step: {label, status: 'ok'|'failed'|'skipped', detail}. */

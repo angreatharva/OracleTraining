@@ -1,47 +1,61 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">Onboard an investor</h2>
-  <p class="oj-typography-body-sm oj-text-color-secondary">
-    Creates the login, the risk profile, the portfolio account and a bank account. These are
-    four separate calls with no shared transaction, so each result is reported individually.
-  </p>
+<div class="wtms-page">
 
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Onboard an investor</h1>
+      <p class="wtms-page-subtitle">
+        Creates the login, the risk profile, the portfolio account and a bank account.
+      </p>
     </div>
-  </oj-bind-if>
+  </div>
 
-  <oj-bind-if test="[[state.successMessage()]]">
-    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
-      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
+  <div class="wtms-note">
+    These are four separate calls with no shared transaction, so each result is reported
+    individually below. If a later step fails, the earlier records still exist &mdash; finish
+    the rest by hand from the other screens.
+  </div>
 
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
+
+  <!--
+    Results first, above the form: after a submit this is what the manager needs to read,
+    and it stays visible while they correct whatever failed.
+  -->
   <oj-bind-if test="[[hasResult()]]">
-    <div class="oj-panel oj-sm-margin-2x-vertical">
-      <oj-bind-for-each data="[[steps]]">
-        <template>
-          <div class="oj-typography-body-sm oj-sm-margin-1x-vertical">
-            <span :class="[[$current.data.status === 'ok' ? 'oj-text-color-success'
-                            : ($current.data.status === 'failed' ? 'oj-text-color-danger'
-                            : 'oj-text-color-secondary')]]">
-              <oj-bind-text value="[[$current.data.status === 'ok' ? '✓'
-                                     : ($current.data.status === 'failed' ? '✕' : '–')]]"></oj-bind-text>
-              &nbsp;<oj-bind-text value="[[$current.data.label]]"></oj-bind-text>
-            </span>
-            <oj-bind-if test="[[$current.data.detail]]">
-              <span class="oj-text-color-secondary">
-                &nbsp;&mdash;&nbsp;<oj-bind-text value="[[$current.data.detail]]"></oj-bind-text>
+    <div class="wtms-card">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Onboarding result</h2>
+      </div>
+      <div class="wtms-steps">
+        <oj-bind-for-each data="[[steps]]">
+          <template>
+            <div class="wtms-step">
+              <span :class="[[stepIconClass($current.data.status)]]" aria-hidden="true">
+                <oj-bind-text value="[[stepIcon($current.data.status)]]"></oj-bind-text>
               </span>
-            </oj-bind-if>
-          </div>
-        </template>
-      </oj-bind-for-each>
+              <div class="wtms-step-body">
+                <span class="wtms-step-label">
+                  <oj-bind-text value="[[$current.data.label]]"></oj-bind-text>
+                </span>
+                <oj-bind-if test="[[$current.data.detail]]">
+                  <span class="wtms-step-detail">
+                    <oj-bind-text value="[[$current.data.detail]]"></oj-bind-text>
+                  </span>
+                </oj-bind-if>
+              </div>
+            </div>
+          </template>
+        </oj-bind-for-each>
+      </div>
     </div>
   </oj-bind-if>
 
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <oj-form-layout max-columns="2" direction="row">
+  <div class="wtms-card">
+    <div class="wtms-card-header">
+      <h2 class="wtms-card-title">Investor details</h2>
+    </div>
+
+    <oj-form-layout max-columns="2" direction="row" label-edge="inside">
       <oj-input-text id="fullName" label-hint="Full name" value="{{fullName}}"></oj-input-text>
       <oj-input-text id="email" label-hint="Email" value="{{email}}"></oj-input-text>
       <oj-input-text id="phone" label-hint="Phone (optional)" value="{{phone}}"></oj-input-text>
@@ -52,21 +66,25 @@
                      value="{{dateOfBirth}}">
       </oj-input-text>
 
-      <oj-label for="riskLevel">Risk level</oj-label>
-      <select id="riskLevel" data-bind="options: riskLevelOptions, value: riskLevel"></select>
+      <oj-c-select-single id="riskLevel"
+                          label-hint="Risk level"
+                          data="[[riskLevelDP]]"
+                          item-text="label"
+                          value="{{riskLevel}}">
+      </oj-c-select-single>
 
       <oj-input-text id="openingBalance" label-hint="Bank opening deposit (optional)"
                      value="{{openingBalance}}">
       </oj-input-text>
     </oj-form-layout>
 
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      The investor is assigned to you as their manager, and starts with KYC status PENDING. A
-      bank account is opened for them automatically - bank name, IFSC and account number are
-      all generated, so you only need to set an opening deposit if you want one.
-    </p>
+    <div class="wtms-note oj-sm-margin-4x-top">
+      The investor is assigned to you as their manager and starts with KYC status PENDING. A
+      bank account is opened for them automatically &mdash; bank name, IFSC and account number
+      are all generated, so you only need an opening deposit if you want one.
+    </div>
 
-    <div class="oj-flex oj-sm-justify-content-flex-end">
+    <div class="wtms-form-actions">
       <oj-button chroming="callToAction"
                  disabled="[[!canSubmit()]]"
                  on-oj-action="[[submit]]">

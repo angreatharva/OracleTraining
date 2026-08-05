@@ -70,6 +70,69 @@ define([], function () {
       return isBlank(value) ? EMPTY : String(value).slice(0, 10);
     },
 
+    /**
+     * `variant` for oj-c-badge, for any status value the backend uses.
+     * The class-based statusClass below stays for markup that still uses plain spans.
+     */
+    statusVariant: function (status) {
+      switch (status) {
+        case "ACTIVE":
+        case "COMPLETED":
+        case "VERIFIED":
+          return "success";
+        case "PENDING":
+          return "warning";
+        case "FAILED":
+        case "REJECTED":
+        case "BLOCKED":
+          return "danger";
+        case "INACTIVE":
+        case "CLOSED":
+        case "SUSPENDED":
+          return "neutral";
+        default:
+          return "neutralSubtle";
+      }
+    },
+
+    /** "Priya Raman" -> "PR". Feeds oj-c-avatar where there is no image to show. */
+    initials: function (fullName) {
+      if (isBlank(fullName)) {
+        return "?";
+      }
+      var parts = String(fullName).trim().split(/\s+/);
+      var first = parts[0].charAt(0);
+      var last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+      return (first + last).toUpperCase();
+    },
+
+    /** BUY / SELL badge colour. Neither is good or bad, so both read as informational. */
+    tradeTypeVariant: function (transactionType) {
+      return transactionType === "SELL" ? "warningSubtle" : "infoSubtle";
+    },
+
+    /**
+     * A plain number, defaulting to 0.
+     *
+     * Views need this because JET evaluates binding expressions through a CSP-safe
+     * evaluator that exposes only the binding context - global functions are not in
+     * scope, so `Number(x)` inside a template throws "Variable Number is undefined"
+     * and silently kills the surrounding render. Reaching it through `format` works
+     * because `format` is a view model member.
+     */
+    numeric: function (value) {
+      var n = Number(value);
+      return isNaN(n) ? 0 : n;
+    },
+
+    /** A percentage with one decimal, e.g. 12.5 -> "12.5%". */
+    percent: function (value) {
+      if (isBlank(value) || isNaN(Number(value))) {
+        return EMPTY;
+      }
+      return Number(value).toFixed(1) + "%";
+    },
+
     /** Badge colour for any status value the backend uses. */
     statusClass: function (status) {
       switch (status) {

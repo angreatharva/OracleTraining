@@ -13,9 +13,10 @@ define([
   "services/ProductService",
   "services/TradingService",
   "utils/ScreenState",
+  "utils/derived",
   "utils/format"
 ], function (ko, ArrayDataProvider, UserService, PortfolioService, ProductService, TradingService,
-             ScreenState, format) {
+             ScreenState, derived, format) {
   "use strict";
 
   /**
@@ -57,6 +58,69 @@ define([
     });
 
     self.noUser = ko.pureComputed(function () { return self.userId() === null; });
+
+    // ---------------------------------------------------------------------
+    // Presentation-only derivations over the positions already loaded.
+    // ---------------------------------------------------------------------
+
+    self.memberInitials = ko.pureComputed(function () {
+      var member = self.member();
+      return member ? format.initials(member.fullName) : "?";
+    });
+
+    self.totalInvested = ko.pureComputed(function () {
+      return self.positions().reduce(function (sum, p) {
+        return sum + ((Number(p.currentQuantity) || 0) * (Number(p.averageBuyPrice) || 0));
+      }, 0);
+    });
+
+    self.returnPercent = ko.pureComputed(function () {
+      var invested = self.totalInvested();
+      return invested > 0 ? (self.totalProfitLoss() / invested) * 100 : 0;
+    });
+
+    self.returnMeterValue = ko.pureComputed(function () {
+      return Math.max(-25, Math.min(25, self.returnPercent()));
+    });
+
+    self.returnMeterThresholds = [
+      { max: -0.0001, color: "#c74634" },
+      { max: 0.0001, color: "#8c8c8c" },
+      { color: "#4c8c3f" }
+    ];
+
+    self.allocationRows = derived.array(function () {
+      return self.positions()
+        .filter(function (p) { return (Number(p.currentValuation) || 0) > 0; })
+        .map(function (p) {
+          return {
+            id: "alloc-" + p.productId,
+            series: p.productName,
+            value: Number(p.currentValuation) || 0
+          };
+        });
+    });
+
+    self.allocationDP = new ArrayDataProvider(self.allocationRows, { keyAttributes: "id" });
+
+    self.profitLossRows = derived.array(function () {
+      return self.positions().map(function (p) {
+        var pl = Number(p.profitLoss) || 0;
+        return {
+          id: "pl-" + p.productId,
+          group: p.productName,
+          value: pl,
+          color: pl < 0 ? "#c74634" : "#4c8c3f"
+        };
+      });
+    });
+
+    self.profitLossDP = new ArrayDataProvider(self.profitLossRows, { keyAttributes: "id" });
+
+    /** A chart of one position is noise. */
+    self.hasChartableData = ko.pureComputed(function () {
+      return self.positions().length > 1;
+    });
 
     self.load = function () {
       var userId = self.userId();

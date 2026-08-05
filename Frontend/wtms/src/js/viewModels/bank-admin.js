@@ -7,13 +7,15 @@
  */
 define([
   "knockout",
+  "ojs/ojarraydataprovider",
   "services/UserService",
   "services/BankService",
   "services/SessionStore",
   "utils/ScreenState",
   "utils/format",
   "models/enums"
-], function (ko, UserService, BankService, SessionStore, ScreenState, format, enums) {
+], function (ko, ArrayDataProvider, UserService, BankService, SessionStore, ScreenState,
+             format, enums) {
   "use strict";
 
   function BankAdminViewModel() {
@@ -31,6 +33,39 @@ define([
     /** Opening deposit for a newly-opened account; everything else is filled in server-side. */
     self.openingBalance = ko.observable("");
     self.isOpeningAccount = ko.observable(false);
+
+    self.teamDP = new ArrayDataProvider(self.team, { keyAttributes: "userId" });
+    self.accountsDP = new ArrayDataProvider(self.accounts, { keyAttributes: "bankAccountId" });
+
+    // ---------------------------------------------------------------------
+    // Presentation-only derivations over the accounts already loaded.
+    // ---------------------------------------------------------------------
+
+    self.selectedMember = ko.pureComputed(function () {
+      var id = self.selectedUserId();
+      return self.team().filter(function (m) { return m.userId === id; })[0] || null;
+    });
+
+    self.totalBalance = ko.pureComputed(function () {
+      return self.accounts().reduce(function (sum, a) {
+        return sum + (Number(a.balance) || 0);
+      }, 0);
+    });
+
+    self.activeCount = ko.pureComputed(function () {
+      return self.accounts().filter(function (a) { return a.status === "ACTIVE"; }).length;
+    });
+
+    self.blockedCount = ko.pureComputed(function () {
+      return self.accounts().filter(function (a) { return a.status === "BLOCKED"; }).length;
+    });
+
+    /** Scale for the per-row balance meters - each row against the largest balance. */
+    self.maxBalance = ko.pureComputed(function () {
+      return self.accounts().reduce(function (max, a) {
+        return Math.max(max, Number(a.balance) || 0);
+      }, 0) || 1;
+    });
 
     self.hasAccounts = ko.pureComputed(function () {
       return !self.state.isLoading() && self.accounts().length > 0;

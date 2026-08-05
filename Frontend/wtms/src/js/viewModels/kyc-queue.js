@@ -7,12 +7,13 @@
  */
 define([
   "knockout",
+  "ojs/ojarraydataprovider",
   "services/UserService",
   "services/BankService",
   "services/SessionStore",
   "utils/ScreenState",
   "utils/format"
-], function (ko, UserService, BankService, SessionStore, ScreenState, format) {
+], function (ko, ArrayDataProvider, UserService, BankService, SessionStore, ScreenState, format) {
   "use strict";
 
   function KycQueueViewModel() {
@@ -24,6 +25,26 @@ define([
     self.pending = ko.observableArray([]);
     self.busyId = ko.observable(null);
     self.showAll = ko.observable(false);
+
+    self.pendingDP = new ArrayDataProvider(self.pending, { keyAttributes: "kycDocumentId" });
+
+    /** Presentation-only counts over the queue already loaded. */
+    function countByStatus(status) {
+      return self.pending().filter(function (d) {
+        return d.verificationStatus === status;
+      }).length;
+    }
+
+    self.awaitingCount = ko.pureComputed(function () { return countByStatus("PENDING"); });
+    self.verifiedCount = ko.pureComputed(function () { return countByStatus("VERIFIED"); });
+    self.rejectedCount = ko.pureComputed(function () { return countByStatus("REJECTED"); });
+
+    /** How many distinct investors the queue currently touches. */
+    self.ownerCount = ko.pureComputed(function () {
+      var names = {};
+      self.pending().forEach(function (d) { names[d.ownerName] = true; });
+      return Object.keys(names).length;
+    });
 
     self.hasPending = ko.pureComputed(function () {
       return !self.state.isLoading() && self.pending().length > 0;

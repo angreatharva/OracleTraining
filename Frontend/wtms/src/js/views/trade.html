@@ -1,119 +1,191 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">Place an order</h2>
+<div class="wtms-page">
+
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Place an order</h1>
+      <p class="wtms-page-subtitle">
+        Buy or sell against your portfolio account.
+      </p>
+    </div>
+  </div>
+
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
-
-  <!-- Outcome of the last submit. A FAILED trade is a normal result, not an error. -->
+  <!--
+    Outcome of the last submit. A FAILED trade is a normal result rather than an error,
+    so it gets its own card instead of the page-level message banner.
+  -->
   <oj-bind-if test="[[tradeSucceeded()]]">
-    <div role="status" class="oj-panel oj-sm-margin-2x-vertical">
-      <div class="oj-typography-body-md oj-text-color-success"><strong>Trade completed.</strong></div>
-      <div class="oj-typography-body-sm">
-        <oj-bind-text value="[[lastTrade().transactionType]]"></oj-bind-text>
-        <oj-bind-text value="[[' ' + format.quantity(lastTrade().quantity) + ' ']]"></oj-bind-text>
-        units at
-        <oj-bind-text value="[[format.money(lastTrade().unitPrice)]]"></oj-bind-text>
-        &mdash; total
-        <oj-bind-text value="[[format.money(lastTrade().totalAmount)]]"></oj-bind-text>
-        (transaction #<oj-bind-text value="[[lastTrade().transactionId]]"></oj-bind-text>)
+    <div class="wtms-card" role="status">
+      <div class="wtms-identity">
+        <oj-c-avatar size="sm" background="green" initials="✓" aria-hidden="true"></oj-c-avatar>
+        <div class="wtms-identity-text">
+          <span class="wtms-identity-name oj-text-color-success">Trade completed</span>
+          <span class="wtms-identity-meta">
+            <oj-c-badge size="sm"
+                        variant="[[format.tradeTypeVariant(lastTrade().transactionType)]]"
+                        label="[[lastTrade().transactionType]]">
+            </oj-c-badge>
+            <span>
+              <oj-bind-text value="[[format.quantity(lastTrade().quantity)]]"></oj-bind-text>
+              units at
+              <oj-bind-text value="[[format.money(lastTrade().unitPrice)]]"></oj-bind-text>
+            </span>
+            <span>
+              &middot; total
+              <strong><oj-bind-text value="[[format.money(lastTrade().totalAmount)]]"></oj-bind-text></strong>
+            </span>
+            <span>
+              &middot; transaction #<oj-bind-text value="[[lastTrade().transactionId]]"></oj-bind-text>
+            </span>
+          </span>
+        </div>
       </div>
-      <oj-button on-oj-action="[[reset]]" class="oj-sm-margin-2x-top">Place another</oj-button>
+      <div class="wtms-form-actions">
+        <oj-button on-oj-action="[[reset]]">Place another</oj-button>
+      </div>
     </div>
   </oj-bind-if>
 
   <oj-bind-if test="[[tradeFailed()]]">
-    <div role="alert" class="oj-panel oj-sm-margin-2x-vertical">
-      <div class="oj-typography-body-md oj-text-color-danger">
-        <strong>Trade rejected
-          (<oj-bind-text value="[[lastTrade().transactionStatus]]"></oj-bind-text>).</strong>
+    <div class="wtms-card" role="alert">
+      <div class="wtms-identity">
+        <oj-c-avatar size="sm" background="red" initials="✕" aria-hidden="true"></oj-c-avatar>
+        <div class="wtms-identity-text">
+          <span class="wtms-identity-name oj-text-color-danger">
+            Trade rejected
+            (<oj-bind-text value="[[lastTrade().transactionStatus]]"></oj-bind-text>)
+          </span>
+          <span class="wtms-identity-meta">
+            <oj-bind-text value="[[lastTrade().failureReason || 'The server did not give a reason.']]"></oj-bind-text>
+          </span>
+        </div>
       </div>
-      <div class="oj-typography-body-sm">
-        <oj-bind-text value="[[lastTrade().failureReason || 'The server did not give a reason.']]"></oj-bind-text>
-      </div>
-      <div class="oj-typography-body-sm oj-text-color-secondary oj-sm-margin-1x-top">
+      <div class="wtms-note oj-sm-margin-3x-top">
         Recorded as transaction #<oj-bind-text value="[[lastTrade().transactionId]]"></oj-bind-text>.
-        This reason is shown once only &mdash; it is not stored with the trade.
+        This reason is shown once only &mdash; it is not stored with the trade, so it will not
+        appear in Trade history.
       </div>
-      <oj-button on-oj-action="[[reset]]" class="oj-sm-margin-2x-top">Try again</oj-button>
+      <div class="wtms-form-actions">
+        <oj-button on-oj-action="[[reset]]">Try again</oj-button>
+      </div>
     </div>
   </oj-bind-if>
 
-  <oj-form-layout max-columns="2" direction="row" class="oj-sm-margin-2x-vertical">
-    <oj-select-single id="product"
-                      label-hint="Product"
-                      data="[[productsDP]]"
-                      value="{{selectedProductId}}"
-                      item-text="productName">
-    </oj-select-single>
+  <!--
+    Order ticket: the form on the left, a running summary on the right that sticks to the
+    viewport from lg up so the total stays visible while the form is filled in.
+  -->
+  <div class="oj-flex oj-flex-item-gutter">
 
-    <oj-select-single id="bankAccount"
-                      label-hint="Bank account"
-                      data="[[bankAccountsDP]]"
-                      value="{{selectedBankAccountId}}"
-                      item-text="maskedAccountNumber">
-    </oj-select-single>
-
-    <oj-buttonset-one id="side" value="{{transactionType}}" label-hint="Side">
-      <oj-option value="BUY">Buy</oj-option>
-      <oj-option value="SELL">Sell</oj-option>
-    </oj-buttonset-one>
-
-    <oj-input-number id="quantity"
-                     label-hint="Quantity"
-                     value="{{quantity}}"
-                     min="0.01"
-                     step="1">
-    </oj-input-number>
-  </oj-form-layout>
-
-  <oj-bind-if test="[[selectedProduct()]]">
-    <div class="oj-panel oj-sm-margin-2x-vertical">
-      <div class="oj-typography-body-sm">
-        Current price <strong><oj-bind-text value="[[currentPriceText]]"></oj-bind-text></strong>
-        &nbsp;&middot;&nbsp; Estimated total
-        <strong><oj-bind-text value="[[estimatedTotalText]]"></oj-bind-text></strong>
-      </div>
-      <div class="oj-typography-body-sm oj-text-color-secondary">
-        Estimate only. The order executes at the price the server reads when it runs, which
-        may differ from the figure above.
-      </div>
-
-      <oj-bind-if test="[[isSell()]]">
-        <div class="oj-typography-body-sm oj-sm-margin-1x-top">
-          You currently hold
-          <strong><oj-bind-text value="[[format.quantity(heldQuantity())]]"></oj-bind-text></strong>
-          units.
+    <div class="oj-flex-item oj-sm-12 oj-lg-7">
+      <div class="wtms-card">
+        <div class="wtms-card-header">
+          <h2 class="wtms-card-title">Order details</h2>
         </div>
-      </oj-bind-if>
 
-      <oj-bind-if test="[[willOpenHolding()]]">
-        <div class="oj-typography-body-sm oj-sm-margin-1x-top">
-          You do not hold this product yet, so a holding is opened first and the purchase
-          applied second &mdash; two separate steps.
+        <oj-form-layout max-columns="2" direction="row" label-edge="inside">
+          <oj-c-select-single id="product"
+                              label-hint="Product"
+                              data="[[productsDP]]"
+                              value="{{selectedProductId}}"
+                              item-text="productName"
+                              placeholder="Choose a product">
+          </oj-c-select-single>
+
+          <oj-c-select-single id="bankAccount"
+                              label-hint="Bank account"
+                              data="[[bankAccountsDP]]"
+                              value="{{selectedBankAccountId}}"
+                              item-text="maskedAccountNumber"
+                              placeholder="Choose an account">
+          </oj-c-select-single>
+
+          <oj-buttonset-one id="side" value="{{transactionType}}" label-hint="Side">
+            <oj-option value="BUY">Buy</oj-option>
+            <oj-option value="SELL">Sell</oj-option>
+          </oj-buttonset-one>
+
+          <oj-input-number id="quantity"
+                           label-hint="Quantity"
+                           value="{{quantity}}"
+                           min="0.01"
+                           step="1">
+          </oj-input-number>
+        </oj-form-layout>
+
+        <oj-bind-if test="[[isSell() && selectedProduct()]]">
+          <div class="wtms-note oj-sm-margin-3x-top">
+            You currently hold
+            <strong><oj-bind-text value="[[format.quantity(heldQuantity())]]"></oj-bind-text></strong>
+            units of this product.
+          </div>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[willOpenHolding()]]">
+          <div class="wtms-note oj-sm-margin-3x-top">
+            You do not hold this product yet, so a holding is opened first and the purchase
+            applied second &mdash; two separate steps, with no shared transaction between them.
+          </div>
+        </oj-bind-if>
+      </div>
+    </div>
+
+    <div class="oj-flex-item oj-sm-12 oj-lg-5">
+      <div class="wtms-card wtms-sticky">
+        <div class="wtms-card-header">
+          <h2 class="wtms-card-title">Summary</h2>
+          <oj-c-badge size="sm"
+                      variant="[[format.tradeTypeVariant(transactionType())]]"
+                      label="[[transactionType()]]">
+          </oj-c-badge>
         </div>
-      </oj-bind-if>
-    </div>
-  </oj-bind-if>
 
-  <oj-bind-if test="[[validationMessage()]]">
-    <div class="oj-typography-body-sm oj-text-color-secondary oj-sm-margin-1x-vertical">
-      <oj-bind-text value="[[validationMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
+        <div class="wtms-ticket-summary">
+          <div class="wtms-ticket-row">
+            <span class="wtms-list-secondary">Product</span>
+            <span class="wtms-amount">
+              <oj-bind-text value="[[selectedProduct() ? selectedProduct().productName : '—']]"></oj-bind-text>
+            </span>
+          </div>
+          <div class="wtms-ticket-row">
+            <span class="wtms-list-secondary">Current price</span>
+            <span class="wtms-amount"><oj-bind-text value="[[currentPriceText]]"></oj-bind-text></span>
+          </div>
+          <div class="wtms-ticket-row">
+            <span class="wtms-list-secondary">Quantity</span>
+            <span class="wtms-amount"><oj-bind-text value="[[format.quantity(quantity())]]"></oj-bind-text></span>
+          </div>
+          <div class="wtms-ticket-row wtms-ticket-row-total">
+            <span>Estimated total</span>
+            <span class="wtms-amount"><oj-bind-text value="[[estimatedTotalText]]"></oj-bind-text></span>
+          </div>
+        </div>
 
-  <div class="oj-flex oj-sm-justify-content-flex-end oj-sm-margin-2x-vertical">
-    <oj-button id="submitTrade"
-               chroming="callToAction"
-               disabled="[[!canSubmit()]]"
-               label="[[submitLabel()]]"
-               on-oj-action="[[submit]]">
-    </oj-button>
+        <div class="wtms-note oj-sm-margin-3x-top">
+          Estimate only. The order executes at the price the server reads when it runs, which
+          may differ from the figure above.
+        </div>
+
+        <!-- The blocking reason, stated before the disabled button rather than after it. -->
+        <oj-bind-if test="[[validationMessage()]]">
+          <p class="wtms-card-note" role="status">
+            <oj-bind-text value="[[validationMessage]]"></oj-bind-text>
+          </p>
+        </oj-bind-if>
+
+        <oj-button id="submitTrade"
+                   class="oj-button-full-width oj-sm-margin-4x-top"
+                   chroming="callToAction"
+                   disabled="[[!canSubmit()]]"
+                   label="[[submitLabel()]]"
+                   on-oj-action="[[submit]]">
+        </oj-button>
+      </div>
+    </div>
   </div>
 </div>

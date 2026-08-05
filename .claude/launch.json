@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wtms-frontend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["ojet", "serve", "--server-port=8000", "--livereload=false"],
+      "cwd": "Frontend/wtms",
+      "port": 8000
+    }
+  ]
+}

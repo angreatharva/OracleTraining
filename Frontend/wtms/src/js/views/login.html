@@ -1,14 +1,15 @@
-<div class="oj-flex oj-sm-justify-content-center">
-  <div class="oj-panel oj-sm-margin-4x oj-lg-6 oj-sm-12">
-    <h2 class="oj-typography-heading-md">Sign in to WealthTrack</h2>
+<div class="wtms-login-wrap">
+  <div class="wtms-card wtms-login-card">
 
-    <oj-bind-if test="[[errorMessage()]]">
-      <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-        <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
-      </div>
-    </oj-bind-if>
+    <div class="wtms-login-brand">
+      <div class="wtms-login-mark" aria-hidden="true">WT</div>
+      <h1 class="wtms-page-title">WealthTrack</h1>
+      <p class="wtms-page-subtitle">Sign in to continue</p>
+    </div>
 
-    <oj-form-layout max-columns="1" direction="column">
+    <oj-c-message-banner data="[[messagesDP]]" type="section"></oj-c-message-banner>
+
+    <oj-form-layout max-columns="1" direction="column" label-edge="inside">
       <oj-input-text id="email"
                      label-hint="Email"
                      value="{{email}}"
@@ -22,13 +23,14 @@
       </oj-input-password>
     </oj-form-layout>
 
-    <div class="oj-flex oj-sm-justify-content-flex-end oj-sm-margin-2x-vertical">
-      <oj-button id="signIn"
-                 chroming="callToAction"
-                 disabled="[[!canSubmit()]]"
-                 on-oj-action="[[submit]]">
-        <oj-bind-text value="[[isSubmitting() ? 'Signing in...' : 'Sign in']]"></oj-bind-text>
-      </oj-button>
-    </div>
+    <!-- Full-width call to action: there is only one thing to do on this screen. -->
+    <oj-button id="signIn"
+               class="oj-button-full-width oj-sm-margin-4x-top"
+               chroming="callToAction"
+               disabled="[[!canSubmit()]]"
+               on-oj-action="[[submit]]">
+      <oj-bind-text value="[[isSubmitting() ? 'Signing in...' : 'Sign in']]"></oj-bind-text>
+    </oj-button>
+
   </div>
 </div>

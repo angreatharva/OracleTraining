@@ -6,9 +6,11 @@
  */
 define([
   "knockout",
+  "ojs/ojarraydataprovider",
+  "utils/derived",
   "services/AuthService",
   "services/ApiErrorNormalizer"
-], function (ko, AuthService, ApiErrorNormalizer) {
+], function (ko, ArrayDataProvider, derived, AuthService, ApiErrorNormalizer) {
   "use strict";
 
   /**
@@ -28,6 +30,19 @@ define([
     self.password = ko.observable("");
     self.errorMessage = ko.observable("");
     self.isSubmitting = ko.observable(false);
+
+    /** The same errorMessage, shaped for oj-c-message-banner. Presentation only. */
+    self.messages = derived.array(function () {
+      return self.errorMessage()
+        ? [{
+            id: "error",
+            severity: "error",
+            summary: self.errorMessage(),
+            closeAffordance: "off"
+          }]
+        : [];
+    });
+    self.messagesDP = new ArrayDataProvider(self.messages, { keyAttributes: "id" });
 
     self.canSubmit = ko.pureComputed(function () {
       return !self.isSubmitting() &&

@@ -8,8 +8,9 @@ define([
   "ojs/ojdatetimepicker",
   "services/TradingService",
   "utils/ScreenState",
+  "utils/derived",
   "utils/format"
-], function (ko, ArrayDataProvider, ojdatetimepicker, TradingService, ScreenState, format) {
+], function (ko, ArrayDataProvider, ojdatetimepicker, TradingService, ScreenState, derived, format) {
   "use strict";
 
   function StatementsViewModel() {
@@ -21,6 +22,65 @@ define([
     self.transactionsDP = new ArrayDataProvider(self.transactions, { keyAttributes: "transactionId" });
     self.startDate = ko.observable("");
     self.endDate = ko.observable("");
+
+    // ---------------------------------------------------------------------
+    // Presentation-only summaries over the rows already loaded.
+    // ---------------------------------------------------------------------
+
+    self.completedCount = ko.pureComputed(function () {
+      return self.transactions().filter(function (t) {
+        return t.transactionStatus === "COMPLETED";
+      }).length;
+    });
+
+    /** Completed only, split by side: money out against money in. */
+    self.boughtValue = ko.pureComputed(function () {
+      return self.transactions().reduce(function (sum, t) {
+        return t.transactionStatus === "COMPLETED" && t.transactionType === "BUY"
+          ? sum + (Number(t.totalAmount) || 0) : sum;
+      }, 0);
+    });
+
+    self.soldValue = ko.pureComputed(function () {
+      return self.transactions().reduce(function (sum, t) {
+        return t.transactionStatus === "COMPLETED" && t.transactionType === "SELL"
+          ? sum + (Number(t.totalAmount) || 0) : sum;
+      }, 0);
+    });
+
+    /**
+     * Completed value per calendar day and side, oldest first. Two series so buying and
+     * selling can be read against each other over the selected range.
+     */
+    self.dailyRows = derived.array(function () {
+      var byDay = {};
+      self.transactions().forEach(function (t) {
+        if (t.transactionStatus !== "COMPLETED") { return; }
+        var day = format.date(t.transactionDate);
+        if (!byDay[day]) { byDay[day] = { BUY: 0, SELL: 0 }; }
+        byDay[day][t.transactionType] += Number(t.totalAmount) || 0;
+      });
+
+      var rows = [];
+      Object.keys(byDay).sort().forEach(function (day) {
+        ["BUY", "SELL"].forEach(function (side) {
+          rows.push({
+            id: day + "-" + side,
+            group: day,
+            series: side === "BUY" ? "Bought" : "Sold",
+            value: byDay[day][side]
+          });
+        });
+      });
+      return rows;
+    });
+
+    self.dailyDP = new ArrayDataProvider(self.dailyRows, { keyAttributes: "id" });
+
+    /** Two points make a trend; one does not. */
+    self.hasChartableData = ko.pureComputed(function () {
+      return self.dailyRows().length > 2;
+    });
 
     self.hasTransactions = ko.pureComputed(function () {
       return !self.state.isLoading() && self.transactions().length > 0;

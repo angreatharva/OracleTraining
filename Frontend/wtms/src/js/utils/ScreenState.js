@@ -8,7 +8,12 @@
  *     state.run(function () { return SomeService.list(); })
  *          .then(function (rows) { if (rows) { self.rows(rows); } });
  */
-define(["knockout", "services/ApiErrorNormalizer"], function (ko, ApiErrorNormalizer) {
+define([
+  "knockout",
+  "ojs/ojarraydataprovider",
+  "utils/derived",
+  "services/ApiErrorNormalizer"
+], function (ko, ArrayDataProvider, derived, ApiErrorNormalizer) {
   "use strict";
 
   return {
@@ -19,6 +24,40 @@ define(["knockout", "services/ApiErrorNormalizer"], function (ko, ApiErrorNormal
       state.errorMessage = ko.observable("");
       state.successMessage = ko.observable("");
       state.fieldErrors = ko.observable({});
+
+      /**
+       * The same two messages, shaped for oj-c-message-banner. Presentation only - the
+       * observables above remain the source of truth, so a screen can bind either.
+       *
+       * closeAffordance is off because dismissing the banner would not clear the
+       * observable behind it; the message would reappear on the next render.
+       */
+      state.messages = derived.array(function () {
+        var items = [];
+        if (state.errorMessage()) {
+          items.push({
+            id: "error",
+            severity: "error",
+            summary: state.errorMessage(),
+            closeAffordance: "off"
+          });
+        }
+        if (state.successMessage()) {
+          items.push({
+            id: "success",
+            severity: "confirmation",
+            summary: state.successMessage(),
+            closeAffordance: "off"
+          });
+        }
+        return items;
+      });
+
+      state.messagesDP = new ArrayDataProvider(state.messages, { keyAttributes: "id" });
+
+      state.hasMessages = ko.pureComputed(function () {
+        return state.messages().length > 0;
+      });
 
       state.clearMessages = function () {
         state.errorMessage("");

@@ -1,46 +1,165 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">Transaction history</h2>
-  <p class="oj-typography-body-sm oj-text-color-secondary">
-    Your completed and failed BUY/SELL transactions.
-  </p>
+<div class="wtms-page">
 
-  <oj-form-layout max-columns="2" direction="row" class="oj-sm-margin-2x-vertical">
-    <oj-input-date id="transactionStartDate" label-hint="Start date" value="{{startDate}}"></oj-input-date>
-    <oj-input-date id="transactionEndDate" label-hint="End date" value="{{endDate}}"></oj-input-date>
-  </oj-form-layout>
-  <div class="oj-sm-margin-1x-bottom">
-    <oj-button on-oj-action="[[applyFilters]]">Apply</oj-button>
-    <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear</oj-button>
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Transaction history</h1>
+      <p class="wtms-page-subtitle">
+        Your completed and failed BUY/SELL transactions over a date range.
+      </p>
+    </div>
   </div>
 
-  <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
-  </oj-bind-if>
+  <div class="wtms-card">
+    <div class="wtms-toolbar">
+      <div class="wtms-toolbar-fields">
+        <oj-input-date id="transactionStartDate"
+                       class="wtms-toolbar-field"
+                       label-hint="Start date"
+                       value="{{startDate}}">
+        </oj-input-date>
+        <oj-input-date id="transactionEndDate"
+                       class="wtms-toolbar-field"
+                       label-hint="End date"
+                       value="{{endDate}}">
+        </oj-input-date>
+      </div>
 
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
+      <div class="wtms-page-actions">
+        <oj-button chroming="callToAction" on-oj-action="[[applyFilters]]">Apply</oj-button>
+        <oj-button on-oj-action="[[clearFilters]]" chroming="borderless">Clear</oj-button>
+      </div>
     </div>
+  </div>
+
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
+
+  <oj-bind-if test="[[state.isLoading()]]">
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">No transactions match this date range.</p>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No transactions in this range</span>
+        <span>Widen the dates, or clear them to see everything.</span>
+      </div>
+    </div>
   </oj-bind-if>
 
   <oj-bind-if test="[[hasTransactions()]]">
-    <oj-table id="transactionsTable"
-              aria-label="Transaction history"
-              data="[[transactionsDP]]"
-              columns='[
-                {"headerText": "#",       "field": "transactionId"},
-                {"headerText": "Date",    "field": "transactionDate"},
-                {"headerText": "Type",    "field": "transactionType"},
-                {"headerText": "Product", "field": "productId"},
-                {"headerText": "Quantity","field": "quantity"},
-                {"headerText": "Price",   "field": "unitPrice"},
-                {"headerText": "Total",   "field": "totalAmount"},
-                {"headerText": "Status",  "field": "transactionStatus"}
-              ]'>
-    </oj-table>
+
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Transactions</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[transactions().length]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">
+            <oj-bind-text value="[[completedCount() + ' completed']]"></oj-bind-text>
+          </span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Bought</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(boughtValue())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Completed buys</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Sold</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(soldValue())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Completed sells</span>
+        </div>
+      </div>
+    </div>
+
+    <oj-bind-if test="[[hasChartableData()]]">
+      <div class="wtms-card">
+        <div class="wtms-card-header">
+          <h2 class="wtms-card-title">Activity over the range</h2>
+          <span class="wtms-list-secondary">Completed transactions only</span>
+        </div>
+        <!--
+          Days come from the data, so the x-axis is categorical: quiet days are not drawn
+          as gaps. That keeps the series readable when trading is sparse.
+
+          Classic oj-chart rather than oj-c-area-chart: the Core Pack chart components
+          register but never paint in this app (see root.js).
+        -->
+        <oj-chart id="statementActivityChart"
+                  class="wtms-chart"
+                  type="area"
+                  data="[[dailyDP]]"
+                  legend.position="bottom"
+                  hover-behavior="dim"
+                  animation-on-display="auto"
+                  animation-on-data-change="auto"
+                  aria-label="Completed transaction value per day, split into bought and sold">
+          <template slot="itemTemplate" data-oj-as="item">
+            <oj-chart-item value="[[item.data.value]]"
+                           group-id="[[ [item.data.group] ]]"
+                           series-id="[[item.data.series]]">
+            </oj-chart-item>
+          </template>
+        </oj-chart>
+      </div>
+    </oj-bind-if>
+
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Transactions</h2>
+      </div>
+      <oj-table id="transactionsTable"
+                aria-label="Transaction history"
+                data="[[transactionsDP]]"
+                class="wtms-list"
+                columns='[
+                  {"headerText": "#",        "field": "transactionId", "className": "wtms-mono"},
+                  {"headerText": "Date",     "field": "transactionDate", "template": "dateTemplate"},
+                  {"headerText": "Type",     "field": "transactionType", "template": "typeTemplate"},
+                  {"headerText": "Product",  "field": "productId", "className": "wtms-mono"},
+                  {"headerText": "Quantity", "field": "quantity", "template": "qtyTemplate"},
+                  {"headerText": "Price",    "field": "unitPrice", "template": "priceTemplate"},
+                  {"headerText": "Total",    "field": "totalAmount", "template": "totalTemplate"},
+                  {"headerText": "Status",   "field": "transactionStatus", "template": "statusTemplate"}
+                ]'>
+
+        <template slot="dateTemplate" data-oj-as="cell">
+          <span class="wtms-mono"><oj-bind-text value="[[format.dateTime(cell.data)]]"></oj-bind-text></span>
+        </template>
+
+        <template slot="typeTemplate" data-oj-as="cell">
+          <oj-c-badge size="sm"
+                      variant="[[format.tradeTypeVariant(cell.data)]]"
+                      label="[[cell.data]]">
+          </oj-c-badge>
+        </template>
+
+        <template slot="qtyTemplate" data-oj-as="cell">
+          <span class="wtms-mono"><oj-bind-text value="[[format.quantity(cell.data)]]"></oj-bind-text></span>
+        </template>
+
+        <template slot="priceTemplate" data-oj-as="cell">
+          <span class="wtms-mono"><oj-bind-text value="[[format.money(cell.data)]]"></oj-bind-text></span>
+        </template>
+
+        <template slot="totalTemplate" data-oj-as="cell">
+          <span class="wtms-amount"><oj-bind-text value="[[format.money(cell.data)]]"></oj-bind-text></span>
+        </template>
+
+        <template slot="statusTemplate" data-oj-as="cell">
+          <oj-c-badge size="sm"
+                      variant="[[format.statusVariant(cell.data)]]"
+                      label="[[cell.data]]">
+          </oj-c-badge>
+        </template>
+      </oj-table>
+    </div>
   </oj-bind-if>
 </div>

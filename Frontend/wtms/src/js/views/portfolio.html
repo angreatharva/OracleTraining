@@ -1,76 +1,221 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">Portfolio</h2>
+<div class="wtms-page">
+
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Portfolio</h1>
+      <p class="wtms-page-subtitle">
+        Your account and its holdings, at each holding's last stored valuation.
+      </p>
+    </div>
+  </div>
+
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[!hasAccount() && !state.isLoading() && !state.errorMessage()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">
-      You do not have a portfolio account yet. Ask your manager to open one.
-    </p>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No portfolio account yet</span>
+        <span>Ask your manager to open one for you.</span>
+      </div>
+    </div>
   </oj-bind-if>
 
   <oj-bind-if test="[[hasAccount()]]">
-    <div class="oj-panel oj-sm-margin-2x-vertical">
-      <div class="oj-typography-body-sm oj-text-color-secondary">
-        Account #<oj-bind-text value="[[account().portfolioAccountId]]"></oj-bind-text>
-        &nbsp;&middot;&nbsp; opened <oj-bind-text value="[[format.date(account().openedDate)]]"></oj-bind-text>
-        &nbsp;&middot;&nbsp;
-        <span :class="[[format.statusClass(account().accountStatus)]]">
-          <oj-bind-text value="[[account().accountStatus]]"></oj-bind-text>
-        </span>
-      </div>
-    </div>
 
-    <div class="oj-flex oj-sm-margin-2x-vertical">
-      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
-        <div class="oj-typography-body-sm oj-text-color-secondary">Total cost</div>
-        <div class="oj-typography-heading-sm"><oj-bind-text value="[[format.money(totalCost())]]"></oj-bind-text></div>
-      </div>
-      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
-        <div class="oj-typography-body-sm oj-text-color-secondary">Market value</div>
-        <div class="oj-typography-heading-sm"><oj-bind-text value="[[format.money(marketValue())]]"></oj-bind-text></div>
-      </div>
-      <div class="oj-panel oj-sm-margin-1x oj-flex-item">
-        <div class="oj-typography-body-sm oj-text-color-secondary">Unrealised gain / loss</div>
-        <div :class="[['oj-typography-heading-sm ' + gainLossClass()]]">
-          <oj-bind-text value="[[format.signedMoney(unrealizedGainLoss())]]"></oj-bind-text>
+    <!-- Account identity: who this portfolio is, and whether it is open for business. -->
+    <div class="wtms-card">
+      <div class="wtms-identity">
+        <oj-c-avatar size="md"
+                     background="blue"
+                     initials="[[accountInitials()]]"
+                     aria-hidden="true">
+        </oj-c-avatar>
+        <div class="wtms-identity-text">
+          <span class="wtms-identity-name">
+            Account #<oj-bind-text value="[[account().portfolioAccountId]]"></oj-bind-text>
+          </span>
+          <span class="wtms-identity-meta">
+            <span>Opened <oj-bind-text value="[[format.date(account().openedDate)]]"></oj-bind-text></span>
+            <oj-c-badge size="sm"
+                        variant="[[format.statusVariant(account().accountStatus)]]"
+                        label="[[account().accountStatus]]">
+            </oj-c-badge>
+          </span>
         </div>
       </div>
     </div>
 
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      These figures use each holding's last stored valuation. The Dashboard re-reads live
-      prices, so the two screens can legitimately differ.
-    </p>
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Total cost</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(totalCost())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">What you paid</span>
+        </div>
+      </div>
+
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Market value</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(marketValue())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Last stored valuation</span>
+        </div>
+      </div>
+
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Unrealised gain / loss</span>
+          <span :class="[['wtms-kpi-value ' + gainLossClass()]]">
+            <oj-bind-text value="[[format.signedMoney(unrealizedGainLoss())]]"></oj-bind-text>
+          </span>
+          <oj-c-meter-bar class="wtms-kpi-meter"
+                          readonly="true"
+                          min="-25"
+                          max="25"
+                          size="sm"
+                          value="[[returnMeterValue()]]"
+                          thresholds="[[returnMeterThresholds]]"
+                          aria-label="Return on cost, percent">
+          </oj-c-meter-bar>
+          <span class="wtms-kpi-caption">
+            <oj-bind-text value="[[format.percent(returnPercent()) + ' return on cost']]"></oj-bind-text>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <oj-bind-if test="[[hasChartableData()]]">
+      <div class="oj-flex oj-flex-item-gutter">
+        <div class="oj-flex-item oj-sm-12 oj-lg-6">
+          <div class="wtms-card">
+            <div class="wtms-card-header">
+              <h2 class="wtms-card-title">Allocation by market value</h2>
+            </div>
+            <oj-chart id="portfolioAllocationChart"
+                      class="wtms-chart"
+                      type="pie"
+                      data="[[allocationDP]]"
+                      style-defaults='{"pieInnerRadius": 0.62}'
+                      legend.position="bottom"
+                      hover-behavior="dim"
+                      animation-on-display="auto"
+                      animation-on-data-change="auto"
+                      aria-label="Share of portfolio value held in each product">
+              <template slot="itemTemplate" data-oj-as="item">
+                <oj-chart-item value="[[item.data.value]]"
+                               series-id="[[item.data.series]]"
+                               group-id="[[ ['Allocation'] ]]">
+                </oj-chart-item>
+              </template>
+            </oj-chart>
+          </div>
+        </div>
+
+        <div class="oj-flex-item oj-sm-12 oj-lg-6">
+          <div class="wtms-card">
+            <div class="wtms-card-header">
+              <h2 class="wtms-card-title">Cost vs market value</h2>
+            </div>
+            <oj-chart id="costVsValueChart"
+                      class="wtms-chart"
+                      type="bar"
+                      orientation="horizontal"
+                      data="[[costVsValueDP]]"
+                      legend.position="bottom"
+                      hover-behavior="dim"
+                      animation-on-display="auto"
+                      animation-on-data-change="auto"
+                      aria-label="Cost against market value for each holding">
+              <template slot="itemTemplate" data-oj-as="item">
+                <oj-chart-item value="[[item.data.value]]"
+                               group-id="[[ [item.data.group] ]]"
+                               series-id="[[item.data.series]]">
+                </oj-chart-item>
+              </template>
+            </oj-chart>
+          </div>
+        </div>
+      </div>
+    </oj-bind-if>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">
-      No holdings yet. Use the Trade screen to make your first purchase.
-    </p>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No holdings yet</span>
+        <span>Use the Trade screen to make your first purchase.</span>
+      </div>
+    </div>
   </oj-bind-if>
 
   <oj-bind-if test="[[hasHoldings()]]">
-    <oj-table id="holdingsTable"
-              aria-label="Holdings"
-              data="[[holdingsDP]]"
-              class="oj-sm-margin-2x-vertical"
-              columns='[
-                {"headerText": "Product",    "field": "productName"},
-                {"headerText": "Quantity",   "field": "quantityDisplay"},
-                {"headerText": "Avg cost",   "field": "averageCostDisplay"},
-                {"headerText": "Market value","field": "marketValueDisplay"},
-                {"headerText": "Gain / loss","field": "unrealizedGainLossDisplay"},
-                {"headerText": "Status",     "field": "holdingStatus"}
-              ]'>
-    </oj-table>
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Holdings</h2>
+        <span class="wtms-list-secondary">
+          <oj-bind-text value="[[holdings().length + ' holdings']]"></oj-bind-text>
+        </span>
+      </div>
+      <oj-table id="holdingsTable"
+                aria-label="Holdings"
+                data="[[holdingsDP]]"
+                class="wtms-list"
+                columns='[
+                  {"headerText": "Product",      "field": "productName"},
+                  {"headerText": "Quantity",     "field": "quantityDisplay", "className": "wtms-mono"},
+                  {"headerText": "Avg cost",     "field": "averageCostDisplay", "className": "wtms-mono"},
+                  {"headerText": "Market value", "field": "marketValueDisplay", "className": "wtms-mono"},
+                  {"headerText": "Gain / loss",  "field": "unrealizedGainLoss", "template": "gainTemplate"},
+                  {"headerText": "Weight",       "field": "weightPercent", "template": "weightTemplate"},
+                  {"headerText": "Status",       "field": "holdingStatus", "template": "statusTemplate"}
+                ]'>
+
+        <template slot="gainTemplate" data-oj-as="cell">
+          <span :class="[['wtms-mono ' + format.profitLossClass(cell.data)]]">
+            <oj-bind-text value="[[format.signedMoney(cell.data)]]"></oj-bind-text>
+          </span>
+        </template>
+
+        <template slot="weightTemplate" data-oj-as="cell">
+          <div class="oj-flex oj-sm-align-items-center">
+            <span class="wtms-weight-value oj-typography-body-sm">
+              <oj-bind-text value="[[format.percent(cell.data)]]"></oj-bind-text>
+            </span>
+            <oj-c-meter-bar class="wtms-row-meter oj-flex-item"
+                            readonly="true"
+                            min="0"
+                            max="100"
+                            size="sm"
+                            value="[[cell.data]]"
+                            aria-hidden="true">
+            </oj-c-meter-bar>
+          </div>
+        </template>
+
+        <template slot="statusTemplate" data-oj-as="cell">
+          <oj-c-badge size="sm"
+                      variant="[[format.statusVariant(cell.data)]]"
+                      label="[[cell.data]]">
+          </oj-c-badge>
+        </template>
+      </oj-table>
+    </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasAccount()]]">
+    <div class="wtms-note">
+      These figures use each holding's last stored valuation. The Dashboard re-reads live
+      prices, so the two screens can legitimately differ.
+    </div>
   </oj-bind-if>
 </div>

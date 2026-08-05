@@ -24,6 +24,15 @@ define([
     self.members = ko.observableArray([]);
     self.dataProvider = new ArrayDataProvider(self.members, { keyAttributes: "userId" });
 
+    /** Presentation-only counts over the members already loaded. */
+    self.activeCount = ko.pureComputed(function () {
+      return self.members().filter(function (m) { return m.status === "ACTIVE"; }).length;
+    });
+
+    self.inactiveCount = ko.pureComputed(function () {
+      return self.members().length - self.activeCount();
+    });
+
     self.hasMembers = ko.pureComputed(function () {
       return !self.state.isLoading() && self.members().length > 0;
     });

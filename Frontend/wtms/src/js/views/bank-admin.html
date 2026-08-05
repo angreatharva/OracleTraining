@@ -1,89 +1,212 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">Account administration</h2>
-  <p class="oj-typography-body-sm oj-text-color-secondary">
-    Bank accounts belonging to your direct reports. You can block or reactivate an account;
-    you cannot move money.
-  </p>
+<div class="wtms-page">
 
-  <oj-form-layout max-columns="1" direction="column" class="oj-sm-margin-2x-vertical">
-    <oj-label for="teamMember">Investor</oj-label>
-    <select id="teamMember"
-            data-bind="options: team,
-                       optionsText: 'fullName',
-                       optionsValue: 'userId',
-                       value: selectedUserId"></select>
-  </oj-form-layout>
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Account administration</h1>
+      <p class="wtms-page-subtitle">
+        Bank accounts belonging to your direct reports. You can block or reactivate an
+        account; you cannot move money.
+      </p>
+    </div>
+  </div>
 
-  <div class="oj-panel oj-sm-margin-2x-vertical">
-    <p class="oj-typography-body-sm oj-text-color-secondary">
-      Opens a house-bank account for the selected investor automatically - bank name, IFSC
-      and account number are all generated; only an opening deposit is optional.
-    </p>
-    <oj-form-layout max-columns="2" direction="row">
-      <oj-input-text id="openingBalance" label-hint="Opening deposit (optional)"
-                     value="{{openingBalance}}"></oj-input-text>
-    </oj-form-layout>
-    <div class="oj-flex oj-sm-justify-content-flex-end">
-      <oj-button disabled="[[!selectedUserId() || isOpeningAccount()]]"
-                 on-oj-action="[[openAccount]]">
-        <oj-bind-text value="[[isOpeningAccount() ? 'Opening...' : 'Open bank account']]"></oj-bind-text>
-      </oj-button>
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
+
+  <!--
+    Investor picker and "open account" sit side by side: choosing who to look at and
+    acting for them are the same task, and the second is meaningless without the first.
+  -->
+  <div class="oj-flex oj-flex-item-gutter">
+    <div class="oj-flex-item oj-sm-12 oj-lg-5">
+      <div class="wtms-card">
+        <div class="wtms-card-header">
+          <h2 class="wtms-card-title">Investor</h2>
+        </div>
+        <oj-c-select-single id="teamMember"
+                            label-hint="Investor"
+                            data="[[teamDP]]"
+                            item-text="fullName"
+                            value="{{selectedUserId}}"
+                            placeholder="Choose an investor">
+        </oj-c-select-single>
+
+        <oj-bind-if test="[[selectedMember()]]">
+          <div class="wtms-identity oj-sm-margin-4x-top">
+            <oj-c-avatar size="sm"
+                         background="purple"
+                         initials="[[format.initials(selectedMember().fullName)]]"
+                         aria-hidden="true">
+            </oj-c-avatar>
+            <div class="wtms-identity-text">
+              <span class="wtms-list-primary">
+                <oj-bind-text value="[[selectedMember().fullName]]"></oj-bind-text>
+              </span>
+              <span class="wtms-list-secondary">
+                <oj-bind-text value="[[selectedMember().email]]"></oj-bind-text>
+              </span>
+            </div>
+          </div>
+        </oj-bind-if>
+      </div>
+    </div>
+
+    <div class="oj-flex-item oj-sm-12 oj-lg-7">
+      <div class="wtms-card">
+        <div class="wtms-card-header">
+          <h2 class="wtms-card-title">Open a bank account</h2>
+        </div>
+
+        <div class="wtms-note oj-sm-margin-3x-bottom">
+          Opens a house-bank account for the selected investor automatically &mdash; bank
+          name, IFSC and account number are all generated. Only an opening deposit is
+          optional, and it can be left blank.
+        </div>
+
+        <oj-form-layout max-columns="2" direction="row" label-edge="inside">
+          <oj-input-text id="openingBalance"
+                         label-hint="Opening deposit (optional)"
+                         value="{{openingBalance}}">
+          </oj-input-text>
+        </oj-form-layout>
+
+        <div class="wtms-form-actions">
+          <oj-button chroming="callToAction"
+                     disabled="[[!selectedUserId() || isOpeningAccount()]]"
+                     on-oj-action="[[openAccount]]">
+            <oj-bind-text value="[[isOpeningAccount() ? 'Opening...' : 'Open bank account']]"></oj-bind-text>
+          </oj-button>
+        </div>
+      </div>
     </div>
   </div>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.successMessage()]]">
-    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
-      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
-    </div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">
-      This investor has no bank accounts on file.
-    </p>
-  </oj-bind-if>
-
-  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
-  <div data-bind="foreach: accounts">
-    <div class="oj-panel oj-sm-margin-1x-vertical">
-      <div class="oj-flex oj-sm-align-items-center">
-        <div class="oj-flex-item">
-          <div class="oj-typography-body-md">
-            <strong data-bind="text: $data.bankName"></strong>
-            <span data-bind="text: ' ' + $data.maskedAccountNumber"></span>
-          </div>
-          <div class="oj-typography-body-sm oj-text-color-secondary">
-            <span data-bind="text: $data.accountType"></span>
-            &middot;
-            <span data-bind="text: $data.status, css: $parent.format.statusClass($data.status)"></span>
-            <span data-bind="visible: $data.primaryAccount">&middot; <strong>Primary</strong></span>
-          </div>
-        </div>
-
-        <div class="oj-sm-margin-2x-end oj-typography-heading-sm"
-             data-bind="text: $parent.format.money($data.balance)"></div>
-
-        <oj-button data-bind="visible: $data.status === 'ACTIVE',
-                              click: function () { $parent.block($data); },
-                              disable: $parent.busyId() === $data.bankAccountId">
-          Block
-        </oj-button>
-        <oj-button data-bind="visible: $data.status !== 'ACTIVE' && $data.status !== 'CLOSED',
-                              click: function () { $parent.activate($data); },
-                              disable: $parent.busyId() === $data.bankAccountId">
-          Reactivate
-        </oj-button>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No bank accounts on file</span>
+        <span>Use the panel above to open one for this investor.</span>
       </div>
     </div>
-  </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasAccounts()]]">
+
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Total balance</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(totalBalance())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Across this investor's accounts</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Active</span>
+          <span class="wtms-kpi-value oj-text-color-success">
+            <oj-bind-text value="[[activeCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Usable for settlement</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Blocked</span>
+          <span class="wtms-kpi-value oj-text-color-danger">
+            <oj-bind-text value="[[blockedCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Trades will be rejected</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Accounts</h2>
+      </div>
+
+      <!--
+        Inside a JET template slot $parent is deliberately undefined, but the context still
+        extends this view model - so `format`, `busyId`, `block` and `activate` resolve by
+        name here.
+      -->
+      <oj-c-list-view id="adminAccountList"
+                      class="wtms-list"
+                      data="[[accountsDP]]"
+                      gridlines='{"item": "visible"}'
+                      aria-label="Bank accounts for the selected investor">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-c-list-item-layout>
+
+            <oj-c-avatar slot="leading"
+                         size="sm"
+                         background="teal"
+                         initials="[[format.initials(item.data.bankName)]]">
+            </oj-c-avatar>
+
+            <span class="wtms-list-primary">
+              <oj-bind-text value="[[item.data.bankName]]"></oj-bind-text>
+              <span class="wtms-mono">
+                &nbsp;<oj-bind-text value="[[item.data.maskedAccountNumber]]"></oj-bind-text>
+              </span>
+            </span>
+
+            <span slot="secondary" class="wtms-list-secondary">
+              <oj-bind-text value="[[item.data.accountType]]"></oj-bind-text>
+            </span>
+
+            <div slot="tertiary" class="oj-flex oj-sm-align-items-center oj-sm-margin-1x-top">
+              <oj-c-badge size="sm"
+                          variant="[[format.statusVariant(item.data.status)]]"
+                          label="[[item.data.status]]">
+              </oj-c-badge>
+              <oj-bind-if test="[[item.data.primaryAccount]]">
+                <span class="oj-sm-margin-1x-start">
+                  <oj-c-badge size="sm" variant="infoSubtle" label="Primary"></oj-c-badge>
+                </span>
+              </oj-bind-if>
+            </div>
+
+            <div slot="metadata">
+              <div class="wtms-amount">
+                <oj-bind-text value="[[format.money(item.data.balance)]]"></oj-bind-text>
+              </div>
+              <oj-c-meter-bar class="wtms-row-meter"
+                              readonly="true"
+                              min="0"
+                              max="[[maxBalance()]]"
+                              size="sm"
+                              value="[[format.numeric(item.data.balance)]]"
+                              aria-hidden="true">
+              </oj-c-meter-bar>
+            </div>
+
+            <!-- A CLOSED account is terminal: neither action is offered for it. -->
+            <div slot="action" class="wtms-page-actions">
+              <oj-bind-if test="[[item.data.status === 'ACTIVE']]">
+                <oj-button disabled="[[busyId() === item.data.bankAccountId]]"
+                           on-oj-action="[[function () { block(item.data); }]]">
+                  Block
+                </oj-button>
+              </oj-bind-if>
+              <oj-bind-if test="[[item.data.status !== 'ACTIVE' && item.data.status !== 'CLOSED']]">
+                <oj-button chroming="callToAction"
+                           disabled="[[busyId() === item.data.bankAccountId]]"
+                           on-oj-action="[[function () { activate(item.data); }]]">
+                  Reactivate
+                </oj-button>
+              </oj-bind-if>
+            </div>
+
+          </oj-c-list-item-layout>
+        </template>
+      </oj-c-list-view>
+    </div>
+  </oj-bind-if>
 </div>

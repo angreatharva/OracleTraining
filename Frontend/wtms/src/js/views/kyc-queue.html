@@ -1,67 +1,147 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <div class="oj-flex oj-sm-align-items-center">
-    <h2 class="oj-typography-heading-md oj-flex-item">KYC queue</h2>
-    <oj-button on-oj-action="[[toggleShowAll]]" chroming="borderless">
-      <oj-bind-text value="[[showAll() ? 'Show pending only' : 'Show all documents']]"></oj-bind-text>
-    </oj-button>
+<div class="wtms-page">
+
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">KYC queue</h1>
+      <p class="wtms-page-subtitle">
+        Identity documents belonging to your direct reports. Approving one also updates the
+        investor's profile record.
+      </p>
+    </div>
+    <div class="wtms-page-actions">
+      <oj-button on-oj-action="[[toggleShowAll]]">
+        <oj-bind-text value="[[showAll() ? 'Show pending only' : 'Show all documents']]"></oj-bind-text>
+      </oj-button>
+    </div>
   </div>
 
-  <p class="oj-typography-body-sm oj-text-color-secondary">
-    Documents belonging to your direct reports.
-  </p>
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.successMessage()]]">
-    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
-      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
-    </div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">
-      <oj-bind-text value="[[showAll() ? 'No documents for your team.' : 'Nothing waiting for verification.']]"></oj-bind-text>
-    </p>
-  </oj-bind-if>
-
-  <!-- Knockout foreach: $parent is undefined inside oj-bind-for-each and throws. -->
-  <div data-bind="foreach: pending">
-    <div class="oj-panel oj-sm-margin-1x-vertical">
-      <div class="oj-flex oj-sm-align-items-center">
-        <div class="oj-flex-item">
-          <div class="oj-typography-body-md">
-            <strong data-bind="text: $data.ownerName"></strong>
-            <span data-bind="text: ' · ' + $data.documentType + ' ' + $data.maskedDocumentNumber"></span>
-          </div>
-          <div class="oj-typography-body-sm oj-text-color-secondary">
-            <span data-bind="text: 'submitted ' + $parent.format.date($data.submittedDate)"></span>
-            &middot;
-            <span data-bind="text: $data.verificationStatus,
-                             css: $parent.format.statusClass($data.verificationStatus)"></span>
-          </div>
-        </div>
-
-        <oj-button chroming="callToAction"
-                   data-bind="visible: $data.verificationStatus === 'PENDING',
-                              click: function () { $parent.approve($data); },
-                              disable: $parent.busyId() === $data.kycDocumentId">
-          Approve
-        </oj-button>
-        <oj-button class="oj-sm-margin-1x-start"
-                   data-bind="visible: $data.verificationStatus === 'PENDING',
-                              click: function () { $parent.reject($data); },
-                              disable: $parent.busyId() === $data.kycDocumentId">
-          Reject
-        </oj-button>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">✓</span>
+        <span class="wtms-empty-title">
+          <oj-bind-text value="[[showAll() ? 'No documents for your team' : 'Nothing waiting for verification']]"></oj-bind-text>
+        </span>
+        <span>
+          <oj-bind-text value="[[showAll() ? 'Your reports have not submitted anything yet.'
+                                           : 'Switch to all documents to see decisions already made.']]"></oj-bind-text>
+        </span>
       </div>
     </div>
-  </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasPending()]]">
+
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-3">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Awaiting you</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[awaitingCount()]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">Pending decision</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-3">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Verified</span>
+          <span class="wtms-kpi-value oj-text-color-success">
+            <oj-bind-text value="[[verifiedCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Approved</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-3">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Rejected</span>
+          <span class="wtms-kpi-value oj-text-color-danger">
+            <oj-bind-text value="[[rejectedCount()]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Sent back</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-3">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Investors</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[ownerCount()]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">Represented in this queue</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Documents</h2>
+        <span class="wtms-list-secondary">
+          <oj-bind-text value="[[showAll() ? 'All documents' : 'Pending only']]"></oj-bind-text>
+        </span>
+      </div>
+
+      <!--
+        Inside a JET template slot $parent is deliberately undefined, but the context still
+        extends this view model - so `format`, `busyId`, `approve` and `reject` resolve by
+        name here.
+      -->
+      <oj-c-list-view id="kycQueueList"
+                      class="wtms-list"
+                      data="[[pendingDP]]"
+                      gridlines='{"item": "visible"}'
+                      aria-label="KYC documents awaiting verification">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-c-list-item-layout>
+
+            <oj-c-avatar slot="leading"
+                         size="sm"
+                         background="orange"
+                         initials="[[format.initials(item.data.ownerName)]]">
+            </oj-c-avatar>
+
+            <span slot="overline" class="wtms-list-secondary">
+              <oj-bind-text value="[[item.data.ownerName]]"></oj-bind-text>
+            </span>
+
+            <span class="wtms-list-primary">
+              <oj-bind-text value="[[item.data.documentType]]"></oj-bind-text>
+              <span class="wtms-mono">
+                &nbsp;<oj-bind-text value="[[item.data.maskedDocumentNumber]]"></oj-bind-text>
+              </span>
+            </span>
+
+            <span slot="secondary" class="wtms-list-secondary">
+              Submitted <oj-bind-text value="[[format.date(item.data.submittedDate)]]"></oj-bind-text>
+              <oj-bind-if test="[[item.data.fileName]]">
+                &middot; <oj-bind-text value="[[item.data.fileName]]"></oj-bind-text>
+              </oj-bind-if>
+            </span>
+
+            <oj-c-badge slot="trailing"
+                        size="sm"
+                        variant="[[format.statusVariant(item.data.verificationStatus)]]"
+                        label="[[item.data.verificationStatus]]">
+            </oj-c-badge>
+
+            <!-- Decisions are offered only while the document is still undecided. -->
+            <oj-bind-if test="[[item.data.verificationStatus === 'PENDING']]">
+              <div slot="action" class="wtms-page-actions">
+                <oj-button chroming="callToAction"
+                           disabled="[[busyId() === item.data.kycDocumentId]]"
+                           on-oj-action="[[function () { approve(item.data); }]]">
+                  Approve
+                </oj-button>
+                <oj-button disabled="[[busyId() === item.data.kycDocumentId]]"
+                           on-oj-action="[[function () { reject(item.data); }]]">
+                  Reject
+                </oj-button>
+              </div>
+            </oj-bind-if>
+
+          </oj-c-list-item-layout>
+        </template>
+      </oj-c-list-view>
+    </div>
+  </oj-bind-if>
 </div>

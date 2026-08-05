@@ -1,61 +1,143 @@
-<div class="oj-flex oj-sm-flex-direction-column">
-  <h2 class="oj-typography-heading-md">Bank accounts</h2>
+<div class="wtms-page">
+
+  <div class="wtms-page-header">
+    <div class="wtms-page-header-text">
+      <h1 class="wtms-page-title">Bank accounts</h1>
+      <p class="wtms-page-subtitle">
+        The accounts your trades settle against. Balances are maintained by the trading flow.
+      </p>
+    </div>
+  </div>
+
+  <oj-c-message-banner data="[[state.messagesDP]]" type="section"></oj-c-message-banner>
 
   <oj-bind-if test="[[state.isLoading()]]">
-    <div class="oj-sm-margin-4x"><oj-progress-circle size="md"></oj-progress-circle></div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.errorMessage()]]">
-    <div role="alert" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-danger">
-      <oj-bind-text value="[[state.errorMessage]]"></oj-bind-text>
-    </div>
-  </oj-bind-if>
-
-  <oj-bind-if test="[[state.successMessage()]]">
-    <div role="status" class="oj-sm-margin-2x-vertical oj-typography-body-md oj-text-color-success">
-      <oj-bind-text value="[[state.successMessage]]"></oj-bind-text>
-    </div>
+    <div class="wtms-loading"><oj-progress-circle size="md"></oj-progress-circle></div>
   </oj-bind-if>
 
   <oj-bind-if test="[[isEmpty()]]">
-    <p class="oj-typography-body-md oj-text-color-secondary">
-      No bank accounts on file. Your manager can add one for you.
-    </p>
-  </oj-bind-if>
-
-  <!--
-    Knockout's foreach, NOT oj-bind-for-each. $parent is undefined inside oj-bind-for-each,
-    and referencing it throws a binding error that silently removes the entire list from the
-    DOM - the screen renders its heading and nothing else. Verified in the browser.
-  -->
-  <div data-bind="foreach: accounts">
-    <div class="oj-panel oj-sm-margin-1x-vertical">
-      <div class="oj-flex oj-sm-align-items-center">
-        <div class="oj-flex-item">
-          <div class="oj-typography-body-md">
-            <strong data-bind="text: $data.bankName"></strong>
-            <span data-bind="text: ' ' + $data.maskedAccountNumber"></span>
-          </div>
-          <div class="oj-typography-body-sm oj-text-color-secondary">
-            <span data-bind="text: $data.accountType"></span>
-            <span data-bind="visible: $data.branchName">
-              &middot; <span data-bind="text: $data.branchName"></span>
-            </span>
-            &middot;
-            <span data-bind="text: $data.status, css: $parent.format.statusClass($data.status)"></span>
-            <span data-bind="visible: $data.primaryAccount">&middot; <strong>Primary</strong></span>
-          </div>
-        </div>
-
-        <div class="oj-typography-heading-sm oj-sm-margin-2x-end"
-             data-bind="text: $parent.format.money($data.balance)"></div>
-
-        <oj-button data-bind="visible: !$data.primaryAccount && $data.status === 'ACTIVE',
-                              click: function () { $parent.makePrimary($data); },
-                              disable: $parent.busyAccountId() === $data.bankAccountId">
-          Make primary
-        </oj-button>
+    <div class="wtms-card">
+      <div class="wtms-empty">
+        <span class="wtms-empty-icon" aria-hidden="true">◷</span>
+        <span class="wtms-empty-title">No bank accounts on file</span>
+        <span>Your manager can open one for you.</span>
       </div>
     </div>
-  </div>
+  </oj-bind-if>
+
+  <oj-bind-if test="[[hasAccounts()]]">
+
+    <div class="oj-flex oj-flex-item-gutter">
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Total balance</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[format.money(totalBalance())]]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">Across all accounts</span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Accounts</span>
+          <span class="wtms-kpi-value"><oj-bind-text value="[[accounts().length]]"></oj-bind-text></span>
+          <span class="wtms-kpi-caption">
+            <oj-bind-text value="[[activeCount() + ' active']]"></oj-bind-text>
+          </span>
+        </div>
+      </div>
+      <div class="oj-flex-item oj-sm-12 oj-md-4">
+        <div class="wtms-card wtms-kpi">
+          <span class="wtms-kpi-label">Primary account</span>
+          <span class="wtms-kpi-value">
+            <oj-bind-text value="[[primaryAccount() ? primaryAccount().maskedAccountNumber : '—']]"></oj-bind-text>
+          </span>
+          <span class="wtms-kpi-caption">
+            <oj-bind-text value="[[primaryAccount() ? primaryAccount().bankName : 'None set']]"></oj-bind-text>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wtms-card wtms-card-flush">
+      <div class="wtms-card-header">
+        <h2 class="wtms-card-title">Your accounts</h2>
+      </div>
+
+      <!--
+        oj-c-list-view replaces a hand-rolled foreach of panels: it brings the Redwood row
+        density, keyboard navigation and gridlines for free.
+
+        Inside a JET template slot $parent is deliberately undefined (ojkoshared blanks it),
+        but the context still extends this view model - so `format` and `makePrimary` below
+        resolve by name, and $current.data is the row.
+      -->
+      <oj-c-list-view id="bankAccountList"
+                      class="wtms-list"
+                      data="[[accountsDP]]"
+                      gridlines='{"item": "visible"}'
+                      aria-label="Your bank accounts">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-c-list-item-layout>
+
+            <oj-c-avatar slot="leading"
+                         size="sm"
+                         background="teal"
+                         initials="[[format.initials(item.data.bankName)]]">
+            </oj-c-avatar>
+
+            <span class="wtms-list-primary">
+              <oj-bind-text value="[[item.data.bankName]]"></oj-bind-text>
+              <span class="wtms-mono">
+                &nbsp;<oj-bind-text value="[[item.data.maskedAccountNumber]]"></oj-bind-text>
+              </span>
+            </span>
+
+            <span slot="secondary" class="wtms-list-secondary">
+              <oj-bind-text value="[[item.data.accountType]]"></oj-bind-text>
+              <oj-bind-if test="[[item.data.branchName]]">
+                &middot; <oj-bind-text value="[[item.data.branchName]]"></oj-bind-text>
+              </oj-bind-if>
+            </span>
+
+            <div slot="tertiary" class="oj-flex oj-sm-align-items-center oj-sm-margin-1x-top">
+              <oj-c-badge size="sm"
+                          variant="[[format.statusVariant(item.data.status)]]"
+                          label="[[item.data.status]]">
+              </oj-c-badge>
+              <oj-bind-if test="[[item.data.primaryAccount]]">
+                <span class="oj-sm-margin-1x-start">
+                  <oj-c-badge size="sm" variant="infoSubtle" label="Primary"></oj-c-badge>
+                </span>
+              </oj-bind-if>
+            </div>
+
+            <div slot="metadata">
+              <div class="wtms-amount">
+                <oj-bind-text value="[[format.money(item.data.balance)]]"></oj-bind-text>
+              </div>
+              <!-- Each bar is drawn against the largest balance, so sizes are comparable. -->
+              <oj-c-meter-bar class="wtms-row-meter"
+                              readonly="true"
+                              min="0"
+                              max="[[maxBalance()]]"
+                              size="sm"
+                              value="[[format.numeric(item.data.balance)]]"
+                              aria-hidden="true">
+              </oj-c-meter-bar>
+            </div>
+
+            <oj-bind-if test="[[!item.data.primaryAccount && item.data.status === 'ACTIVE']]">
+              <oj-button slot="action"
+                         disabled="[[busyAccountId() === item.data.bankAccountId]]"
+                         on-oj-action="[[function () { makePrimary(item.data); }]]">
+                Make primary
+              </oj-button>
+            </oj-bind-if>
+
+          </oj-c-list-item-layout>
+        </template>
+      </oj-c-list-view>
+    </div>
+  </oj-bind-if>
 </div>

@@ -1,40 +1,525 @@
 /*
-    Document   : override
-    Created on : <date>
-    Author     : <author>
-    Description:
-        This is where any of your application specific styles should be included
+    WealthTrack application styles.
+
+    Everything below is layout and rhythm only - colour, radius, shadow and type all come
+    from Redwood theme custom properties, so the app follows the theme (including its dark
+    variant) rather than hard-coding a palette. A fallback is supplied for every var() so
+    the page degrades to something sane if a token is renamed between JET versions.
+
+    Naming: .wtms-* for app classes, so nothing collides with oj-* theme classes.
 */
+
+/* ---------------------------------------------------------------------------------------
+   Page scaffolding
+
+   Every screen is `.wtms-page` > header + sections, which gives all 14 screens the same
+   vertical rhythm without each view repeating margin utilities.
+   ------------------------------------------------------------------------------------ */
+
+.wtms-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-bottom: 2rem;
+}
+
+.wtms-page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--oj-core-divider-color, rgba(0, 0, 0, 0.12));
+}
+
+.wtms-page-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+}
+
+.wtms-page-title {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    font-weight: 600;
+    color: var(--oj-core-text-color-primary, #161513);
+}
+
+.wtms-page-subtitle {
+    margin: 0;
+    max-width: 68ch;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+}
+
+.wtms-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Cards
+
+   `.wtms-card` replaces the bare oj-panel: same surface, but with a consistent radius, a
+   hairline border so cards read as separate objects, and a header row that pairs a title
+   with optional trailing content.
+   ------------------------------------------------------------------------------------ */
+
+.wtms-card {
+    background-color: var(--oj-core-bg-color-content, #fff);
+    border: 1px solid var(--oj-core-divider-color, rgba(0, 0, 0, 0.10));
+    border-radius: var(--oj-core-border-radius-lg, 12px);
+    box-shadow: var(--oj-core-box-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.06));
+    padding: 1.25rem;
+}
+
+/* For cards whose content supplies its own edge padding, e.g. a table or a list. */
+.wtms-card-flush {
+    padding: 0;
+    overflow: hidden;
+}
+
+.wtms-card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+}
+
+.wtms-card-flush .wtms-card-header {
+    margin-bottom: 0;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--oj-core-divider-color, rgba(0, 0, 0, 0.10));
+}
+
+.wtms-card-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--oj-core-text-color-primary, #161513);
+}
+
+.wtms-card-note {
+    margin: 0.75rem 0 0;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+}
+
+/*
+    A card whose entire job is to explain a backend constraint - the estimate-only price,
+    the non-transactional onboarding, the unstored failure reason. Tinted, not alarming:
+    these are facts about the system, not warnings about the user's input.
+*/
+.wtms-note {
+    border-inline-start: 3px solid var(--oj-palette-info-70, #3d7bb1);
+    background-color: var(--oj-core-bg-color-info, rgba(61, 123, 177, 0.08));
+    border-radius: var(--oj-core-border-radius-md, 8px);
+    padding: 0.75rem 1rem;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+}
+
+/* ---------------------------------------------------------------------------------------
+   Metric tiles
+   ------------------------------------------------------------------------------------ */
+
+.wtms-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.wtms-kpi-label {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+}
+
+.wtms-kpi-value {
+    font-size: 1.625rem;
+    line-height: 1.15;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--oj-core-text-color-primary, #161513);
+}
+
+/* The P/L colour class is applied alongside the value class and has to win. */
+.wtms-kpi-value.oj-text-color-danger,
+.wtms-kpi-value.oj-text-color-success {
+    color: inherit;
+}
+
+.wtms-kpi-caption {
+    font-size: 0.75rem;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+}
+
+.wtms-kpi-meter {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Charts
+
+   JET charts have no intrinsic height: without one they collapse to zero and render
+   nothing at all. Heights are set per breakpoint so a stacked column keeps its rhythm.
+   ------------------------------------------------------------------------------------ */
+
+.wtms-chart {
+    display: block;
+    width: 100%;
+    height: 19rem;
+}
+
+.wtms-chart-short {
+    display: block;
+    width: 100%;
+    height: 13rem;
+}
+
+.wtms-chart-tall {
+    display: block;
+    width: 100%;
+    height: 24rem;
+}
+
+@media (max-width: 767px) {
+    .wtms-chart,
+    .wtms-chart-tall {
+        height: 16rem;
+    }
+
+    .wtms-chart-short {
+        height: 12rem;
+    }
+}
+
+/* ---------------------------------------------------------------------------------------
+   Lists
+   ------------------------------------------------------------------------------------ */
+
+.wtms-list {
+    display: block;
+    width: 100%;
+}
+
+.wtms-list-primary {
+    font-weight: 600;
+    color: var(--oj-core-text-color-primary, #161513);
+}
+
+.wtms-list-secondary {
+    color: var(--oj-core-text-color-secondary, #5b5652);
+    font-size: 0.8125rem;
+}
+
+/* Tabular numerals keep money columns aligned digit-for-digit down a list. */
+.wtms-amount {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.wtms-mono {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Reserves room for "100.0%" so meters line up down a table column. */
+.wtms-weight-value {
+    min-width: 3.25rem;
+    margin-inline-end: 0.5rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.wtms-row-meter {
+    display: block;
+    min-width: 4rem;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Empty and loading states
+   ------------------------------------------------------------------------------------ */
+
+.wtms-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+}
+
+.wtms-empty-icon {
+    font-size: 2rem;
+    line-height: 1;
+    opacity: 0.45;
+}
+
+.wtms-empty-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--oj-core-text-color-primary, #161513);
+}
+
+.wtms-loading {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+}
+
+.wtms-skeleton-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Toolbars and forms
+   ------------------------------------------------------------------------------------ */
+
+.wtms-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+}
+
+.wtms-toolbar-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    flex: 1 1 20rem;
+    min-width: 0;
+}
+
+.wtms-toolbar-field {
+    flex: 1 1 11rem;
+    min-width: 9rem;
+}
+
+.wtms-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--oj-core-divider-color, rgba(0, 0, 0, 0.10));
+}
+
+/* ---------------------------------------------------------------------------------------
+   Sign-in
+   ------------------------------------------------------------------------------------ */
+
+.wtms-login-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 3rem 1rem;
+}
+
+.wtms-login-card {
+    width: 100%;
+    max-width: 26rem;
+}
+
+.wtms-login-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.wtms-login-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #fff;
+    background: linear-gradient(135deg,
+        var(--oj-palette-brand-70, #3d7bb1),
+        var(--oj-palette-brand-90, #1f4b73));
+}
+
+/* ---------------------------------------------------------------------------------------
+   Onboarding step results
+   ------------------------------------------------------------------------------------ */
+
+.wtms-steps {
+    display: flex;
+    flex-direction: column;
+}
+
+.wtms-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--oj-core-divider-color, rgba(0, 0, 0, 0.08));
+}
+
+.wtms-step:last-child {
+    border-bottom: none;
+}
+
+.wtms-step-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.wtms-step-ok {
+    background-color: var(--oj-palette-success-70, #3a8b3a);
+}
+
+.wtms-step-failed {
+    background-color: var(--oj-palette-danger-70, #c74634);
+}
+
+.wtms-step-skipped {
+    background-color: var(--oj-palette-neutral-70, #8c8c8c);
+}
+
+.wtms-step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+}
+
+.wtms-step-label {
+    font-weight: 600;
+}
+
+.wtms-step-detail {
+    font-size: 0.8125rem;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+    overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Trade ticket
+   ------------------------------------------------------------------------------------ */
+
+.wtms-ticket-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.wtms-ticket-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.wtms-ticket-row-total {
+    padding-top: 0.625rem;
+    border-top: 1px solid var(--oj-core-divider-color, rgba(0, 0, 0, 0.10));
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+/* From lg up the ticket summary tracks the form as it is filled in. */
+@media (min-width: 1024px) {
+    .wtms-sticky {
+        position: sticky;
+        top: 1rem;
+    }
+}
+
+/* ---------------------------------------------------------------------------------------
+   Identity header - used by Profile and Team detail.
+   ------------------------------------------------------------------------------------ */
+
+.wtms-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.wtms-identity-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.wtms-identity-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--oj-core-text-color-primary, #161513);
+}
+
+.wtms-identity-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--oj-core-text-color-secondary, #5b5652);
+    font-size: 0.8125rem;
+}
+
+/* ---------------------------------------------------------------------------------------
+   Starter-template assets kept from the generated app.
+   ------------------------------------------------------------------------------------ */
+
 .demo-oracle-icon {
-    width:137px;
-    height:18px;
-    content:url("images/oracle_logo.svg")
+    width: 137px;
+    height: 18px;
+    content: url("images/oracle_logo.svg")
 }
 
 html:not([dir="rtl"]) .demo-oracle-icon {
-    padding-right:4px
+    padding-right: 4px
 }
 
 html[dir="rtl"] .demo-oracle-icon {
-    padding-left:4px
+    padding-left: 4px
 }
 
 .demo-oracle-icon:before {
-    display:inline
+    display: inline
 }
 
 .demo-appheader-avatar {
-    width:24px;
-    height:24px
+    width: 24px;
+    height: 24px
 }
 
 .demo-appheader-avatar:before {
-    content:url("images/avatar_24px.png")
+    content: url("images/avatar_24px.png")
 }
+
 @media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 144dpi), (min-resolution: 1.5dppx) {
     .demo-appheader-avatar:before {
-        content:url("images/avatar_24px_2x.png");
-        -webkit-transform:translate(-25%, -25%) scale(0.5);
-        transform:translate(-25%, -25%) scale(0.5)
+        content: url("images/avatar_24px_2x.png");
+        -webkit-transform: translate(-25%, -25%) scale(0.5);
+        transform: translate(-25%, -25%) scale(0.5)
     }
 }

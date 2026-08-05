@@ -14,9 +14,10 @@ define([
   "ojs/ojarraydataprovider",
   "services/ProductService",
   "utils/ScreenState",
+  "utils/derived",
   "utils/format",
   "models/enums"
-], function (ko, ArrayDataProvider, ProductService, ScreenState, format, enums) {
+], function (ko, ArrayDataProvider, ProductService, ScreenState, derived, format, enums) {
   "use strict";
 
   function CatalogViewModel() {
@@ -33,6 +34,61 @@ define([
     self.riskOptions = enums.RISK_CATEGORY;
     self.priceMethodOptions = enums.PRICE_METHOD;
     self.statusOptions = enums.PRODUCT_STATUS;
+
+    /** The enum lists as DataProviders, for oj-c-select-single. */
+    function enumProvider(values) {
+      return new ArrayDataProvider(
+        values.map(function (value) { return { value: value, label: value }; }),
+        { keyAttributes: "value" }
+      );
+    }
+
+    self.riskDP = enumProvider(self.riskOptions);
+    self.priceMethodDP = enumProvider(self.priceMethodOptions);
+    self.statusDP = enumProvider(self.statusOptions);
+
+    /** Product types come from the server, so this one tracks the observable array. */
+    self.productTypesDP = new ArrayDataProvider(self.productTypes, {
+      keyAttributes: "productTypeId"
+    });
+
+    /**
+     * Risk category as a 5-point rating for the readonly gauge on each row. A plain
+     * function rather than a computed: it is called per row from the item template.
+     */
+    self.riskRating = function (riskCategory) {
+      switch (riskCategory) {
+        case "LOW": return 1;
+        case "MODERATE": return 3;
+        case "HIGH": return 5;
+        default: return 0;
+      }
+    };
+
+    /** How the catalogue is spread across risk bands - the shape of what is on offer. */
+    self.riskMixRows = derived.array(function () {
+      var counts = {};
+      self.products().forEach(function (p) {
+        var risk = p.riskCategory || "UNSPECIFIED";
+        counts[risk] = (counts[risk] || 0) + 1;
+      });
+      // Keep the enum's own order rather than whatever the object happens to yield.
+      return enums.RISK_CATEGORY.concat(["UNSPECIFIED"])
+        .filter(function (risk) { return counts[risk] > 0; })
+        .map(function (risk) {
+          return { id: "risk-" + risk, group: risk, value: counts[risk] };
+        });
+    });
+
+    self.riskMixDP = new ArrayDataProvider(self.riskMixRows, { keyAttributes: "id" });
+
+    self.activeCount = ko.pureComputed(function () {
+      return self.products().filter(function (p) { return p.status === "ACTIVE"; }).length;
+    });
+
+    self.hasChartableData = ko.pureComputed(function () {
+      return self.riskMixRows().length > 1;
+    });
 
     /** null = creating; otherwise the productId being replaced. */
     self.editingId = ko.observable(null);
